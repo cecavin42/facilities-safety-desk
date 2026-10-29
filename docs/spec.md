@@ -152,7 +152,7 @@ Run against the Vercel preview on every PR, and against production before callin
   use; the app must not look like an official UT site.
 - Language: English only in v1.
 
-### 15. Roles and meetings
+### 15. Roles and meetings (placeholder, roles not yet agreed)
 - Forrest drives the AI coding tool and owns branch workflow, deployment and database setup. Others drive on
   their own feature branches.
 - Catherine keeps this file up to date.

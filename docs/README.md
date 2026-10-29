@@ -3,7 +3,7 @@
 Team A, spec-driven development course project. Facilities safety reporting and assistant for a
 Tennessee university facilities department, modeled on UTK procedures.
 
-## Roles
+## Roles (placeholder, not yet agreed by the team)
 - Catherine: owns `docs/spec.md`. Agreed team answers go there, nowhere else.
 - Forrest: drives the AI coding tool, owns branch workflow, deployment, and database setup.
 - Zhu Lan: leads testing. Runs the checks in `docs/spec.md` section 13 on every preview deployment.
