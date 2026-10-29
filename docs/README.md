@@ -29,5 +29,5 @@ Tennessee university facilities department, modeled on UTK procedures.
 - Pull requests: https://github.com/cecavin42/facilities-safety-desk/pulls
 - Production site: https://facilities-safety-desk.vercel.app
 - Preview deployments: posted by the Vercel bot as a comment on each PR.
-- Team notes doc (the 15 kickoff questions and our individual answers): TBD, add the link.
+- Team notes doc (the 15 kickoff questions and our individual answers): https://docs.google.com/document/d/1TAaos8jNJKEJbnXZEK7myPIDHbrcKAcv7-SbTT1VutY/edit
 - Source documents: URLs are in `src/data/documents.json`.
