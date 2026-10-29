@@ -104,6 +104,11 @@ One server-side validation schema is shared by the form and the CSV import.
   extractable text, publication date, usage permission (Pending review, Permitted, Not permitted) with
   permission evidence, and a status that becomes active only after an admin activates it. The demo shows
   adding a policy document to the knowledge base.
+- Stale answers (user story from Dr. Nordstrom, 2026-10-29): as an administrator, when a document is uploaded
+  or replaced, I need saved answers that were based on the old version to be invalidated or marked stale, so
+  users only see answers from the current knowledge base and are offered a re-run against the new documents.
+  Build consequence: every saved answer records the document ids and versions it cited; a new version flags
+  every answer that cited the old one.
 
 ### 9. Reports and export
 - Report 1, Incidents over time: bar chart by month, split by event type; filters for date range, location,
