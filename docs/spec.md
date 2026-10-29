@@ -43,6 +43,10 @@ Five, all Tennessee-applicable (TOSHA follows the federal general industry stand
 | ut-saad022-k | UT SAAD022-K, Incident and Accident Reporting | University of Tennessee System | Nonprofit educational use with credit |
 | ut-saad021-k | UT SAAD021-K, Reporting Safety Hazards and Near Misses | University of Tennessee System | Nonprofit educational use with credit |
 
+Added 2026-10-29 at Dr. Nordstrom's suggestion: a sixth document, a **fake staff directory** (names, roles,
+areas, extensions, all invented) so the assistant can answer "who do I report this to?" with a person and
+extension. Admins can add further documents through the app (see sections 8 and 11).
+
 The UT documents may be shared with the team and instructor for a class project. The app credits UT on every
 citation (appended by code, not left to the model) and is not used commercially. Each document stores its
 source URL, owner and license line.
@@ -95,6 +99,11 @@ One server-side validation schema is shared by the form and the CSV import.
 - Seed data: about 150 fake records from a script in the repo so charts have something to show and anyone can
   reset the database.
 - Assistant questions are saved automatically (question, date, answered or declined). Used in report 3.
+- Document upload by the safety manager (admin only), added 2026-10-29 at Dr. Nordstrom's suggestion. Fields
+  follow Zhu Lan's Reference Document record: title, owner or publisher, source URL, PDF up to 20 MB with
+  extractable text, publication date, usage permission (Pending review, Permitted, Not permitted) with
+  permission evidence, and a status that becomes active only after an admin activates it. The demo shows
+  adding a policy document to the knowledge base.
 
 ### 9. Reports and export
 - Report 1, Incidents over time: bar chart by month, split by event type; filters for date range, location,
@@ -116,7 +125,11 @@ question is the only real cost. Embeddings are computed once at ingest.
 ### 11. Roles and sign-in
 Sign-in required (email). Two roles in v1:
 - Employee: submit a report, see and edit own reports while Open, use the assistant.
-- Safety manager (admin): everything, plus change status, delete records, upload CSV, export, manage documents.
+- Safety manager (admin): everything, plus change status, delete records, upload CSV, export, and manage the
+  knowledge base: upload, review and activate documents. Only admins can add documents.
+
+Personalized answers (added 2026-10-29): sign-in carries the user's area and shift so "who do I report this
+to?" can resolve to the right supervisor from the directory document.
 
 Supervisor (read-only view of all reports and charts) is v1.1 if time allows. The instructor gets a demo
 admin account.
@@ -124,7 +137,7 @@ admin account.
 ### 12. Out of scope for v1
 No real employee data. Not an official UT system (no link to UT forms, workers' comp or UT sign-in). No
 automatic filing with TOSHA or OSHA. No email or text notifications. No photo or file attachments. No native
-mobile app. No document upload from the app screen. No medical, legal or HR advice. No chat memory (each
+mobile app. No medical, legal or HR advice. No chat memory (each
 question stands alone). No streaming answers. English only.
 
 ## Part 5: Done and how we work
