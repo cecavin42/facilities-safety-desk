@@ -1,0 +1,952 @@
+{
+ "documents": [
+  {
+   "id": "cfr-1910-178",
+   "title": "29 CFR 1910.178, Powered Industrial Trucks",
+   "owner": "U.S. Department of Labor, OSHA (followed by Tennessee OSHA)",
+   "dated": "Current federal regulation (eCFR)",
+   "url": "https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.178",
+   "credit": "Public domain (U.S. government work)."
+  },
+  {
+   "id": "tn-0800-01-03-05",
+   "title": "Tenn. Comp. R. & Regs. 0800-01-03-.05, Reporting Fatality, Injury and Illness Information",
+   "owner": "Tennessee Department of Labor and Workforce Development",
+   "dated": "State regulation (via Cornell LII)",
+   "url": "https://www.law.cornell.edu/regulations/tennessee/Tenn-Comp-R-Regs-0800-01-03-.05",
+   "credit": "Public state regulation."
+  },
+  {
+   "id": "ut-sags130-k",
+   "title": "UT SAGS130-K, Forklift Safety",
+   "owner": "The University of Tennessee System",
+   "dated": "Revision date 04/24/2018",
+   "url": "https://policy.tennessee.edu/procedure/sags130-k-forklift-safety/",
+   "credit": "Courtesy of The University of Tennessee. Used under its nonprofit educational-use terms; not for commercial use."
+  },
+  {
+   "id": "ut-saad022-k",
+   "title": "UT SAAD022-K, Incident & Accident Reporting",
+   "owner": "The University of Tennessee System",
+   "dated": "Revision date 02/01/2016",
+   "url": "https://policy.tennessee.edu/procedure/saad022-k-incident-accident-reporting/",
+   "credit": "Courtesy of The University of Tennessee. Used under its nonprofit educational-use terms; not for commercial use."
+  },
+  {
+   "id": "ut-saad021-k",
+   "title": "UT SAAD021-K, Reporting Safety Hazards and Near Misses",
+   "owner": "The University of Tennessee System",
+   "dated": "Revision date 06/20/2011",
+   "url": "https://policy.tennessee.edu/wp-content/uploads/SAAD021-K-Reporting-Safety-Hazards-and-Near-Misses-419_2.pdf",
+   "credit": "Courtesy of The University of Tennessee. Used under its nonprofit educational-use terms; not for commercial use."
+  }
+ ],
+ "passages": [
+  {
+   "id": "cfr-1910-178-1",
+   "docId": "cfr-1910-178",
+   "label": "page 1",
+   "text": "U.S. DEPARTMENT OF LABOR Part Number: 1910 Part Number Title: Occupational Safety and Health Standards Subpart: 1910 Subpart N Subpart Title: Materials Handling and Storage Standard Number: 1910.178 Title: Powered industrial trucks. Appendix: A GPO Source: e-CFR"
+  },
+  {
+   "id": "cfr-1910-178-2",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)",
+   "text": "General requirements. This section contains safety requirements relating to fire protection, design, maintenance, and use of fork trucks, tractors, platform lift trucks, motorized hand trucks, and other specialized industrial trucks powered by electric motors or internal combustion engines. This section does not apply to compressed air or nonflammable compressed gas-operated industrial trucks, nor to farm vehicles, nor to vehicles intended primarily for earth moving or over-the-road hauling."
+  },
+  {
+   "id": "cfr-1910-178-3",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)(2)",
+   "text": "All new powered industrial trucks acquired and used by an employer shall meet the design and construction requirements for powered industrial trucks established in the “American National Standard for Powered Industrial Trucks, Part II, ANSI B56.1- 1969”, which is incorporated by reference as specified in § 1910.6, except for vehicles intended primarily for earth moving or over-the-road hauling."
+  },
+  {
+   "id": "cfr-1910-178-4",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)(3)",
+   "text": "Approved trucks shall bear a label or some other identifying mark indicating approval by the testing laboratory. See paragraph (a)(7) of this section and paragraph 405 of “American National Standard for Powered Industrial Trucks, Part II, ANSI B56.1-1969”, which is incorporated by reference in paragraph (a)(2) of this section and which provides that if the powered industrial truck is accepted by a nationally recognized testing laboratory it should be so marked."
+  },
+  {
+   "id": "cfr-1910-178-5",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)(4)",
+   "text": "Modifications and additions which affect capacity and safe operation shall not be performed by the customer or user without manufacturers prior written approval. Capacity, operation, and maintenance instruction plates, tags, or decals shall be changed accordingly."
+  },
+  {
+   "id": "cfr-1910-178-6",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)(5)",
+   "text": "If the truck is equipped with front-end attachments other than factory installed attachments, the user shall request that the truck be marked to identify the attachments and show the approximate weight of the truck and attachment combination at maximum elevation with load laterally centered."
+  },
+  {
+   "id": "cfr-1910-178-7",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(a)(6)",
+   "text": "The user shall see that all nameplates and markings are in place and are maintained in a legible condition. As used in this section, the term, approved truck or approved industrial truck means a truck that is listed or approved for fire safety purposes for the intended use by a nationally recognized testing laboratory, using nationally recognized testing standards. Refer to § 1910.155(c)(3)(iv)(A) for definition of listed, and to § 1910.7 for definition of nationally recognized testing laboratory."
+  },
+  {
+   "id": "cfr-1910-178-8",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)",
+   "text": "Occupational Safety and Health Administration Designations. For the purpose of this standard there are eleven different designations of industrial trucks or tractors as follows: D, DS, DY, E, ES, EE, EX, G, GS, LP, and LPS. The D designated units are units similar to the G units except that they are diesel engine powered instead of gasoline engine powered."
+  },
+  {
+   "id": "cfr-1910-178-9",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(2)",
+   "text": "The DS designated units are diesel powered units that are provided with additional safeguards to the exhaust, fuel and electrical systems. They may be used in some locations where a D unit may not be considered suitable. The DY designated units are diesel powered units that have all the safeguards of the DS units and in addition do not have any electrical equipment including the ignition and are equipped with temperature limitation features."
+  },
+  {
+   "id": "cfr-1910-178-10",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(4)",
+   "text": "The E designated units are electrically powered units that have minimum acceptable safeguards against inherent fire hazards. The ES designated units are electrically powered units that, in addition to all of the requirements for the E units, are provided with additional safeguards to the electrical system to prevent emission of hazardous sparks and to limit surface temperatures. They may be used in some locations where the use of an E unit may not be considered suitable."
+  },
+  {
+   "id": "cfr-1910-178-11",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(6)",
+   "text": "The EE designated units are electrically powered units that have, in addition to all of the requirements for the E and ES units, the electric motors and all other electrical equipment completely enclosed. In certain locations the EE unit may be used where the use of an E and ES unit may not be considered suitable."
+  },
+  {
+   "id": "cfr-1910-178-12",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(7)",
+   "text": "The EX designated units are electrically powered units that differ from the E, ES, or EE units in that the electrical fittings and equipment are so designed, constructed and assembled that the units may be used in certain atmospheres containing flammable vapors or dusts."
+  },
+  {
+   "id": "cfr-1910-178-13",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(8)",
+   "text": "The G designated units are gasoline powered units having minimum acceptable safeguards against inherent fire hazards. The GS designated units are gasoline powered units that are provided with additional safeguards to the exhaust, fuel, and electrical systems. They may be used in some locations where the use of a G unit may not be considered suitable."
+  },
+  {
+   "id": "cfr-1910-178-14",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(10)",
+   "text": "The LP designated unit is similar to the G unit except that liquefied petroleum gas is used for fuel instead of gasoline. The LPS designated units are liquefied petroleum gas powered units that are provided with additional safeguards to the exhaust, fuel, and electrical systems. They may be used in some locations where the use of an LP unit may not be considered suitable."
+  },
+  {
+   "id": "cfr-1910-178-15",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(b)(12)",
+   "text": "The atmosphere or location shall have been classified as to whether it is hazardous or nonhazardous prior to the consideration of industrial trucks being used therein and the type of industrial truck required shall be as provided in paragraph (d) of this section for such location."
+  },
+  {
+   "id": "cfr-1910-178-16",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)",
+   "text": "Designated locations. The industrial trucks specified under subparagraph (2) of this paragraph are the minimum types required but industrial trucks having greater safeguards may be used if desired. For specific areas of use, see Table N-1 which tabulates the information contained in this section. References are to the corresponding classification as used in subpart S of this part."
+  },
+  {
+   "id": "cfr-1910-178-17",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(i)",
+   "text": "Power-operated industrial trucks shall not be used in atmospheres containing hazardous concentration of acetylene, butadiene, ethylene oxide, hydrogen (or gases or vapors equivalent in hazard to hydrogen, such as manufactured gas), propylene oxide, acetaldehyde, cyclopropane, diethyl ether, ethylene, isoprene, or unsymmetrical dimethyl hydrazine (UDMH)."
+  },
+  {
+   "id": "cfr-1910-178-18",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(ii)",
+   "text": "(a) Power-operated industrial trucks shall not be used in atmospheres containing hazardous concentrations of metal dust, including aluminum, magnesium, and their commercial alloys, other metals of similarly hazardous characteristics, or in atmospheres containing carbon black, coal or coke dust except approved power-operated industrial trucks designated as EX may be used in such atmospheres. (b) In atmospheres where dust of magnesium, aluminum or aluminum bronze may be present, fuses, switches, motor controllers, and circuit breakers of trucks shall have enclosures specifically approved for such locations."
+  },
+  {
+   "id": "cfr-1910-178-19",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(iii)",
+   "text": "Only approved power-operated industrial trucks designated as EX may be used in atmospheres containing acetone, acrylonitrile, alcohol, ammonia, benzine, benzol, butane, ethylene dichloride, gasoline, hexane, lacquer solvent vapors, naphtha, natural gas, propane, propylene, styrene, vinyl acetate, vinyl chloride, or xylenes in quantities sufficient to produce explosive or ignitable mixtures and where such concentrations of these gases or vapors exist continuously, intermittently or periodically under normal operating conditions or may exist frequently because of repair, maintenance operations, leakage, breakdown or faulty operation of equipment."
+  },
+  {
+   "id": "cfr-1910-178-20",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(iv)",
+   "text": "Power-operated industrial trucks designated as DY, EE, or EX may be used in locations where volatile flammable liquids or flammable gases are handled, processed or used, but in which the hazardous liquids, vapors or gases will normally be confined within closed containers or closed systems from which they can escape only in case of accidental rupture or breakdown of such containers or systems, or in the case of abnormal operation of equipment; also in locations in which hazardous concentrations of gases or vapors are normally prevented by positive mechanical ventilation but which might become hazardous through failure or abnormal operation of the ventilating equipment; or in locations which are adjacent to Class I, Division 1 locations, and to which hazardous concentrations of gases or vapors might occasionally be communicated unless such communication is prevented by adequate positive-pressure ventilation from a source of clear air, and effective safeguards against ventilation failure are provided."
+  },
+  {
+   "id": "cfr-1910-178-21",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(iv)",
+   "text": "Table N-1 - Summary Table on Use of Industrial Trucks in Various Locations Classes Unclassified Class I locations Class II locations Class III locations Description of classes Locations not possessing atmospheres as described in other columns Locations in which flammable gases or vapors are, or may be, present in the air in quantities sufficient to produce explosive or ignitible mixtures Locations which are hazardous because of the presence of combustible dust Locations where easily ignitible fibers or flyings are present but not likely to be in suspension in quantities sufficient to produce ignitible mixtures. Groups in classes None A B C D E F G None Examples of locations or atmospheres in classes and groups Piers and wharves inside and outside general storage, general industrial or commercial properties Acetylene Hydrogen Ethyl ether Gasoline Naphtha Alcohols Acetone Lacquer solvent Benzene Metal dust Carbon black coal dust, coke dust Grain dust, flour dust, starch dust, organic dust Baled waste, cocoa fiber, cotton, excelsior, hemp, istle, jute, kapok, oakum, sisal, Spanish moss, synthetic fibers, tow."
+  },
+  {
+   "id": "cfr-1910-178-22",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(iv)",
+   "text": "Table N-1 - Summary Table on Use of Industrial Trucks in Various Locations - Continued 1 2 1 2 1 2 Divisions (nature of hazardous conditions) None Above condition exists continuously, intermittently, or periodically under normal operating conditions Above condition may occur accidentally as due to a puncture of a storage drum Explosive mixture may be present under normal operating conditions, or where failure of equipment may cause the condition to exist simultaneously with arcing or sparking of electrical equipment, or where dusts of an electrically conducting nature may be present Explosive mixture not normally present, but where deposits of dust may cause heat rise in electrical equipment, or where such deposits may be ignited by arcs or sparks from electrical equipment Locations in which easily ignitible fibers or materials producing combustible flyings are handled, manufactured, or used Locations in which easily ignitible fibers are stored or handled (except in the process of manufacture)."
+  },
+  {
+   "id": "cfr-1910-178-23",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(iv)",
+   "text": "Authorized uses of trucks by types in groups of classes and divisions Groups in classes None A B C D A B C D E F G E F G None None Type of truck authorized: Diesel: Type D D** Type DS DS DS DS Type DY DY DY DY DY Electric: Type E E** E Type ES ES ES ES Type EE EE EE EE EE Type EX EX EX EX EX EX EX EX Gasoline: Type G G** Type GS GS GS GS LP-Gas: Type LP LP** Type LPS LPS LPS LPS Paragraph Ref. in No. 505 210.211 201 (a) 203 (a) 209 (a) 204 (a), (b) 202 (a) 205 (a) 209 (a) 206 (a), (b) 207(a) 208 (a) **Trucks conforming to these types may also be used - see subdivision (c)(2)(x) and (c)(2)(xii) of this section."
+  },
+  {
+   "id": "cfr-1910-178-24",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(v)",
+   "text": "In locations used for the storage of hazardous liquids in sealed containers or liquefied or compressed gases in containers, approved power-operated industrial trucks designated as DS, ES, GS, or LPS may be used. This classification includes locations where volatile flammable liquids or flammable gases or vapors are used, but which, would become hazardous only in case of an accident or of some unusual operating condition. The quantity of hazardous material that might escape in case of accident, the adequacy of ventilating equipment, the total area involved, and the record of the industry or business with respect to explosions or fires are all factors that should receive consideration in determining whether or not the DS or DY, ES, EE, GS, LPS designated truck possesses sufficient safeguards for the location. Piping without valves, checks, meters and similar devices would not ordinarily be deemed to introduce a hazardous condition even though used for hazardous liquids or gases."
+  },
+  {
+   "id": "cfr-1910-178-25",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(v)",
+   "text": "Locations used for the storage of hazardous liquids or of liquified or compressed gases in sealed containers would not normally be considered hazardous unless subject to other hazardous conditions also. (a) Only approved power operated industrial trucks designated as EX shall be used in atmospheres in which combustible dust is or may be in suspension continuously, intermittently, or periodically under normal operating conditions, in quantities sufficient to produce explosive or ignitable mixtures, or where mechanical failure or abnormal operation of machinery or equipment might cause such mixtures to be produced. (b) The EX classification usually includes the working areas of grain handling and storage plants, room containing grinders or pulverizers, cleaners, graders, scalpers, open conveyors or spouts, open bins or hoppers, mixers, or blenders, automatic or hopper scales, packing machinery, elevator heads and boots, stock distributors, dust and stock collectors (except all-metal collectors vented to the outside), and all similar dust producing machinery and equipment in grain processing plants, starch plants, sugar pulverizing plants, malting plants, hay grinding plants, and other occupancies of similar nature; coal pulverizing plants (except where the pulverizing equipment is essentially dust tight); all working areas where metal dusts and powders are produced, processed, handled, packed, or stored (except in tight containers); and other similar locations where combustible dust may, under normal operating conditions, be present in the air in quantities sufficient to produce explosive or ignitable mixtures."
+  },
+  {
+   "id": "cfr-1910-178-26",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(vi)",
+   "text": "Only approved power-operated industrial trucks designated as DY, EE, or EX shall be used in atmospheres in which combustible dust will not normally be in suspension in the air or will not be likely to be thrown into suspension by the normal operation of equipment or apparatus in quantities sufficient to produce explosive or ignitable mixtures but where deposits or accumulations of such dust may be ignited by arcs or sparks originating in the truck."
+  },
+  {
+   "id": "cfr-1910-178-27",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(viii)",
+   "text": "Only approved power-operated industrial trucks designated as DY, EE, or EX shall be used in locations which are hazardous because of the presence of easily ignitable fibers or flyings but in which such fibers or flyings are not likely to be in suspension in the air in quantities sufficient to produce ignitable mixtures."
+  },
+  {
+   "id": "cfr-1910-178-28",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(ix)",
+   "text": "Only approved power-operated industrial trucks designated as DS, DY, ES, EE, EX, GS, or LPS shall be used in locations where easily ignitable fibers are stored or handled, including outside storage, but are not being processed or manufactured. Industrial trucks designated as E, which have been previously used in these locations may be continued in use."
+  },
+  {
+   "id": "cfr-1910-178-29",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(x)",
+   "text": "On piers and wharves handling general cargo, any approved power-operated industrial truck designated as Type D, E, G, or LP may be used, or trucks which conform to the requirements for these types may be used. If storage warehouses and outside storage locations are hazardous only the approved power-operated industrial truck specified for such locations in this paragraph (c)(2) shall be used. If not classified as hazardous, any approved power-operated industrial truck designated as Type D, E, G, or LP may be used, or trucks which conform to the requirements for these types may be used."
+  },
+  {
+   "id": "cfr-1910-178-30",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(c)(2)(xii)",
+   "text": "If general industrial or commercial properties are hazardous, only approved power-operated industrial trucks specified for such locations in this paragraph (c)(2) shall be used. If not classified as hazardous, any approved power-operated industrial truck designated as Type D, E, G, or LP may be used, or trucks which conform to the requirements of these types may be used."
+  },
+  {
+   "id": "cfr-1910-178-31",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(d)",
+   "text": "Converted industrial trucks. Power-operated industrial trucks that have been originally approved for the use of gasoline for fuel, when converted to the use of liquefied petroleum gas fuel in accordance with paragraph (q) of this section, may be used in those locations where G, GS or LP, and LPS designated trucks have been specified in the preceding paragraphs."
+  },
+  {
+   "id": "cfr-1910-178-32",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(e)",
+   "text": "Safety guards. High Lift Rider trucks shall be fitted with an overhead guard manufactured in accordance with paragraph (a)(2) of this section, unless operating conditions do not permit. If the type of load presents a hazard, the user shall equip fork trucks with a vertical load backrest extension manufactured in accordance with paragraph (a)(2) of this section."
+  },
+  {
+   "id": "cfr-1910-178-33",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(f)",
+   "text": "Fuel handling and storage. The storage and handling of liquid fuels such as gasoline and diesel fuel shall be in accordance with NFPA Flammable and Combustible Liquids Code (NFPA No. 30-1969), which is incorporated by reference as specified in § 1910.6."
+  },
+  {
+   "id": "cfr-1910-178-34",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(f)(2)",
+   "text": "The storage and handling of liquefied petroleum gas fuel shall be in accordance with NFPA Storage and Handling of Liquefied Petroleum Gases (NFPA No. 58-1969), which is incorporated by reference as specified in § 1910.6. Changing and charging storage batteries."
+  },
+  {
+   "id": "cfr-1910-178-35",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(g)(1)",
+   "text": "Battery charging installations shall be located in areas designated for that purpose. Facilities shall be provided for flushing and neutralizing spilled electrolyte, for fire protection, for protecting charging apparatus from damage by trucks, and for adequate ventilation for dispersal of fumes from gassing batteries."
+  },
+  {
+   "id": "cfr-1910-178-36",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(g)(3)",
+   "text": "[Reserved] A conveyor, overhead hoist, or equivalent material handling equipment shall be provided for handling batteries. Reinstalled batteries shall be properly positioned and secured in the truck. A carboy tilter or siphon shall be provided for handling electrolyte."
+  },
+  {
+   "id": "cfr-1910-178-37",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(g)(7)",
+   "text": "When charging batteries, acid shall be poured into water; water shall not be poured into acid. Trucks shall be properly positioned and brake applied before attempting to change or charge batteries. Care shall be taken to assure that vent caps are functioning. The battery (or compartment) cover(s) shall be open to dissipate heat."
+  },
+  {
+   "id": "cfr-1910-178-38",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(g)(10)",
+   "text": "Smoking shall be prohibited in the charging area. Precautions shall be taken to prevent open flames, sparks, or electric arcs in battery charging areas. Tools and other metallic objects shall be kept away from the top of uncovered batteries. Lighting for operating areas."
+  },
+  {
+   "id": "cfr-1910-178-39",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(h)(1)",
+   "text": "[Reserved] Where general lighting is less than 2 lumens per square foot, auxiliary directional lighting shall be provided on the truck. Control of noxious gases and fumes. Concentration levels of carbon monoxide gas created by powered industrial truck operations shall not exceed the levels specified in § 1910.1000."
+  },
+  {
+   "id": "cfr-1910-178-40",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(j)",
+   "text": "Dockboards (bridge plates). See subpart D of this part. Trucks and railroad cars. The brakes of highway trucks shall be set and wheel chocks placed under the rear wheels to prevent the trucks from rolling while they are boarded with powered industrial trucks."
+  },
+  {
+   "id": "cfr-1910-178-41",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(k)(2)",
+   "text": "Wheel stops or other recognized positive protection shall be provided to prevent railroad cars from moving during loading or unloading operations. Fixed jacks may be necessary to support a semitrailer and prevent upending during the loading or unloading when the trailer is not coupled to a tractor."
+  },
+  {
+   "id": "cfr-1910-178-42",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(k)(4)",
+   "text": "Positive protection shall be provided to prevent railroad cars from being moved while dockboards or bridge plates are in position. Operator training. Safe operation. The employer shall ensure that each powered industrial truck operator is competent to operate a powered industrial truck safely, as demonstrated by the successful completion of the training and evaluation specified in this paragraph (l)."
+  },
+  {
+   "id": "cfr-1910-178-43",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(1)(ii)",
+   "text": "Prior to permitting an employee to operate a powered industrial truck (except for training purposes), the employer shall ensure that each operator has successfully completed the training required by this paragraph (l), except as permitted by paragraph (l) (5)."
+  },
+  {
+   "id": "cfr-1910-178-44",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(2)",
+   "text": "Training program implementation. Trainees may operate a powered industrial truck only: Under the direct supervision of persons who have the knowledge, training, and experience to train operators and evaluate their competence; and Where such operation does not endanger the trainee or other employees."
+  },
+  {
+   "id": "cfr-1910-178-45",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(2)(ii)",
+   "text": "Training shall consist of a combination of formal instruction (e.g., lecture, discussion, interactive computer learning, video tape, written material), practical training (demonstrations performed by the trainer and practical exercises performed by the trainee), and evaluation of the operator's performance in the workplace."
+  },
+  {
+   "id": "cfr-1910-178-46",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(2)(iii)",
+   "text": "All operator training and evaluation shall be conducted by persons who have the knowledge, training, and experience to train powered industrial truck operators and evaluate their competence. Training program content. Powered industrial truck operators shall receive initial training in the following topics, except in topics which the employer can demonstrate are not applicable to safe operation of the truck in the employer's workplace."
+  },
+  {
+   "id": "cfr-1910-178-47",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(i)",
+   "text": "Truck-related topics: Operating instructions, warnings, and precautions for the types of truck the operator will be authorized to operate; Differences between the truck and the automobile; Truck controls and instrumentation: where they are located, what they do, and how they work;"
+  },
+  {
+   "id": "cfr-1910-178-48",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(i)(D)",
+   "text": "Engine or motor operation; Steering and maneuvering; Visibility (including restrictions due to loading); Fork and attachment adaptation, operation, and use limitations; Vehicle capacity; Vehicle stability; Any vehicle inspection and maintenance that the operator will be required to perform;"
+  },
+  {
+   "id": "cfr-1910-178-49",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(i)(K)",
+   "text": "Refueling and/or charging and recharging of batteries; Operating limitations; Any other operating instructions, warnings, or precautions listed in the operator's manual for the types of vehicle that the employee is being trained to operate. Workplace-related topics:"
+  },
+  {
+   "id": "cfr-1910-178-50",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(ii)(A)",
+   "text": "Surface conditions where the vehicle will be operated; Composition of loads to be carried and load stability; Load manipulation, stacking, and unstacking; Pedestrian traffic in areas where the vehicle will be operated; Narrow aisles and other restricted places where the vehicle will be operated;"
+  },
+  {
+   "id": "cfr-1910-178-51",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(ii)(F)",
+   "text": "Hazardous (classified) locations where the vehicle will be operated; Ramps and other sloped surfaces that could affect the vehicle's stability; Closed environments and other areas where insufficient ventilation or poor vehicle maintenance could cause a buildup of carbon monoxide or diesel exhaust;"
+  },
+  {
+   "id": "cfr-1910-178-52",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(3)(ii)(I)",
+   "text": "Other unique or potentially hazardous environmental conditions in the workplace that could affect safe operation. The requirements of this section. Refresher training and evaluation. Refresher training, including an evaluation of the effectiveness of that training, shall be conducted as required by paragraph (l) (4)(ii) to ensure that the operator has the knowledge and skills needed to operate the powered industrial truck safely."
+  },
+  {
+   "id": "cfr-1910-178-53",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(4)(ii)",
+   "text": "Refresher training in relevant topics shall be provided to the operator when: The operator has been observed to operate the vehicle in an unsafe manner; The operator has been involved in an accident or near-miss incident; The operator has received an evaluation that reveals that the operator is not operating the truck safely;"
+  },
+  {
+   "id": "cfr-1910-178-54",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(4)(ii)(D)",
+   "text": "The operator is assigned to drive a different type of truck; or A condition in the workplace changes in a manner that could affect safe operation of the truck. An evaluation of each powered industrial truck operator's performance shall be conducted at least once every three years."
+  },
+  {
+   "id": "cfr-1910-178-55",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(5)",
+   "text": "Avoidance of duplicative training. If an operator has previously received training in a topic specified in paragraph (l)(3) of this section, and such training is appropriate to the truck and working conditions encountered, additional training in that topic is not required if the operator has been evaluated and found competent to operate the truck safely."
+  },
+  {
+   "id": "cfr-1910-178-56",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(6)",
+   "text": "Certification. The employer shall certify that each operator has been trained and evaluated as required by this paragraph (l). The certification shall include the name of the operator, the date of the training, the date of the evaluation, and the identity of the person(s) performing the training or evaluation."
+  },
+  {
+   "id": "cfr-1910-178-57",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(7)",
+   "text": "Dates. The employer shall ensure that operators of powered industrial trucks are trained, as appropriate, by the dates shown in the following table. If the employee was hired: The initial training and evaluation of that employee must be completed: Before December 1, 1999 By December 1, 1999. After December 1, 1999 Before the employee is assigned to operate a powered industrial truck."
+  },
+  {
+   "id": "cfr-1910-178-58",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(l)(8)",
+   "text": "Appendix A to this section provides non-mandatory guidance to assist employers in implementing this paragraph (l). This appendix does not add to, alter, or reduce the requirements of this section. Truck operations. Trucks shall not be driven up to anyone standing in front of a bench or other fixed object."
+  },
+  {
+   "id": "cfr-1910-178-59",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(2)",
+   "text": "No person shall be allowed to stand or pass under the elevated portion of any truck, whether loaded or empty. Unauthorized personnel shall not be permitted to ride on powered industrial trucks. A safe place to ride shall be provided where riding of trucks is authorized."
+  },
+  {
+   "id": "cfr-1910-178-60",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(4)",
+   "text": "The employer shall prohibit arms or legs from being placed between the uprights of the mast or outside the running lines of the truck. When a powered industrial truck is left unattended, load engaging means shall be fully lowered, controls shall be neutralized, power shall be shut off, and brakes set. Wheels shall be blocked if the truck is parked on an incline."
+  },
+  {
+   "id": "cfr-1910-178-61",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(5)(ii)",
+   "text": "A powered industrial truck is unattended when the operator is 25 ft. or more away from the vehicle which remains in his view, or whenever the operator leaves the vehicle and it is not in his view. When the operator of an industrial truck is dismounted and within 25 ft. of the truck still in his view, the load engaging means shall be fully lowered, controls neutralized, and the brakes set to prevent movement."
+  },
+  {
+   "id": "cfr-1910-178-62",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(6)",
+   "text": "A safe distance shall be maintained from the edge of ramps or platforms while on any elevated dock, or platform or freight car. Trucks shall not be used for opening or closing freight doors. Brakes shall be set and wheel blocks shall be in place to prevent movement of trucks, trailers, or railroad cars while loading or unloading. Fixed jacks may be necessary to support a semitrailer during loading or unloading when the trailer is not coupled to a tractor. The flooring of trucks, trailers, and railroad cars shall be checked for breaks and weakness before they are driven onto."
+  },
+  {
+   "id": "cfr-1910-178-63",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(8)",
+   "text": "There shall be sufficient headroom under overhead installations, lights, pipes, sprinkler system, etc. An overhead guard shall be used as protection against falling objects. It should be noted that an overhead guard is intended to offer protection from the impact of small packages, boxes, bagged material, etc., representative of the job application, but not to withstand the impact of a falling capacity load."
+  },
+  {
+   "id": "cfr-1910-178-64",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(m)(10)",
+   "text": "A load backrest extension shall be used whenever necessary to minimize the possibility of the load or part of it from falling rearward. Only approved industrial trucks shall be used in hazardous locations. [Reserved] [Reserved] Fire aisles, access to stairways, and fire equipment shall be kept clear."
+  },
+  {
+   "id": "cfr-1910-178-65",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)",
+   "text": "Traveling. All traffic regulations shall be observed, including authorized plant speed limits. A safe distance shall be maintained approximately three truck lengths from the truck ahead, and the truck shall be kept under control at all times. The right of way shall be yielded to ambulances, fire trucks, or other vehicles in emergency situations."
+  },
+  {
+   "id": "cfr-1910-178-66",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(3)",
+   "text": "Other trucks traveling in the same direction at intersections, blind spots, or other dangerous locations shall not be passed. The driver shall be required to slow down and sound the horn at cross aisles and other locations where vision is obstructed. If the load being carried obstructs forward view, the driver shall be required to travel with the load trailing."
+  },
+  {
+   "id": "cfr-1910-178-67",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(5)",
+   "text": "Railroad tracks shall be crossed diagonally wherever possible. Parking closer than 8 feet from the center of railroad tracks is prohibited. The driver shall be required to look in the direction of, and keep a clear view of the path of travel. Grades shall be ascended or descended slowly."
+  },
+  {
+   "id": "cfr-1910-178-68",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(7)(i)",
+   "text": "When ascending or descending grades in excess of 10 percent, loaded trucks shall be driven with the load upgrade. [Reserved] On all grades the load and load engaging means shall be tilted back if applicable, and raised only as far as necessary to clear the road surface."
+  },
+  {
+   "id": "cfr-1910-178-69",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(8)",
+   "text": "Under all travel conditions the truck shall be operated at a speed that will permit it to be brought to a stop in a safe manner. Stunt driving and horseplay shall not be permitted. The driver shall be required to slow down for wet and slippery floors. Dockboard or bridgeplates, shall be properly secured before they are driven over. Dockboard or bridgeplates shall be driven over carefully and slowly and their rated capacity never exceeded."
+  },
+  {
+   "id": "cfr-1910-178-70",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(12)",
+   "text": "Elevators shall be approached slowly, and then entered squarely after the elevator car is properly leveled. Once on the elevator, the controls shall be neutralized, power shut off, and the brakes set. Motorized hand trucks must enter elevator or other confined areas with load end forward."
+  },
+  {
+   "id": "cfr-1910-178-71",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(n)(14)",
+   "text": "Running over loose objects on the roadway surface shall be avoided. While negotiating turns, speed shall be reduced to a safe level by means of turning the hand steering wheel in a smooth, sweeping motion. Except when maneuvering at a very low speed, the hand steering wheel shall be turned at a moderate, even rate."
+  },
+  {
+   "id": "cfr-1910-178-72",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(o)",
+   "text": "Loading. Only stable or safely arranged loads shall be handled. Caution shall be exercised when handling off-center loads which cannot be centered. Only loads within the rated capacity of the truck shall be handled. The long or high (including multiple-tiered) loads which may affect capacity shall be adjusted."
+  },
+  {
+   "id": "cfr-1910-178-73",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(o)(4)",
+   "text": "Trucks equipped with attachments shall be operated as partially loaded trucks when not handling a load. A load engaging means shall be placed under the load as far as possible; the mast shall be carefully tilted backward to stabilize the load. Extreme care shall be used when tilting the load forward or backward, particularly when high tiering. Tilting forward with load engaging means elevated shall be prohibited except to pick up a load. An elevated load shall not be tilted forward except when the load is in a deposit position over a rack or stack. When stacking or tiering, only enough backward tilt to stabilize the load shall be used."
+  },
+  {
+   "id": "cfr-1910-178-74",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(p)",
+   "text": "Operation of the truck. If at any time a powered industrial truck is found to be in need of repair, defective, or in any way unsafe, the truck shall be taken out of service until it has been restored to safe operating condition. Fuel tanks shall not be filled while the engine is running. Spillage shall be avoided."
+  },
+  {
+   "id": "cfr-1910-178-75",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(p)(3)",
+   "text": "Spillage of oil or fuel shall be carefully washed away or completely evaporated and the fuel tank cap replaced before restarting engine. No truck shall be operated with a leak in the fuel system until the leak has been corrected. Open flames shall not be used for checking electrolyte level in storage batteries or gasoline level in fuel tanks."
+  },
+  {
+   "id": "cfr-1910-178-76",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(q)",
+   "text": "Maintenance of industrial trucks. Any power-operated industrial truck not in safe operating condition shall be removed from service. All repairs shall be made by authorized personnel. No repairs shall be made in Class I, II, and III locations. Those repairs to the fuel and ignition systems of industrial trucks which involve fire hazards shall be conducted only in locations designated for such repairs."
+  },
+  {
+   "id": "cfr-1910-178-77",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(q)(4)",
+   "text": "Trucks in need of repairs to the electrical system shall have the battery disconnected prior to such repairs. All parts of any such industrial truck requiring replacement shall be replaced only by parts equivalent as to safety with those used in the original design."
+  },
+  {
+   "id": "cfr-1910-178-78",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(q)(6)",
+   "text": "Industrial trucks shall not be altered so that the relative positions of the various parts are different from what they were when originally received from the manufacturer, nor shall they be altered either by the addition of extra parts not provided by the manufacturer or by the elimination of any parts, except as provided in paragraph (q)(12) of this section. Additional counterweighting of fork trucks shall not be done unless approved by the truck manufacturer."
+  },
+  {
+   "id": "cfr-1910-178-79",
+   "docId": "cfr-1910-178",
+   "label": "1910.178(q)(7)",
+   "text": "Industrial trucks shall be examined before being placed in service, and shall not be placed in service if the examination shows any condition adversely affecting the safety of the vehicle. Such examination shall be made at least daily."
+  },
+  {
+   "id": "tn-0800-01-03-05-1",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 1",
+   "text": "Reporting INJURY AND ILLNESS INFORMATION Tenn. Comp. R. & Regs. 0800-01- 03-.05 - REPORTING FATALITY, INJURY AND ILLNESS INFORMATION (1) Reporting fatalities and multiple hospitalization incidents to TOSHA. (a) Basic requirement. 1. Within eight (8) hours after the death of any employee as a result of a work-related incident, you must report the fatality to the TOSHA Division of the Tennessee Department of Labor and Workforce Development. 2. Within twenty-four (24) hours after the in-patient hospitalization of one or more employees, an employee's amputation, or an employee's loss of an eye, as a result of a work-related incident, you must report the in-patient hospitalization, amputation, or loss of an eye to TOSHA. 3. You must report the fatality, in-patient hospitalization, amputation, or loss of an eye using one of the following methods:"
+  },
+  {
+   "id": "tn-0800-01-03-05-2",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 2",
+   "text": "(i) By telephone or in person to the TOSHA Area Office that is nearest to the site of the incident. (ii) By telephone to the TOSHA toll-free central telephone number, 1- 800-249-8510. (iii) By electronic submission using the reporting application located on OSHA's public website at www.osha.gov. (b) Implementation. 1. If the Area Office is closed, may I report the fatality, in-patient hospitalization, amputation, or loss of an eye by leaving a message on TOSHA's answering machine, faxing the Area Office, or sending an e-mail? No, if the Area Office is closed, you must report the fatality, in-patient hospitalization, amputation, or loss of an eye using either the 800 number or the reporting application located on OSHA's public website at www.osha.gov. 2. What information do I need to give to TOSHA about the in-patient hospitalization, amputation, or loss of an eye? You must give TOSHA the following information for each fatality, in-patient hospitalization, amputation, or loss of an eye:"
+  },
+  {
+   "id": "tn-0800-01-03-05-3",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 2",
+   "text": "(i) The establishment name; (ii) The location of the work-related incident; (iii) The time of the work-related incident; (iv) The type of reportable event (i.e., fatality, in-patient hospitalization, amputation, or loss of an eye); (v) The number of employees who suffered a fatality, in-patient hospitalization, amputation, or loss of an eye; (vi) The names of the employees who suffered a fatality, in-patient hospitalization, amputation, or loss of an eye; (vii) Your contact person and his or her phone number; and (viii) A brief description of the work-related incident. 3. Do I have to report the fatality, in-patient hospitalization, amputation, or loss of an eye if it resulted from a motor vehicle accident on a public street or highway? If the motor vehicle accident occurred in a construction work zone, you must report the fatality, in-patient hospitalization, amputation, or loss of an eye. If the motor vehicle accident occurred on a public street or highway, but not in a construction work zone, you do not have to report the"
+  },
+  {
+   "id": "tn-0800-01-03-05-4",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 3",
+   "text": "fatality, in-patient hospitalization, amputation, or loss of an eye to TOSHA. However, the fatality, in-patient hospitalization, amputation, or loss of an eye must be recorded on your OSHA injury and illness records, if you are required to keep such records. 4. Do I have to report the fatality, in-patient hospitalization, amputation, or loss of an eye if it occurred on a commercial or public transportation system? No, you do not have to report the fatality, in-patient hospitalization, amputation, or loss of an eye to TOSHA if it occurred on a commercial or public transportation system (e.g., airplane, train, subway, or bus). However, the fatality, in-patient hospitalization, amputation, or loss of an eye must be recorded on your OSHA injury and illness records, if you are required to keep such records. 5. Do I have to report a work-related fatality or in-patient hospitalization caused by a heart attack? Yes, your local TOSHA Area Office supervisor will decide whether to investigate the event, depending on the circumstances of the heart attack."
+  },
+  {
+   "id": "tn-0800-01-03-05-5",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 3",
+   "text": "6. What if the fatality, in-patient hospitalization, amputation, or loss of an eye does not occur during or right after the work-related incident? You must only report a fatality to TOSHA if the fatality occurs within thirty (30) days of the work-related incident. For an in-patient hospitalization, amputation, or loss of an eye, you must only report the event to TOSHA if it occurs within twenty-four (24) hours of the work-related incident. However, the fatality, in- patient hospitalization, amputation, or loss of an eye must be recorded on your OSHA injury and illness records, if you are required to keep such records. 7. What if I don't learn about a reportable fatality, in-patient hospitalization, amputation, or loss of an eye right away? If you do not learn about a reportable fatality, in-patient hospitalization, amputation, or loss of an eye at the time it takes place, you must make the report to TOSHA within the following time period after the fatality, in-patient hospitalization, amputation, or loss of an eye is reported to you or to any of your agent(s):"
+  },
+  {
+   "id": "tn-0800-01-03-05-6",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 3",
+   "text": "eight (8) hours for a fatality, and twenty-four (24) hours for an in-patient hospitalization, an amputation, or a loss of an eye. 8. What if I don't learn right away that the reportable fatality, in-patient hospitalization, amputation, or loss of an eye was the result of a work- related incident? If you do not learn right away that the reportable fatality, in-patient hospitalization, amputation, or loss of an eye was the result of a work-related incident, you must make the report to TOSHA within the"
+  },
+  {
+   "id": "tn-0800-01-03-05-7",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 4",
+   "text": "following time period after you or any of your agent(s) learn that the reportable fatality, in-patient hospitalization, amputation, or loss of an eye was the result of a work-related incident: eight (8) hours for a fatality, and twenty-four (24) hours for an in-patient hospitalization, an amputation, or a loss of an eye. 9. How does TOSHA define \"in-patient hospitalization\"? TOSHA defines in- patient hospitalization as a formal admission to the in-patient service of a hospital or clinic for care or treatment. 10. Do I have to report an in-patient hospitalization that involves only observation or diagnostic testing? No, you do not have to report an in- patient hospitalization that involves only observation or diagnostic testing. You must only report to TOSHA each in-patient hospitalization that involves care or treatment. 11. How does TOSHA define \"amputation\"? An amputation is the traumatic loss of a limb or other external body part. Amputations include a part, such as a limb or appendage, that has been severed, cut off, amputated (either completely or partially); fingertip amputations with or without bone loss;"
+  },
+  {
+   "id": "tn-0800-01-03-05-8",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 4",
+   "text": "medical amputations resulting from irreparable damage; amputations of body parts that have since been reattached. Amputations do not include avulsions, enucleations, deglovings, scalpings, severed ears, or broken or chipped teeth. (2) Providing records to government representatives. (a) Basic requirement. When an authorized government representative asks for the records you keep under this rule, you must provide copies of the records within four (4) business hours. (b) Implementation. 1. What government representatives have the right to get copies of my injury and illness records? The government representatives authorized to receive the records are: (i) A representative of the Commissioner of Labor and Workforce Development conducting an inspection or investigation under the Act; (ii) A representative of the Secretary of Health and Human Services (including the National Institute for Occupational Safety and Health - NIOSH) conducting an investigation under Section 20(b) of the Occupational Safety and Health Act of 1970, as amended."
+  },
+  {
+   "id": "tn-0800-01-03-05-9",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 5",
+   "text": "2. Do I have to produce the records within four (4) hours if my records are kept at a location in a different time zone? TOSHA will consider your response to be timely if you give the records to the government representative within four (4) business hours of the request. If you maintain the records at a location in a different time zone, you may use the business hours of the establishment at which the records are located when calculating the deadline. (3) Electronic submission of Employer Identification Number (EIN) and injury and illness records to OSHA. (a) Basic requirements. 1. Annual electronic submission of information from OSHA Form 300A Summary of Work-Related Injuries and Illnesses. (i) If your establishment had 20 or more but fewer than 250 (20-249) employees at any time during the previous calendar year, and your establishment is classified in an industry listed in Appendix A Rule 0800- 01-03-.05, then you must electronically submit information from OSHA Form 300A Summary of Work-Related Injuries and Illnesses to OSHA or OSHA's designee. You must submit the information once a year, no later than the date listed in paragraph (c) of this section of the year after the calendar year covered by the form."
+  },
+  {
+   "id": "tn-0800-01-03-05-10",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 5",
+   "text": "(ii) If your establishment had 250 or more employees at any time during the previous calendar year, and this part requires your establishment to keep records, then you must electronically submit information from OSHA Form 300A Summary of Work-Related Injuries and Illnesses to OSHA or OSHA's designee. You must submit the information once a year, no later than the date listed in paragraph (c) of this section of the year after the calendar year covered by the form. 2. Annual electronic submission of information from OSHA Form 300 Log of Work-Related Injuries and Illnesses and OSHA Form 301 Injury and Illness Incident Report by establishments with 100 or more employees in designated industries. If your establishment had 100 or more employees at any time during the previous calendar year, and your establishment is classified in an industry listed in Appendix B to Rule 0800-01-03-.05, then you must electronically submit information from OSHA Forms 300 and 301 to OSHA or OSHA's designee. You must submit the information once a year, no later than the date listed in paragraph (c) of this section of the year after the calendar year covered by the forms."
+  },
+  {
+   "id": "tn-0800-01-03-05-11",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 6",
+   "text": "3. Electronic submission of 0800-01-03 records upon notification. Upon notification, you must electronically submit the requested information from your 0800-01-03 records to OSHA or OSHA's designee. 4. Electronic submission of the Employer Identification Number (EIN). For each establishment that is subject to these reporting requirements, you must provide the EIN used by the establishment. (b) Implementation. 1. Does every employer have to routinely make an annual electronic submission of information from Rule 0800-01-03 injury and illness recordkeeping forms to OSHA? No, only three categories of employers must routinely submit information from these forms. The first category is establishments that had 20-249 employees at any time during the previous calendar year and are classified in an industry listed in Appendix A to this subpart; establishments in this category must submit the required information from Form 300A to OSHA once a year. The second category is establishments that had 250 or more employees at any time during the previous calendar year and are required by this part to keep records;"
+  },
+  {
+   "id": "tn-0800-01-03-05-12",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 6",
+   "text": "establishments in this category must submit the required information from Form 300A to OSHA once a year. The third category is establishments that had 100 or more employees at any time during the previous calendar year and are classified in an industry listed in Appendix B to this subpart; establishments in this category must also submit the required information from Forms 300 and 301 to OSHA once a year, in addition to the required information from Form 300A. Employers in these three categories must submit the required information by the date listed in paragraph (c) of this section of the year after the calendar year covered by the form (for example, 2024 for the 2023 form(s)). If your establishment is not in any of these three categories, then you must submit the information to OSHA only if OSHA notifies you to do so for an individual data collection. 2. Do part-time, seasonal, or temporary workers count as employees in the criteria for number of employees in paragraph (a) of this section? Yes, each individual employed in the establishment at any time during the calendar year counts as one employee, including full-time, part-time, seasonal, and temporary workers."
+  },
+  {
+   "id": "tn-0800-01-03-05-13",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 6",
+   "text": "3. How will OSHA notify me that I must submit information as part of an individual data collection under paragraph (a)3. of this section? OSHA will notify you by mail if you will have to submit information as part of an individual data collection under paragraph (a)3. OSHA will also announce"
+  },
+  {
+   "id": "tn-0800-01-03-05-14",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 7",
+   "text": "individual data collections through publication in the Federal Register and the OSHA newsletter, and announcements on the OSHA website. If you are an employer who must routinely submit the information, then OSHA will not notify you about your routine submittal. 4 When do I have to submit the information? If you are required to submit information under paragraph (a)1. or 2. of this section, then you must submit the information once a year, by the date listed in paragraph (c) of this section of the year after the calendar year covered by the form (for example, 2019 for the 2018 form). If you are submitting information because OSHA notified you to submit information as part of an individual data collection under paragraph (a)3. of this section, then you must submit the information as specified in the notification. 5. How do I submit the information? You must submit the information electronically. OSHA will provide a secure website for the electronic submission of information. For individual data collections under paragraph (a)3. of this section, OSHA will include the website's location in the notification for the data collection."
+  },
+  {
+   "id": "tn-0800-01-03-05-15",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 7",
+   "text": "6. Do I have to submit information if my establishment is partially exempt from keeping OSHA injury and illness records? If you are partially exempt from keeping injury and illness records under 0800-01-03-.02(2) and/or 0800-01-03-.02(3), then you do not have to routinely submit information under paragraphs (a)1. and 2. of this section. You will have to submit information under paragraph (a)3. of this section if OSHA informs you in writing that it will collect injury and illness information from you. If you receive such a notification, then you must keep the injury and illness records required by this part and submit information as directed. 7. Do I have to submit information if I am located in a State Plan State? Yes, the requirements apply to employers located in State Plan States. 8. May an enterprise or corporate office electronically submit information for its establishment(s)? Yes, if your enterprise or corporate office had ownership of or control over one or more establishments required to submit information under paragraph (a) of this section, then the enterprise or corporate office may collect and electronically submit the information for the establishment(s)."
+  },
+  {
+   "id": "tn-0800-01-03-05-16",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 7",
+   "text": "9. If I have to submit information under paragraph (a)2. of this section, do I have to submit all of the information from the recordkeeping forms? No, you are required to submit all of the information from the forms except the following:"
+  },
+  {
+   "id": "tn-0800-01-03-05-17",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 8",
+   "text": "(i) From the Log of Work-Related Injuries and Illnesses (OSHA Form 300): Employee name (column B). (ii) From the Injury and Illness Incident Report (OSHA Form 301): Employee name (field 1), employee address (field 2), name of physician or other health care professional (field 6), facility name and address if treatment was given away from the worksite (field 7). 10. My company uses numbers or codes to identify our establishments. May I use numbers or codes as the establishment name in my submission? Yes, you may use numbers or codes as the establishment name. However, the submission must include a legal company name, either as part of the establishment name or separately as the company name. (c) Reporting dates. Establishments that are required to submit under paragraph (3)(a)1. or 2. of this section must submit all of the required information by March 2 of the year after the calendar year covered by the form(s) (for example, by March 2, 2024, for the forms covering 2023)."
+  },
+  {
+   "id": "tn-0800-01-03-05-18",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 8",
+   "text": "1. In 2017 and 2018, establishments required to submit under paragraph (3) (a)1. or 2. of this rule must submit the required information according to the table in this paragraph (3)(c)1.: Submission Year Establishments submitting under paragraph (3)(a)1. of this rule must submit the required information from this form/these forms Establishments submitting under paragraph (3)(a)2. of this rule must submit the required information from this form: Submission deadline 2017 300A 300A July 1, 2017 2018 300A, 300, 301 300A July 1, 2018 2. Beginning in 2019, establishments that are required to submit under paragraph (3)(a)1. or 2. of this rule will have to submit all of the required information by March 2 of the year after the calendar year covered by the form or forms (for example, by March 2, 2019, for the forms covering 2018)."
+  },
+  {
+   "id": "tn-0800-01-03-05-19",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 9",
+   "text": "Appendix A to 0800-01-03-.05 - Designated Industries for 0800-01-03-.05(3) (a)1.(i) Annual Electronic Submission of Information from OSHA Form 300A Summary of Work-Related Injuries and Illnesses by Establishments With 20- 249 Employees in Designated Industries NAICS Industry 11 Agriculture, forestry, fishing and hunting. 22 Utilities. 23 Construction. 31-33 Manufacturing. 42 Wholesale trade. 4413 Automotive parts, accessories, and tire stores. 4421 Furniture stores. 4422 Home furnishings stores. 4441 Building material and supplies dealers. 4442 Lawn and garden equipment and supplies stores. 4451 Grocery stores. 4452 Specialty food stores. 4522 Department stores. 4523 General Merchandise Stores, including Warehouse Clubs andSupercenters. 4533 Used merchandise stores."
+  },
+  {
+   "id": "tn-0800-01-03-05-20",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 10",
+   "text": "4542 Vending machine operators. 4543 Direct selling establishments. 4811 Scheduled air transportation. 4841 General freight trucking. 4842 Specialized freight trucking. 4851 Urban transit systems. 4852 Interurban and rural bus transportation. 4853 Taxi and limousine service. 4854 School and employee bus transportation. 4855 Charter bus industry. 4859 Other transit and ground passenger transportation. 4871 Scenic and sightseeing transportation, land. 4881 Support activities for air transportation. 4882 Support activities for rail transportation. 4883 Support activities for water transportation. 4884 Support activities for road transportation. 4889 Other support activities for transportation. 4911 Postal service."
+  },
+  {
+   "id": "tn-0800-01-03-05-21",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 11",
+   "text": "4921 Couriers and express delivery services. 4922 Local messengers and local delivery. 4931 Warehousing and storage. 5152 Cable and other subscription programming. 5311 Lessors of real estate. 5321 Automotive equipment rental and leasing. 5322 Consumer goods rental. 5323 General rental centers. 5617 Services to buildings and dwellings. 5621 Waste collection. 5622 Waste treatment and disposal. 5629 Remediation and other waste management services. 6219 Other ambulatory health care services. 6221 General medical and surgical hospitals. 6222 Psychiatric and substance abuse hospitals. 6223 Specialty (except psychiatric and substance abuse) hospitals. 6231 Nursing care facilities. 6232 Residential Intellectual and Developmental Disability, mental health,and substance abuse facilities."
+  },
+  {
+   "id": "tn-0800-01-03-05-22",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 12",
+   "text": "6233 Continuing Care Retirement Communities and Assisted LivingFacilities for the Elderly. 6239 Other residential care facilities. 6242 Community food and housing, and emergency and other reliefservices. 6243 Vocational rehabilitation services. 7111 Performing arts companies. 7112 Spectator sports. 7121 Museums, historical sites, and similar institutions. 7131 Amusement parks and arcades. 7132 Gambling industries. 7211 Traveler accommodation. 7212 RV (recreational vehicle) parks and recreational camps. 7223 Special food services. 8113 Commercial and industrial machinery and equipment (exceptautomotive and electronic) repair and maintenance. 8123 Dry-cleaning and laundry services. Appendix B to Rule 0800-01-03-.05 - Designated Industries for 0800-01- 03-.05(3)(a)2. Annual Electronic Submission of Information from OSHA Form 300 Log of Work-Related Injuries and Illnesses and OSHA Form 301 Injury and Illness Incident Report by Establishments With 100 or More Employees in Designated Industries."
+  },
+  {
+   "id": "tn-0800-01-03-05-23",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 13",
+   "text": "NAICS Industry 1111 Oilseed and Grain Farming 1112 Vegetable and Melon Farming 1113 Fruit and Tree Nut Farming 1114 Greenhouse, Nursery, and Floriculture Production 1119 Other Crop Farming 1121 Cattle Ranching and Farming 1122 Hog and Pig Farming 1123 Poultry and Egg Production 1129 Other Animal Production 1133 Logging 1141 Fishing 1142 Hunting and Trapping 1151 Support Activities for Crop Production 1152 Support Activities for Animal Production 1153 Support Activities for Forestry 2213 Water, Sewage and Other Systems 2381 Foundation, Structure, and Building Exterior Contractors"
+  },
+  {
+   "id": "tn-0800-01-03-05-24",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 14",
+   "text": "3111 Animal Food Manufacturing 3113 Sugar and Confectionery Product Manufacturing 3114 Fruit and Vegetable Preserving and Specialty Food Manufacturing 3115 Dairy Product Manufacturing 3116 Animal Slaughtering and Processing 3117 Seafood Product Preparation and Packaging 3118 Bakeries and Tortilla Manufacturing 3119 Other Food Manufacturing 3121 Beverage Manufacturing 3161 Leather and Hide Tanning and Finishing 3162 Footwear Manufacturing 3211 Sawmills and Wood Preservation 3212 Veneer, Plywood, and Engineered Wood Product Manufacturing 3219 Other Wood Product Manufacturing 3261 Plastics Product Manufacturing 3262 Rubber Product Manufacturing 3271 Clay Product and Refractory Manufacturing 3272 Glass and Glass Product Manufacturing"
+  },
+  {
+   "id": "tn-0800-01-03-05-25",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 15",
+   "text": "3273 Cement and Concrete Product Manufacturing 3279 Other Nonmetallic Mineral Product Manufacturing 3312 Steel Product Manufacturing from Purchased Steel 3314 Nonferrous Metal (except Aluminum) Production and Processing 3315 Foundries 3321 Forging and Stamping 3323 Architectural and Structural Metals Manufacturing 3324 Boiler, Tank, and Shipping Container Manufacturing 3325 Hardware Manufacturing 3326 Spring and Wire Product Manufacturing 3327 Machine Shops; Turned Product; and Screw, Nut, and BoltManufacturing 3328 Coating, Engraving, Heat Treating, and Allied Activities 3331 Agriculture, Construction, and Mining Machinery Manufacturing 3335 Metalworking Machinery Manufacturing 3361 Motor Vehicle Manufacturing 3362 Motor Vehicle Body and Trailer Manufacturing 3363 Motor Vehicle Parts Manufacturing 3366 Ship and Boat Building"
+  },
+  {
+   "id": "tn-0800-01-03-05-26",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 16",
+   "text": "3371 Household and Institutional Furniture and Kitchen CabinetManufacturing 3372 Office Furniture (including Fixtures) Manufacturing 3379 Other Furniture Related Product Manufacturing 4231 Motor Vehicle and Motor Vehicle Parts and Supplies MerchantWholesalers 4233 Lumber and Other Construction Materials Merchant Wholesalers 4235 Metal and Mineral (except Petroleum) Merchant Wholesalers 4239 Miscellaneous Durable Goods Merchant Wholesalers 4244 Grocery and Related Product Merchant Wholesalers 4248 Beer, Wine, and Distilled Alcoholic Beverage Merchant Wholesalers 4413 Automotive Parts, Accessories, and Tire Stores 4422 Home Furnishings Stores 4441 Building Material and Supplies Dealers 4442 Lawn and Garden Equipment and Supplies Stores 4451 Grocery Stores 4522 Department Stores 4523 General Merchandise Stores, including Warehouse Clubs andSupercenters 4533 Used Merchandise Stores"
+  },
+  {
+   "id": "tn-0800-01-03-05-27",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 17",
+   "text": "4543 Direct Selling Establishments 4811 Scheduled Air Transportation 4841 General Freight Trucking 4842 Specialized Freight Trucking 4851 Urban Transit Systems 4852 Interurban and Rural Bus Transportation 4853 Taxi and Limousine Service 4854 School and Employee Bus Transportation 4859 Other Transit and Ground Passenger Transportation 4871 Scenic and Sightseeing Transportation, Land 4881 Support Activities for Air Transportation 4883 Support Activities for Water Transportation 4889 Other Support Activities for Transportation 4911 Postal Service 4921 Couriers and Express Delivery Services 4931 Warehousing and Storage 5322 Consumer Goods Rental 5621 Waste Collection"
+  },
+  {
+   "id": "tn-0800-01-03-05-28",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 18",
+   "text": "5622 Waste Treatment and Disposal 6219 Other Ambulatory Health Care Services 6221 General Medical and Surgical Hospitals 6222 Psychiatric and Substance Abuse Hospitals 6223 Specialty (except Psychiatric and Substance Abuse) Hospitals 6231 Nursing Care Facilities (Skilled Nursing Facilities) 6232 Residential Intellectual and Developmental Disability, Mental Health,and Substance Abuse Facilities 6233 Continuing Care Retirement Communities and Assisted LivingFacilities for the Elderly 6239 Other Residential Care Facilities 6243 Vocational Rehabilitation Services 7111 Performing Arts Companies 7112 Spectator Sports 7131 Amusement Parks and Arcades 7211 Traveler Accommodation 7212 RV (Recreational Vehicle) Parks and Recreational Camps 7223 Special Food Services"
+  },
+  {
+   "id": "tn-0800-01-03-05-29",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 19",
+   "text": "Notes Tenn. Comp. R. & Regs. 0800-01-03-.05 Original rule certified June 10, 1974. Repeal and new rule filed August 30, 2001; effective December 28, 2001. Amendment filed November 26, 2014; effective February 24, 2015. Amendments filed August 26, 2016; effective November 24, 2016. Amendments filed April 27, 2021; effective July 26, 2021. Amendments filed April 22, 2024; effective 7/21/2024. Authority: T.C.A. §§ 4-3-1411, 50-3-201, 50-3-701, and 50-3-917. State Regulations Toolbox"
+  },
+  {
+   "id": "tn-0800-01-03-05-30",
+   "docId": "tn-0800-01-03-05",
+   "label": "page 20",
+   "text": "Accessibility About LII Contact us Advertise here Help Terms of use Privacy"
+  },
+  {
+   "id": "ut-sags130-k-1",
+   "docId": "ut-sags130-k",
+   "label": "page 1",
+   "text": "SAGS130-K – Forklift Safety Environmental Health & Safety Forklift Safety UTK Environmental Health & Safety Guide GS-130 The purpose of this guide is to describe the appropriate work practices and training requirements for the operation of powered industrial trucks (forklifts). Effective Date: 08/01/2009 Revision Date: 04/24/2018 Purpose The purpose of this guide is to inform operators and supervisors of operators of their obligation to follow OSHA, NFPA, and other federal, state and local regulations pertaining to the use of powered industrial trucks and forklifts operated at the University of Tennessee, Knoxville. It also outlines training and evaluation procedures. As a guide, it is not a substitute for the regulations themselves, but a summary of important considerations. Scope and Applicability This document is intended to provide guidance to faculty, staff, and students regarding use of powered industrial trucks, which include: forklifts, fork trucks, telehandlers, motorized pallet jacks, and motorized power jacks. It does not apply to compressed air or nonflammable compressed gas- operated industrial trucks, farm vehicles, nor to vehicles intended primarily for earth moving or over- the-road hauling."
+  },
+  {
+   "id": "ut-sags130-k-2",
+   "docId": "ut-sags130-k",
+   "label": "page 1",
+   "text": "This document applies to all faculty, staff, students, and visitors who operate or anticipate operating a powered industrial truck or forklift on campus. Abbreviations and Definitions"
+  },
+  {
+   "id": "ut-sags130-k-3",
+   "docId": "ut-sags130-k",
+   "label": "page 2",
+   "text": "Abbreviations ANSI: American National Standards Institute CFR: Code of Federal Regulations NFPA: National Fire Protection Association OSHA: Occupational Safety and Health Administration PIT: Powered Industrial Truck TOSHA: Tennessee Occupational Safety and Health Administration Definitions Powered Industrial Trucks: Any mobile power-propelled truck used to carry, push, pull, lift, stack or tier materials. Powered industrial trucks can be ridden or controlled by a walking operator. Earth moving and over-the-road haulage trucks are not included in the definition. Equipment that was designed to move earth but has been modified to accept forks are also not included. All powered industrial trucks are required to meet the design and construction requirements for powered industrial trucks established in the American National Standards Institute (ANSI) Standard for PITs, Part II, ANSI B 56.1. Roles and Responsibilities Forklift Operators shall:"
+  },
+  {
+   "id": "ut-sags130-k-4",
+   "docId": "ut-sags130-k",
+   "label": "page 2",
+   "text": "Be trained and evaluated before operating a powered industrial truck/forklift Be reevaluated by a competent person every three years. Operate and maintain PITs in a safe manner and according to the regulations and training provided. Report all vehicle problems to their supervisor. Supervisors shall: Designate and identify employees responsible for operating powered industrial trucks/forklifts."
+  },
+  {
+   "id": "ut-sags130-k-5",
+   "docId": "ut-sags130-k",
+   "label": "page 3",
+   "text": "Ensure that all employees under their direction, who operate a powered industrial truck/forklift are trained, evaluated. Maintain records of training and evaluation. Ensure that forklifts are repaired when malfunctioning and maintained, or taken out of service until such repairs can be made. EHS shall: Shall provide program oversight. Review and audit powered industrial truck/forklift safety training as necessary. Provide forklift safety training upon request from the supervisor. May audit a department or responsible unit and assign training as necessary. Visitors shall: Ensure they have passed forklift training and evaluation before operating a powered industrial truck/forklift on campus. Comply with all regulations and UT’s Powered Industrial Truck/Forklift safety guidance. Inspection, Fueling, Charging, and Maintenance Procedures The following section will review: Pre-Use Inspection Fuel-Handling and Storage Battery Handling and Storage Maintenance Pre-Use Inspection Engine-off Inspection A pre-use inspection identifies potential hazards that may be encountered from a damaged forklift and must be performed at least daily by the operator before operation. If at any time a forklift is found to be in-need of repair, defective, or in any way unsafe, the forklift shall be removed from service until it has been restored to safe operating condition. Always refer to manufacturer provided"
+  },
+  {
+   "id": "ut-sags130-k-6",
+   "docId": "ut-sags130-k",
+   "label": "page 4",
+   "text": "manuals for appropriate inspections guidance. A forklift does not need to be inspected on any day that it is not used. The pre-use inspection can include the following, however refer to the user’s manual for the type of machine you are using: Verify that the data plate is present, legible, and represents the configuration in use. Verify that all safety and control stickers and labels are present and legible. Verify that all safety equipment is present. Inspect the mast for broken or cracked weld points and any other obvious damage. Ensure roller tracks are greased and that chains are free to travel. Forks should be equally spaced and free from cracks along the blade and at the heels. Check hydraulic fluid levels. Check each hydraulic line and fitting for excessive wear or crimping. Check hydraulic lines for breakage in the outer case or sheath. Check lift and tilt cylinders for damage or leaking fluid. Fluid leaks are not considered normal and must be repaired."
+  },
+  {
+   "id": "ut-sags130-k-7",
+   "docId": "ut-sags130-k",
+   "label": "page 4",
+   "text": "Inspect mounting hardware on the cylinders. Check tires for excessive wear, splitting or missing tire material. Check pneumatic tires for proper pressure indicated on the tire. Power Source Inspection Battery Power Batteries contain acid, so protective gloves, goggles, and long sleeves must be worn when working with batteries. Batteries systems should be inspected for: Cracks or holes Securely sealed cells Frayed cables Broken insulation. This can occur when a cord rubs against the forklift casing. Tight connections Clogged vent caps Propane Power"
+  },
+  {
+   "id": "ut-sags130-k-8",
+   "docId": "ut-sags130-k",
+   "label": "page 5",
+   "text": "Before replacement, all LP-gas containers should be examined by the operator for the following defects or damage: Dents, scrapes, and gouges of the pressure vessel Damage to the various valves and liquid level gauge Debris in the relief valve Damage to or loss of the relief valve cap Indication of leakage at the valves or threaded connections Engine-on Inspection Once the engine off inspection has been completed. Mount the forklift safely, put on your seat belt and make any personal adjustments to the seat and wheel. Start the engine and verify that all controls operate as they should including: lift, tilt, and shift controls, lights, horns, backup alarms etc. The wheel should have appropriate free play. Move forward and brake, ensuring travelling and stopping operates as it should. Check the floor for evidence of fluid leaks. Again, fluid leaks are not normal and must be fixed. Once operational aspects are verified, you may begin work."
+  },
+  {
+   "id": "ut-sags130-k-9",
+   "docId": "ut-sags130-k",
+   "label": "page 5",
+   "text": "Fuel Handling and Storage Liquid fuels such as gasoline and diesel not stored in underground or aboveground storage tanks should be stored in approved safety cans. The engine should be stopped, and the operator should not be on or inside the truck during refueling. A soap solution should be used to check for LPG gas leaks. A match or open flame should not be used. Smoking is prohibited in the container refilling area and in the exchange area during the exchange of containers. Cylinders for liquefied petroleum gas (LPG) shall be stored in the following manner: Cylinders in storage having individual LPG capacity greater than 1-pound shall be positioned so that the relief valve is in direct contact with the vapor space of the cylinder."
+  },
+  {
+   "id": "ut-sags130-k-10",
+   "docId": "ut-sags130-k",
+   "label": "page 6",
+   "text": "Cylinders not in use shall be protected by one of the following: screw-on-type caps o collars closed, plugged, or capped cylinder outlet valves Cylinders stored within buildings shall not be located: near exits, stairwells, or in areas normally intended to be used for the safe egress of occupants o near athletic fields, or other areas of public gathering Battery Handling and Storage Designated Charging Areas Battery charging installations should be located in designated charging areas that provide flushing (eyewashes/safety showers) and spill neutralizing materials for spilled electrolyte, fire protection, protection of charging apparatus from damage by trucks, and adequate ventilation for dispersal of battery gassing fumes. Facilities for quick drenching or flushing of the eyes and body (approved emergency eyewash and safety shower) must be provided at or near (within 10 seconds) the charging area. Smoking and other ignition sources are prohibited in the charging “No Smoking” signs must be posted. Additional precautions must be taken to prevent open flames, sparks or electric arcs in battery charging areas."
+  },
+  {
+   "id": "ut-sags130-k-11",
+   "docId": "ut-sags130-k",
+   "label": "page 6",
+   "text": "Charging Batteries Properly position forklift and apply brake before attempting to change or charge batteries. Rubber gloves must be worn when handling lead/acid batteries. Eye or face protection must also be worn when connecting a charger to a battery. Chargers must be turned off when leads are being connected or disconnected. All leads and cables must be checked and in good condition. When moving batteries, vent caps must be kept firmly in place to avoid electrolyte splashing. When charging batteries, ensure vent caps are functioning and the battery (or compartment) cover(s) are open to dissipate heat. When charging is complete, be sure to replace the vent cap firmly. Keep tools and other metallic objects away from the top of uncovered batteries. Properly position and secure reinstalled batteries in the forklift."
+  },
+  {
+   "id": "ut-sags130-k-12",
+   "docId": "ut-sags130-k",
+   "label": "page 7",
+   "text": "Reinstalled batteries or new batteries shall be equivalent to, or shall be rated higher than, the battery type indicated on the truck nameplate. Any additional safety requirements or operating procedures specified by the manufacturer of the forklift, battery or charging system must be followed. Maintenance Do not use open flames to check for electrolyte level in batteries or liquid fuel level in tanks Do not conduct repairs to fuel and ignition systems of forklifts in areas where fire hazards exist. Disconnect batteries prior to repairing electrical systems. Follow all lockout tag out procedures related to the release of hazardous energy. Use only replacement parts equivalent with those in the original design. Do not alter the relative positions of various parts from how they were received from the manufacturer. Do not add any parts not supplied by the manufacturer nor delete any parts supplied by the manufacturer. No additional counterweighting of forklifts is permitted unless approved by the manufacturer."
+  },
+  {
+   "id": "ut-sags130-k-13",
+   "docId": "ut-sags130-k",
+   "label": "page 7",
+   "text": "Keep forklift mufflers in proper working condition and free of debris. Keep the forklift in clean condition, free of lint, excess oil, and grease. When antifreeze is used in the engine-cooling system, only glycol-based material should be used. Operating Procedures The following section will review: Basic Operating Rules Handling and Moving Loads Forklift Operating Rules and Guidelines There are several rules and best practices for operating a forklift. They can be summarized very briefly with three concepts. Ensure you are aware of the: 1. Forklift’s capabilities and inspection status 2. Workspace conditions"
+  },
+  {
+   "id": "ut-sags130-k-14",
+   "docId": "ut-sags130-k",
+   "label": "page 8",
+   "text": "3. Load’s size, stability, and weight distribution More Details Only trained and authorized personnel eighteen (18) years old and older are permitted to operate a forklift. Do not operate a gasoline-powered or diesel-powered forklift in a poorly ventilated area. Carbon monoxide gas, an odorless poisonous gas made by internal combustion engines, can build up. Do not stand or pass under the elevated portion of any forklift. Passengers are prohibited from riding on forklifts. Do not place arms or legs between the uprights of the mast or outside the running lines of the truck. Keep all body parts inside the vehicle. When back do not hold the outer post. Fingers may be easily crushed or sheared off if outside the vehicle during a collision. When mounting or dismounting a forklift: face the vehicle, o never jump off, use a three-point stance (always have both hands and one foot or vice-versa in contact with the unit) Wear proper shoes (oil resistant and non-slippery), Wear proper clothing (do not wear loose clothing or dangling jewelry), and restrain long hair."
+  },
+  {
+   "id": "ut-sags130-k-15",
+   "docId": "ut-sags130-k",
+   "label": "page 8",
+   "text": "After mounting the vehicle, fasten the seat belt, apply the brake, and shift to neutral. Also, check around the forklift for clearance and pedestrians before moving. When dismounting a forklift you must secure it properly. You must: Fully lower load or empty forks to the floor o Place controls in neutral o Set the parking brake If you are going to be more than 25 feet away from the vehicle or it will be out of you line of site you must: o Shut off power Maintain a safe distance from the edge of ramps or platforms while on any elevated dock or platform. Forklifts are not to be used to open or close freight doors. Forklifts should not be used in areas of poor lighting (less than two lumens per square foot) unless they are equipped with auxiliary directional lighting and the lighting is turned on. Fixed jacks may be necessary to support a semitrailer and prevent upending during the loading or unloading when the trailer is not coupled to a tractor."
+  },
+  {
+   "id": "ut-sags130-k-16",
+   "docId": "ut-sags130-k",
+   "label": "page 8",
+   "text": "Set brakes and block wheels with wheel chocks to prevent movement of trucks and trailers while loading or unloading when they are boarded by forklifts."
+  },
+  {
+   "id": "ut-sags130-k-17",
+   "docId": "ut-sags130-k",
+   "label": "page 9",
+   "text": "Check the flooring of trucks and trailers for breaks and weakness before loading or unloading. Check for sufficient headroom under overhead hazards such as lights, pipes, or sprinkler systems. Do not lift personnel or allow personnel to be lifted or work from the fork lift without a properly engineered, manufacturer approved, and properly attached lifting carriage. Whenever a truck is equipped with a lifting carriage or forks for lifting personnel, take the following precautions: o Ensure the platform is firmly secured to the lifting carriage and/or forks o Provide means whereby personnel on the platform can shut off power to the truck o Provide protection from falling objects Handling and Moving Loads To Pick Up a Load Only pick up stable and safely arranged loads within the rated capacity of the forklift. Adjust long or high (including stacked) loads which may affect capacity. Square up on the center of the load and approach it straight with forks in traveling position."
+  },
+  {
+   "id": "ut-sags130-k-18",
+   "docId": "ut-sags130-k",
+   "label": "page 9",
+   "text": "Stop when the tips of the forks are about a foot away from the load. Level the forks and slowly drive forward until the load is resting against the backrest. Lift the load high enough to clear whatever is under it. If lifting from a rack be mindful of the shelving above the load; ensure you do not strike or catch on shelves above. Use a spotter as necessary. If working in and around racks, ensure that other workers will not be at risk of falling objects; consider the risk of pushing objects off the other side of rack (clear aisles of people as necessary). Carefully tilt the mast back to stabilize the load. Driving With a Load Always travel with a load tilted slightly back for added stability. Starts and stops should be gradual; Avoid sudden acceleration or braking. Observe all traffic regulations and keep forklift under control at all times. Reduce speed and sound horn at intersections and other locations where vision is obstructed Keep a clear view of the path of travel. Always look in the direction of travel."
+  },
+  {
+   "id": "ut-sags130-k-19",
+   "docId": "ut-sags130-k",
+   "label": "page 9",
+   "text": "Drive in reverse rather than looking around the load if you are unable to see over it."
+  },
+  {
+   "id": "ut-sags130-k-20",
+   "docId": "ut-sags130-k",
+   "label": "page 10",
+   "text": "Pedestrians have the right-of-way. Always be aware of their presence especially in aisles and doorways. Never drive a forklift directly towards anyone standing in front of a wall or other fixed object Do not lift or lower the load when the forklift is in motion. Travel with the load at a height of four to six inches at the tips and two inches at the heels to clear most uneven surfaces and avoid debris. Horseplay is not permitted. Slow down for wet, slippery, or uneven floors. Avoid running over loose objects on the roadway surface. Properly secure dock boards and bridge plates before driving over them. Drive over slowly and never exceed their rated capacity. When traveling on a ramp (ascending or descending grades in excess of 10%): o Ascend or descend grades slowly o Never turn on a ramp o Drive loaded trucks with the load upgrade regardless of the direction of travel o Drive empty trucks with the forks downgrade, regardless of the direction of travel o Use low gear or the slowest speed when descending a grade."
+  },
+  {
+   "id": "ut-sags130-k-21",
+   "docId": "ut-sags130-k",
+   "label": "page 10",
+   "text": "Safe Steering Slow down to maintain balance. Remember that the rear wheels turn. Turns can be made from the centerline of a turn or slightly to the inside. With a front wheel steering car our tendency is to swing wide. On a forklift, “swinging wide” can result in the back end striking any objects, walls, or racks on the outside of the turn. Allow enough room for forks to clear the sides before turning, when backing out of an aisle. When negotiating turns, turn the steering wheel in a smooth sweeping motion. At very low speeds, turn the steering wheel at a moderate, even rate. Never turn a forklift with the load or empty forks lifted higher than the travel height (i.e. four to six inches at the tips and two inches at the heels on flat terrain; a few inches higher may be appropriate on slightly uneven terrain). Placing a Load on an Elevated Surface Square up and stop about a foot away from the rack on which the load is to be placed."
+  },
+  {
+   "id": "ut-sags130-k-22",
+   "docId": "ut-sags130-k",
+   "label": "page 10",
+   "text": "Raise the load 5-10 inches above the unloading point (space permitting). Drive forward stopping 3-4 inches in front of deposit point. Tilt mast forward to a right angle position so load is level."
+  },
+  {
+   "id": "ut-sags130-k-23",
+   "docId": "ut-sags130-k",
+   "label": "page 11",
+   "text": "Drive forward until load is aligned with the deposit point. Stop. Gently lower load to resting-place. Stack pallets loaded with cases, cartons straight and square. Stagger the top tier to “tie-in place”. Tilt the forks slightly forward to avoid hooking the load Look over both shoulders and back straight out until the forks clear the rack. Stop. Once clear lower the forks to about 2-4 inches above the ground, then continue to backup or turn to proceed to the next location. Do not turn with elevated forks. Placing a load on the ground/floor Square up the forks, approach the landing place. Level the forks and then drive the rest of the way in. Lower the load. Tilt the forks slightly forward to avoid hooking the load. Look over both shoulders and back straight out until the forks clear the pallet. Training and Evaluation Each powered industrial truck operator must be determined to be competent to operate one safely, as demonstrated by the successful completion of training and evaluation. Employers shall certify that each operator has been trained and evaluated. The certification shall include the name of the operator, the date of the training, the date of the evaluation, and the identity of the person(s) performing the training or evaluation. Certification of training is not a license and there is no such thing as a state issued forklift license. EHS may, at its discretion, implement certification plans that include carrying a record of training (such as a wallet or lanyard card)."
+  },
+  {
+   "id": "ut-sags130-k-24",
+   "docId": "ut-sags130-k",
+   "label": "page 11",
+   "text": "Training shall consist of a combination of formal instruction (lecture, discussions, interactive computer learning, video, written material, etc.), and practical training (demonstrations performed by the trainer and practical exercises performed by the trainee). Evaluation consists of successful demonstration of the operator’s performance in the workplace and can include interaction and follow-up questions. Operator training and evaluation will be conducted by EHS personnel who have the knowledge, training, and experience to train forklift operators and evaluate their competence. EHS may designate qualified individuals to conduct evaluations of their workers. EHS representatives may audit and evaluate individuals and departments at their discretion."
+  },
+  {
+   "id": "ut-sags130-k-25",
+   "docId": "ut-sags130-k",
+   "label": "page 12",
+   "text": "Upon completion of the training program, all operators must be evaluated for performance of proper procedures prior to receipt of an operator certificate. Required Training Topics All powered industrial trucks/forklift operators shall receive initial training in the following topics: Operating instruction, warning and precautions for the types of trucks the operator will be authorized to operate. Truck controls and instrumentation Differences between a PIT/forklift and an automobile Engine and motor operation Steering and maneuvering Visibility (including restrictions due to loading) Vehicle Capacity Any vehicle inspection and maintenance that the operator will be required to perform Refueling and or changing of batteries Operating limitations, and any workplace related topics (e.g. surface conditions, narrow aisles, pedestrian traffic, and hazardous locations). Refresher training in all the above listed topics, and other relevant topics, will be provided to all powered industrial truck/forklift operators:"
+  },
+  {
+   "id": "ut-sags130-k-26",
+   "docId": "ut-sags130-k",
+   "label": "page 12",
+   "text": "when the operator has been observed to operate the vehicle in an unsafe manner; when the operator has been involved in an accident or near-miss incident; when the operator has received an evaluation that reveals that the operator is not operating the truck safely; when the operator is assigned to drive a different type of truck, or a condition in the workplace changes in a manner that would affect the safe operations of a forklift. Other Training Notes If an operator has previously received training in a topic specified above and such training is appropriate to the truck and working conditions encountered, additional training in that topic is not required if the operator has been evaluated and found competent to operate the truck safely. For example, training on a standup narrow-aisle forklift does not mean a forklift operator is trained on a"
+  },
+  {
+   "id": "ut-sags130-k-27",
+   "docId": "ut-sags130-k",
+   "label": "page 13",
+   "text": "sit-down LPG forklift, but retraining on all components is not necessary if they are documented in prior training. For this to qualify at UTK, evidence of prior training as well as a record of evaluation conducted here at UTK must be documented. However, each employer must ensure that each powered industrial truck operator is competent to operate a truck safely, as demonstrated by the successful completion of the training and evaluation. As stated above, the OSHA Powered Industrial Trucks standard requires additional training for forklift operators who change and charge batteries; handle propane tanks; fuel diesel or gasoline engines; and repair and maintain powered industrial trucks. Record Keeping Employers who evaluate the operator’s performance more frequently than every three years may retain the most recent certification record. Otherwise, certification records must be maintained for three years."
+  },
+  {
+   "id": "ut-sags130-k-28",
+   "docId": "ut-sags130-k",
+   "label": "page 13",
+   "text": "An individual training record shall be maintained for each employee and kept for period of employment + 5 years. The training instructor will document/certify the training and evaluation and will include in the documentation the name of the operator, the date of the training, the date of the evaluation, and the identity of the person(s) performing the training or evaluation. References OSHA: 29 CFR 1910.178 (Powered Industrial Trucks) OSHA: 29 CFR: 1926.602 (Material Handling Equipment) NFPA: 505 (Fire Safety Standard for Powered Industrial Trucks) Disclaimer The information provided in these guidelines is designed for educational use only and is not a substitute for specific training or experience. The University of Tennessee Knoxville and the authors of these guidelines assume no liability for any individual’s use of or reliance upon any material contained or referenced herein. The material"
+  },
+  {
+   "id": "ut-sags130-k-29",
+   "docId": "ut-sags130-k",
+   "label": "page 14",
+   "text": "contained in these guidelines may not be the most current. This material may be freely distributed for nonprofit educational use. However, if included in publications, written or electronic, attributions must be made to the author. Commercial use of this material is prohibited without express written permission from the author. Appendices Downloadable pdf GS-130 Forklift Safety SAGS130-K – Forklift Safety Version: 1 // Effective: 07/16/2018 Downloadable PDF The University of Tennessee Office of the General Counsel • 400 W. Summit Hill Dr. SW, Knoxville, TN 37902 • (865) 974-3245 © 2026 The University of Tennessee System"
+  },
+  {
+   "id": "ut-saad022-k-1",
+   "docId": "ut-saad022-k",
+   "label": "page 1",
+   "text": "SAAD022-K – Incident & Accident Reporting Environmental Health & Safety Incident & Accident Reporting UTK Environmental Health & Safety Procedure AD-022 This procedure defines the process by which the campus community can report incidents and accidents, as well as the investigation by EHS. Effective Date: 01/01/2009 Revision Date: 02/01/2016 Purpose, Applicability, and Scope Purpose: It shall be the policy of the University of Tennessee, Knoxville, to prevent injury to staff, faculty, students and visitor while on campus property and engaged in university-sponsored activities. One component of a comprehensive injury prevention program is incident/accident investigation. Non- injury accidents (also known as near misses) shall be reported using the incident report form, which is available from the Workers Compensation Office. Applicability: This procedure shall apply to students, visitors, staff and faculty at the University of Tennessee on university property. It shall also apply to students, visitors, staff and faculty engaged in off-site, University-sponsored activities."
+  },
+  {
+   "id": "ut-saad022-k-2",
+   "docId": "ut-saad022-k",
+   "label": "page 1",
+   "text": "Procedures 1. Employees are encouraged to report on-the-job accidents as soon as possible to their immediate supervisor. This reporting should occur whether or not medical treatment is necessary."
+  },
+  {
+   "id": "ut-saad022-k-3",
+   "docId": "ut-saad022-k",
+   "label": "page 2",
+   "text": "2. When an accident occurs, the employee’s supervisor or lead employee should investigate the accident. The area where the accident occurred should be viewed and statements should be obtained from any witnesses. Questions regarding the accident/incident report should be direct to the Risk Management Office. A Supervisors Report of Employee Accident form is available at: http://riskmanagement.tennessee.edu 3. Environmental Health and Safety shall review all Workers Comp claims and shall investigate those where a hazard is present, where appropriate safety procedures were not followed or where personal protective equipment was not used or was defective. 4. The Risk Management Office may forward other claims (property loss, visitor accidents) and incident reports to campus Environmental Health and Safety (EHS) for review and investigation. 5. If the incident resulted in, or had the potential to result in, a serious injury or property loss it should be reported to EHS."
+  },
+  {
+   "id": "ut-saad022-k-4",
+   "docId": "ut-saad022-k",
+   "label": "page 2",
+   "text": "6. EHS will conduct a more detailed investigation and can also be contacted to investigate an accident if the supervisor : a. has reason to suspect that there may be fraud involved b. if there is a safety hazard present that can’t be removed or repaired promptly c. if litigation is likely d. if a serious process failure exists that is likely to result in additional accidents or losses 7. If any action is necessary resulting from the investigation conducted by EHS, the findings will be forward to the appropriate supervisor and/or department head. 8. EHS will track the status of any recommendations from the investigation. 9. Summary data of accidents shall be submitted periodically to the Safety Committee. 10. EHS shall investigate chemical spills/releases and fires. Summary data of these events plus the total number of OSHA reportable accidents shall be entered into the EHS quarterly metric report that is submitted to the Vice Chancellor for Finance and Administration. In addition the end-of- year summary report of these metrics shall go to the Safety Committee."
+  },
+  {
+   "id": "ut-saad022-k-5",
+   "docId": "ut-saad022-k",
+   "label": "page 2",
+   "text": "11. The campus director of EHS shall review motor vehicles accident reports periodically and take action where necessary. In addition, this individual shall review the monthly OSHA 300 log and conduct investigations as needed. Recordkeeping"
+  },
+  {
+   "id": "ut-saad022-k-6",
+   "docId": "ut-saad022-k",
+   "label": "page 3",
+   "text": "The Risk Management Office shall maintain all records of accidents, claims and incidents for at least five years. EHS shall maintain records associated with investigations for at least five years. Documentation and records of accidents and losses that are expected to result in litigation or take years to settle shall be kept more than five years. Training and Information Incoming employees shall be informed of the process to report accidents and near misses during new employee orientation. Supervisors shall be informed of the accident reporting process during the Supervisor’s Safety class, which is sponsored by Employee and Organizational Development. Current employees shall be reminded of the accident and near miss reporting process annually via Tennessee Today. Disclaimer The information provided in this program is designed for educational use only and is not a substitute for specific training or experience."
+  },
+  {
+   "id": "ut-saad022-k-7",
+   "docId": "ut-saad022-k",
+   "label": "page 3",
+   "text": "The University of Tennessee Knoxville and the authors of this program assume no liability for any individual’s use of or reliance upon any material contained or referenced herein. The material contained in this program may not be the most current. This material may be freely distributed for nonprofit educational use. However, if included in publications, written or electronic, attributions must be made to the author. Commercial use of this material is prohibited without express written permission from the author. Appendices Report Form – The Workers Compensation Specialist shall prepare and distribute forms to report employee injuries (including occupational illnesses). These forms, including the associated Workers’ Compensation policies, shall be available on the EHS or Risk Management website."
+  },
+  {
+   "id": "ut-saad022-k-8",
+   "docId": "ut-saad022-k",
+   "label": "page 4",
+   "text": "SAAD022-K – Incident & Accident Reporting Version: 1 // Effective: 07/16/2018 Downloadable PDF The University of Tennessee Office of the General Counsel • 400 W. Summit Hill Dr. SW, Knoxville, TN 37902 • (865) 974-3245 © 2026 The University of Tennessee System"
+  },
+  {
+   "id": "ut-saad021-k-1",
+   "docId": "ut-saad021-k",
+   "label": "page 1",
+   "text": "Environmental Health & Safety Reporting Safety Hazards and Near Misses UTK Environmental Health & Safety Procedure AD-021 This procedure defines the process by which the campus community can report hazards and near-misses Effective Date: 11/01/2008 Revision Date: 06/20/2011 Purpose and Scope The University of Tennessee (UT) recognizes the need to provide a method for employees to report potential health and safety hazards or concerns. All reported concerns will be addressed, investigated and corrective measures taken when necessary. Employees are free from retaliatory or disciplinary actions for reporting safety concern. No employee shall be discharged or discriminated against because such employee has filed any complaint or instituted or caused to be instituted any proceedings or inspections under, or relating, to this program. For the purposes of this document the phrase “safety hazard” shall also include health hazard and environmental hazard. In addition, near misses or non-injury accidents are covered by the standard."
+  },
+  {
+   "id": "ut-saad021-k-2",
+   "docId": "ut-saad021-k",
+   "label": "page 1",
+   "text": "New employees shall be informed of the process of reporting hazards during orientation. Procedures • All safety hazards should be reported to the employee’s immediate supervisor as soon as possible. Work within the department to resolve the issue, if possible. Supervisors are encouraged to contact Environmental Health and Safety if there is no clear solution or if additional guidance is needed. • If the matter cannot be adequately addressed, the individual may contact Environmental Health and Safety (EHS) or Risk Management. • Safety concerns may be reported by telephone, fax, e-mail, written letter or in person to any EHS staff member (can complete the Service Request form found in Appendix A), or by completing the Incident Report form provided by Risk Management (see Appendix B)."
+  },
+  {
+   "id": "ut-saad021-k-3",
+   "docId": "ut-saad021-k",
+   "label": "page 2",
+   "text": "• Safety, occupational health hazards or environmental concerns may be e-mailed to: safety.utk.edu. • Concerns may be reported confidentially and should be so indicated when reporting. Every effort shall be made to protect the identity of the person making the complaint. • EHS shall log reported workplace hazard complaints. Quarterly reports of reported safety hazards shall be included on the EHS quarterly metric. • EHS shall address the concern in a timely manner and take appropriate action. • A record of communiques and associated information shall be maintained in the building file by EHS for at least three years. • Feedback and updates shall be submitted to the individual filing the complaint if a request it made. • All near misses (also known as a close call or non-injury accident) should be reported in a manner similar to other hazards. Training New staff shall be apprised of the hazard reporting process during their department’s orientation."
+  },
+  {
+   "id": "ut-saad021-k-4",
+   "docId": "ut-saad021-k",
+   "label": "page 2",
+   "text": "Recordkeeping Reported safety hazards, including associated files, communiques and other information shall be kept by EHS for a period of at least three years. Regulatory Drivers and References None Forms EHS Service Request Form found in Forms Risk Management Incident Report Form found on: http://riskmanagement.tennessee.edu"
+  },
+  {
+   "id": "ut-saad021-k-5",
+   "docId": "ut-saad021-k",
+   "label": "page 3",
+   "text": "Disclaimer The information provided in this program is designed for educational use only and is not a substitute for specific training or experience. The University of Tennessee Knoxville and the authors of this program assume no liability for any individual’s use of or reliance upon any material contained or referenced herein. The material contained in this program may not be the most current. This material may be freely distributed for nonprofit educational use. However, if included in publications, written or electronic, attributions must be made to the author. Commercial use of this material is prohibited without express written permission from the author. Appendices Appendix A: EHS Service Request Form Appendix B: Risk Management Incident Report Form"
+  }
+ ]
+}
