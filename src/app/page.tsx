@@ -8,6 +8,14 @@ const CARDS = [
   { href: "/upload", title: "Upload past incidents", text: "Import a spreadsheet (CSV) of past incidents. Each row is checked, and bad rows are listed with the reason." },
 ];
 
+// The home page is prerendered, so this is the time of the latest build (each Vercel deploy).
+const lastUpdated = new Date().toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "America/Chicago",
+});
+
 export default function Home() {
   return (
     <div className="space-y-8">
@@ -17,6 +25,7 @@ export default function Home() {
           One place for a university facilities department to report safety incidents and near misses, ask safety
           questions answered from the rules, and see where problems happen.
         </p>
+        <p className="text-sm text-slate-500">Last updated: {lastUpdated}</p>
       </section>
       <section className="grid gap-4 sm:grid-cols-2">
         {CARDS.map((c) => (
