@@ -110,7 +110,7 @@ export default function UploadPage() {
                 {saving ? "Importing..." : `Import ${checked.good.length} good row${checked.good.length === 1 ? "" : "s"}`}
               </button>
             ) : (
-              <p role="status" className="mt-3 text-green-800">Imported {imported} records. They now appear in Records and Reports.</p>
+              <p role="status" className="mt-3 text-green-800">Imported {imported} {imported === 1 ? "record" : "records"}. {imported === 1 ? "It now appears" : "They now appear"} in Records and Reports.</p>
             )}
           </div>
           {checked.bad.length > 0 && (

@@ -38,10 +38,13 @@ export async function readJson(request: Request) {
   } finally { reader.releaseLock(); }
 }
 
-export function failure(error: unknown) {
+export function failure(error: unknown, operation: "read" | "write" = "write") {
   if (error instanceof RequestError) return Response.json({ error: error.message }, { status: error.status });
   console.error("Database operation failed.");
-  return Response.json({ error: "Shared storage is unavailable. Your changes have not been confirmed. Keep this page open and retry." }, { status: 503 });
+  const message = operation === "read"
+    ? "Shared records could not be loaded. Please retry loading."
+    : "Shared storage is unavailable. Your changes have not been confirmed. Keep this page open and retry.";
+  return Response.json({ error: message }, { status: 503 });
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {

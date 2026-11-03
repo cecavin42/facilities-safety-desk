@@ -49,9 +49,11 @@ npm run test:api
 
 ## Current verification (Nov 3, 2026)
 
-AI-assisted implementation by Codex at Forrest's direction. Local PostgreSQL tests, lint, production build and HTTP checks passed. In two Chrome profiles, a form-created report appeared in both, and a status change was visible across profiles. The CSV browser check stopped at file upload because the browser extension lacked local-file access and native browser automation then stopped; CSV server validation and atomic batch handling passed. Hosted Neon provisioning and Vercel deployment are not complete: Forrest's signed-in Vercel account could not access Catherine's project.
+AI-assisted implementation by Codex at Forrest's direction. Seven local PostgreSQL integration checks, lint, production build and HTTP checks passed. In two Chrome profiles, a form-created report appeared in both, and a status change was visible across profiles. Follow-up checks in the ChatGPT browser verified CSV rejection/import, exported row contents, all three report views, fresh example-query logging, persistence across restart, and an import retry after a database outage. The Vercel setup-and-build command also passed against local PostgreSQL. Evidence screenshots are in the local ignored `test-results` folder.
 
-Next action: Catherine connects Neon to the team's Vercel project with isolated preview storage, then redeploys this PR preview. Finish the CSV browser check and obtain team review before merging. No student hours, review or approval are implied by these checks.
+Hosted Neon provisioning and Vercel deployment are not complete: Forrest's signed-in Vercel account could not access Catherine's project, and the ChatGPT browser reached the Vercel login page. The PR's Vercel preview has failed; its private build logs are unavailable to this account.
+
+Next action: Catherine connects Neon to the team's Vercel project with isolated preview storage, then redeploys this PR preview. Repeat the shared-record and CSV checks on that hosted preview and obtain team review before merging. No student hours, review or approval are implied by these checks.
 
 ## Getting Started
 

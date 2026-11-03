@@ -6,5 +6,5 @@ import { connection } from "next/server";
 export async function GET() {
   await connection();
   try { return Response.json(await readData(database()), { headers: { "Cache-Control": "no-store" } }); }
-  catch (error) { return failure(error); }
+  catch (error) { return failure(error, "read"); }
 }

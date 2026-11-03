@@ -8,7 +8,7 @@ import type { Pool } from "pg";
 import { createPool } from "../src/lib/db/pool";
 import { addRecords, BatchConflict, changeStatus, readData, saveQuestion } from "../src/lib/db/repository";
 import { migrate, seed } from "../scripts/database";
-import { readJson, RequestError } from "../src/lib/api";
+import { failure, readJson, RequestError } from "../src/lib/api";
 import type { NewIncident } from "../src/lib/data-types";
 
 let server: EmbeddedPostgres;
@@ -101,4 +101,18 @@ test("request boundary rejects cross-site, non-JSON and oversized input", async 
     await assert.rejects(() => readJson(new Request("http://localhost/api/records", { method: "POST", headers, body })),
       (e: unknown) => e instanceof RequestError && e.status === status);
   }
+});
+
+test("outages distinguish load failures from uncertain saves without exposing driver details", async () => {
+  const internal = new Error("private-driver-detail");
+  const load = failure(internal, "read");
+  const save = failure(internal, "write");
+  assert.equal(load.status, 503);
+  assert.equal(save.status, 503);
+  const loadMessage = (await load.json()).error;
+  const saveMessage = (await save.json()).error;
+  assert.match(loadMessage, /loaded/);
+  assert.doesNotMatch(loadMessage, /changes/);
+  assert.match(saveMessage, /not been confirmed/);
+  assert.doesNotMatch(loadMessage + saveMessage, /private-driver-detail/);
 });
