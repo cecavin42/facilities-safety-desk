@@ -6,14 +6,23 @@ import { downloadText } from "@/lib/csv";
 import { recordsToCsv } from "@/lib/export";
 import { STATUSES, type Status } from "@/lib/options";
 import { useAppData } from "@/lib/store";
+import StorageStatus from "@/components/StorageStatus";
+import LegacyExport from "@/components/LegacyExport";
 
 const PAGE = 25;
 
 export default function RecordsPage() {
-  const { ready, records, setStatus, resetDemo } = useAppData();
+  const { ready, records, setStatus, error, refresh, saving } = useAppData();
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [shown, setShown] = useState(PAGE);
   const rows = applyFilters(records, filters);
+
+  async function updateStatus(id: string, status: Status) {
+    setSaveError(null);
+    try { await setStatus(id, status); }
+    catch (err) { setSaveError(err instanceof Error ? err.message : "Could not update status. Please retry."); }
+  }
 
   return (
     <div className="space-y-5">
@@ -22,25 +31,30 @@ export default function RecordsPage() {
           <h1 className="text-2xl font-bold">Records</h1>
           <p className="text-sm text-slate-600">
             {ready ? `${rows.length} of ${records.length} records match.` : "Loading..."} IDs starting with S are fake seed
-            records; R are ones added in this browser.
+            records; R are reports saved to shared storage. Refreshes every 15 seconds.
           </p>
         </div>
         <div className="flex gap-2">
           <button
+            disabled={!ready}
             onClick={() => downloadText(`incidents-${new Date().toISOString().slice(0, 10)}.csv`, recordsToCsv(rows))}
             className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800"
           >
             Export {rows.length} as CSV
           </button>
           <button
-            onClick={() => confirm("Remove the reports, status changes and questions added in this browser?") && resetDemo()}
+            onClick={() => void refresh()}
+            disabled={saving}
             className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
           >
-            Reset demo data
+            Refresh records
           </button>
         </div>
       </div>
 
+      <StorageStatus error={error} retry={() => void refresh()} />
+      {saveError && <p role="alert" className="rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">{saveError}</p>}
+      <LegacyExport />
       <Filters value={filters} onChange={(f) => { setFilters(f); setShown(PAGE); }} />
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
@@ -71,7 +85,8 @@ export default function RecordsPage() {
                   <select
                     aria-label={`Status of ${r.id}`}
                     value={r.status}
-                    onChange={(e) => setStatus(r.id, e.target.value as Status)}
+                    disabled={saving}
+                    onChange={(e) => void updateStatus(r.id, e.target.value as Status)}
                     className="rounded border border-slate-300 bg-white px-1 py-0.5 text-xs"
                   >
                     {STATUSES.map((s) => (

@@ -1,5 +1,5 @@
 import type { Equipment, EventType, IncidentRecord, Location, Severity, Shift, Status } from "./options";
-import type { QuestionLogEntry } from "./store";
+import type { QuestionLogEntry } from "./data-types";
 
 function rng(seed: number) {
   return () => {

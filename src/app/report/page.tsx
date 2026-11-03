@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import StorageStatus from "@/components/StorageStatus";
 import {
   EQUIPMENT,
   EVENT_TYPES,
@@ -18,19 +19,25 @@ import { validateReport } from "@/lib/validation";
 const input = "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-teal-600 focus:outline-none";
 
 export default function ReportPage() {
-  const { addRecords } = useAppData();
+  const { addRecords, ready, error, refresh, saving } = useAppData();
+  const requestId = useRef<string | null>(null);
+  const submitting = useRef(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [values, setValues] = useState<ReportInput>({});
   const [errors, setErrors] = useState<Partial<Record<FormField, string>>>({});
   const [savedId, setSavedId] = useState<string | null>(null);
 
   const set = (k: FormField) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    requestId.current = null;
+    setSavedId(null);
     const next = { ...values, [k]: e.target.value };
     if (k === "eventType" && (e.target.value === "Near miss" || e.target.value === "Unsafe condition")) next.severity = "None";
     setValues(next);
   };
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting.current) return;
     const result = validateReport(values);
     if (!result.ok) {
       setErrors(result.errors);
@@ -38,11 +45,20 @@ export default function ReportPage() {
       document.getElementById(`f-${Object.keys(result.errors)[0]}`)?.focus();
       return;
     }
-    const [id] = addRecords([result.record]);
+    submitting.current = true;
     setErrors({});
-    setValues({});
-    setSavedId(id);
-    window.scrollTo({ top: 0 });
+    setSaveError(null);
+    requestId.current ??= crypto.randomUUID();
+    try {
+      const [id] = await addRecords([result.record], requestId.current);
+      setErrors({});
+      setValues({});
+      setSavedId(id);
+      requestId.current = null;
+      window.scrollTo({ top: 0 });
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Could not save. Your entries are still here; retry.");
+    } finally { submitting.current = false; }
   }
 
   function Field({ name, required, children, hint }: { name: FormField; required?: boolean; children: React.ReactNode; hint?: string }) {
@@ -84,6 +100,8 @@ export default function ReportPage() {
         </p>
       </div>
 
+      <StorageStatus error={error} retry={() => void refresh()} />
+      {saveError && <p role="alert" className="rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">{saveError}</p>}
       {savedId && (
         <div role="status" className="rounded-md border border-green-300 bg-green-50 p-4 text-sm text-green-900">
           Report {savedId} saved with status Open.{" "}
@@ -99,7 +117,8 @@ export default function ReportPage() {
         </div>
       )}
 
-      <form onSubmit={submit} noValidate className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 sm:grid-cols-2">
+      <form onSubmit={submit} noValidate>
+      <fieldset disabled={saving} className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 sm:grid-cols-2">
         {Field({ name: "eventDate", required: true, hint: "Not in the future, and no more than 1 year ago.", children: (
           <input id="f-eventDate" type="date" className={input} value={values.eventDate ?? ""} onChange={set("eventDate")} aria-invalid={!!errors.eventDate} />
         ) })}
@@ -146,11 +165,11 @@ export default function ReportPage() {
         ) })}
 
         <div className="sm:col-span-2">
-          <button type="submit" className="rounded-md bg-teal-700 px-5 py-2 text-sm font-medium text-white hover:bg-teal-800">
-            Submit report
+          <button type="submit" disabled={!ready || saving} className="rounded-md bg-teal-700 px-5 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-40">
+            {saving ? "Saving..." : "Submit report"}
           </button>
         </div>
-      </form>
+      </fieldset></form>
     </div>
   );
 }

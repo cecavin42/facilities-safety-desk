@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import type { AskResult } from "@/lib/search";
-import { useAppData } from "@/lib/store";
 
 const HELP_TOPICS = [
   "Forklift inspections, training, refresher training and safe operation",
@@ -21,7 +20,6 @@ const EXAMPLES = [
 ];
 
 export default function AssistantPage() {
-  const { logQuestion } = useAppData();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -36,7 +34,6 @@ export default function AssistantPage() {
       const data = await res.json();
       if (!res.ok) setTurns((t) => [{ question: text, error: data.error ?? "Something went wrong." }, ...t]);
       else {
-        logQuestion(text, data.answered);
         setTurns((t) => [{ question: text, result: data }, ...t]);
       }
     } catch {

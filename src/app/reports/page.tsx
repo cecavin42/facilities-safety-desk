@@ -7,6 +7,7 @@ import { downloadText, toCsv } from "@/lib/csv";
 import { recordsToCsv } from "@/lib/export";
 import { EQUIPMENT, EVENT_TYPES, LOCATIONS, SEVERITIES, type IncidentRecord } from "@/lib/options";
 import { useAppData, type QuestionLogEntry } from "@/lib/store";
+import StorageStatus from "@/components/StorageStatus";
 
 function lastMonths(n: number) {
   const out: string[] = [];
@@ -58,9 +59,9 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 export default function ReportsPage() {
-  const { ready, records, questions } = useAppData();
+  const { ready, records, questions, error, refresh } = useAppData();
   const [filters, setFilters] = useState(EMPTY_FILTERS);
-  if (!ready) return <p className="text-sm text-slate-500">Loading...</p>;
+  if (!ready) return error ? <StorageStatus error={error} retry={() => void refresh()} /> : <p className="text-sm text-slate-500">Loading...</p>;
 
   const rows = applyFilters(records, filters);
   const months = lastMonths(12);
@@ -104,6 +105,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
+      <StorageStatus error={error} retry={() => void refresh()} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Reports</h1>
