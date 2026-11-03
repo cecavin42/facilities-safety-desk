@@ -12,7 +12,8 @@ export async function migrate(pool: Pool) {
     await client.query("SELECT pg_advisory_xact_lock(5563, 1)");
     await client.query("CREATE TABLE IF NOT EXISTS schema_migrations (name text PRIMARY KEY, checksum text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())");
     for (const file of files) {
-      const sql = await readFile(path.join(directory, file), "utf8");
+      // Git checkouts on Windows may use CRLF; hash the same SQL on every host.
+      const sql = (await readFile(path.join(directory, file), "utf8")).replace(/\r\n/g, "\n");
       const checksum = createHash("sha256").update(sql).digest("hex");
       const { rows } = await client.query("SELECT checksum FROM schema_migrations WHERE name = $1", [file]);
       if (rows.length) {
