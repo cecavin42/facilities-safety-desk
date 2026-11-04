@@ -104,3 +104,49 @@ test("AI evidence selection can only return exact supplied passages", async () =
     else process.env.ASSISTANT_OLLAMA_MODEL = originalModel;
   }
 });
+test("model selection cannot discard the strong search evidence", async () => {
+  const originalFetch = global.fetch;
+  const originalModel = process.env.ASSISTANT_OLLAMA_MODEL;
+  try {
+    process.env.ASSISTANT_OLLAMA_MODEL = "test-preserve-evidence";
+    global.fetch = async () =>
+      Response.json({
+        message: {
+          content:
+            '{"topicIds":[],"passageIds":["ut-saad022-k-2"],"fullyCovered":false}',
+        },
+      });
+    const result = await answerQuestion(
+      "Who investigates a UT accident where personal protective equipment was defective?",
+    );
+    assert.ok(result.evidence.some((e) => e.id === "ut-saad022-k-3"));
+  } finally {
+    global.fetch = originalFetch;
+    if (originalModel === undefined) delete process.env.ASSISTANT_OLLAMA_MODEL;
+    else process.env.ASSISTANT_OLLAMA_MODEL = originalModel;
+  }
+});
+test("a broad model-selected guide cannot hide specific retrieved evidence", async () => {
+  const originalFetch = global.fetch;
+  const originalModel = process.env.ASSISTANT_OLLAMA_MODEL;
+  try {
+    process.env.ASSISTANT_OLLAMA_MODEL = "test-guide-evidence";
+    global.fetch = async () =>
+      Response.json({
+        message: {
+          content:
+            '{"topicIds":["injury-report"],"passageIds":[],"fullyCovered":true}',
+        },
+      });
+    const result = await answerQuestion(
+      "Who investigates a UT accident where personal protective equipment was defective?",
+    );
+    assert.equal(result.outcome, "partial");
+    assert.equal(result.answered, false);
+    assert.ok(result.evidence.some((e) => e.id === "ut-saad022-k-3"));
+  } finally {
+    global.fetch = originalFetch;
+    if (originalModel === undefined) delete process.env.ASSISTANT_OLLAMA_MODEL;
+    else process.env.ASSISTANT_OLLAMA_MODEL = originalModel;
+  }
+});

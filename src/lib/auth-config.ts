@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { admin } from "better-auth/plugins";
+import { admin, twoFactor } from "better-auth/plugins";
 import type { Pool } from "pg";
 
 export function authOptions(pool: Pool) {
@@ -33,6 +33,7 @@ export function authOptions(pool: Pool) {
     },
     session: {
       expiresIn: 60 * 60 * 8,
+      disableSessionRefresh: true,
       updateAge: 60 * 30,
       freshAge: 60 * 15,
       cookieCache: { enabled: false },
@@ -53,7 +54,7 @@ export function authOptions(pool: Pool) {
         secure: url.protocol === "https:",
       },
     },
-    plugins: [admin()],
+    plugins: [admin(), twoFactor()],
     logger: { disabled: true },
     telemetry: { enabled: false },
   };

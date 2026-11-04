@@ -51,4 +51,4 @@ Built-in tool mode; new generation; opaque background. No input image or competi
 
 The existing 58 unit/regression checks and 23 HTTP access scenarios passed during this pass. Browser checks cover global search, metric filters, expandable report details, password visibility, mobile navigation, account-dialog dismissal and responsive layouts. Image loading and the optimized asset response were verified. This is not an independent usability study or accessibility certification.
 
-Hosted configuration, actual team accounts, MFA/SSO and email recovery remain outside this visual draft. No production merge, teammate role assignment or student hours are implied.
+The subsequent [readiness draft](READINESS_REVIEW.md) implements local MFA, private administrator-assisted recovery and source management. Hosted configuration, actual team accounts, SSO and email delivery remain incomplete. No production merge, teammate role assignment or student hours are implied.

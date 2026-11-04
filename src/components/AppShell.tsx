@@ -11,6 +11,7 @@ const titles: Record<string, string> = {
   "/reports": "Safety insights",
   "/upload": "Import incidents",
   "/assistant": "Safety assistant",
+  "/sources": "Source library",
   "/admin": "Team access",
   "/account": "My account",
 };

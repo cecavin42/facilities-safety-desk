@@ -9,6 +9,7 @@ import {
   ChartNoAxesCombined,
   FileSpreadsheet,
   Sparkles,
+  BookOpen,
   UsersRound,
   Settings2,
   LogOut,
@@ -33,6 +34,7 @@ const links = [
     icon: FileSpreadsheet,
     admin: true,
   },
+  { href: "/sources", label: "Source library", icon: BookOpen },
   { href: "/assistant", label: "Safety assistant", icon: Sparkles },
 ];
 export default function Nav({ onNavigate }: { onNavigate?: () => void }) {

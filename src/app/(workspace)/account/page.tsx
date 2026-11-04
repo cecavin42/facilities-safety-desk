@@ -1,4 +1,5 @@
 "use client";
+import TwoFactorSettings from "@/components/TwoFactorSettings";
 import { useState } from "react";
 import { useCurrentUser } from "@/components/SessionUser";
 import { ROLE_LABELS } from "@/lib/access";
@@ -78,6 +79,7 @@ export default function AccountPage() {
           {message}
         </p>
       )}
+      <TwoFactorSettings />
     </section>
   );
 }

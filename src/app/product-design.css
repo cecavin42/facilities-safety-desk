@@ -407,6 +407,11 @@ body {
   background: #fafcfc;
   border-color: #c3d1d7;
 }
+.btn-secondary[aria-pressed="true"] {
+  background: #e5f3ef;
+  border-color: #8abdb1;
+  color: #125e52;
+}
 .btn-primary:active,
 .btn-secondary:active {
   transform: translateY(1px);

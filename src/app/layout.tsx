@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Facilities Safety Desk",
   icons: { icon: "/brand/mark.svg" },
   description:
-    "Report incidents and near misses, see safety trends, and ask questions answered only from five safety documents. A student project, not an official university site.",
+    "Report incidents and near misses, see safety trends, and ask questions answered from approved safety documents. A student project, not an official university site.",
 };
 
 export default function RootLayout({

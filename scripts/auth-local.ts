@@ -5,9 +5,10 @@ import { spawn, type ChildProcess } from "node:child_process";
 import path from "node:path";
 import EmbeddedPostgres from "embedded-postgres";
 import { getMigrations } from "better-auth/db/migration";
+import { warmAssistant } from "./warm-assistant";
 import { authOptions, createAuth } from "../src/lib/auth-config";
 import { createPool } from "../src/lib/db/pool";
-import { migrate, seed } from "./database";
+import { migrate, seed, seedSources } from "./database";
 
 async function main() {
   if (process.env.VERCEL)
@@ -36,6 +37,7 @@ async function main() {
     password: "local-auth-demo-only",
     port: 54331,
     persistent: true,
+    initdbFlags: ["--encoding=UTF8", "--locale=C"],
     postgresFlags: ["-c", "listen_addresses=127.0.0.1"],
     onLog: () => {},
     onError: () => {},
@@ -73,6 +75,7 @@ async function main() {
     }
     await migrate(pool);
     await seed(pool);
+    await seedSources(pool);
     const file = ".local/review-accounts.json";
     type Account = {
       email: string;
@@ -121,6 +124,10 @@ async function main() {
       "Isolated auth database ready on 127.0.0.1:54331. Review credentials are in .local/review-accounts.json (not Git).",
     );
     if (!process.argv.includes("--db-only")) {
+      console.log(
+        "Warming the installed assistant model; source search remains available if it is offline.",
+      );
+      const warmup = warmAssistant();
       const next = path.resolve("node_modules/next/dist/bin/next");
       const code = await new Promise<number>((resolve) => {
         child = spawn(process.execPath, [next, "build"], {
@@ -131,6 +138,11 @@ async function main() {
         child.on("exit", (c) => resolve(c ?? 1));
       });
       if (code !== 0) throw new Error("Build failed");
+      console.log(
+        (await warmup)
+          ? "Local assistant model is warm."
+          : "Starting with source search available; model warmup did not complete.",
+      );
       child = spawn(
         process.execPath,
         [next, "start", "--hostname", "127.0.0.1", "--port", "3103"],

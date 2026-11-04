@@ -1,5 +1,7 @@
 # Sign-in and access controls — draft
 
+Updated by the [readiness draft](READINESS_REVIEW.md): authenticator MFA and private administrator-issued recovery links are now implemented. The original verification below records the earlier access-control pass; current results and remaining limits are in the readiness review.
+
 This branch integrates the full-app draft (#6) with the Postgres foundation from #3. It replaces browser-owned records with authenticated, server-owned records. It follows the survey's two-role proposal; these roles and actual team accounts still need team approval.
 
 | Capability | Employee | Safety manager / admin |
@@ -14,7 +16,7 @@ This branch integrates the full-app draft (#6) with the Postgres foundation from
 
 ## What is enforced
 
-- Better Auth 1.7.16 handles password hashing and database-backed sessions. Session cookies are HttpOnly, SameSite=Lax, host-scoped, and Secure when the configured origin is HTTPS. Sessions expire after eight hours, with activity-based renewal. Cookie caching is disabled.
+- Better Auth 1.7.16 handles password hashing and database-backed sessions. Session cookies are HttpOnly, SameSite=Lax, host-scoped, and Secure when the configured origin is HTTPS. Sessions have an absolute eight-hour lifetime; activity does not renew them. Cookie caching is disabled.
 - Every record, import, statistics and account endpoint checks the server session. Ownership is assigned from that session, never from a supplied email, role or owner ID. Inaccessible report IDs return 404.
 - Public signup and the library's broad admin/impersonation HTTP endpoints are not exposed. Email domains confer no privileges. Only an authenticated administrator can provision accounts through the app.
 - Administrative account changes require a sign-in from the last fifteen minutes. Administrators cannot demote/disable themselves. Role changes and disabling an account revoke its sessions immediately. Password changes require the current password and revoke other sessions.
@@ -63,13 +65,13 @@ Observed result: 23 HTTP access scenarios passed, as did 19 app/CSV checks, 38 a
 The project owner must supply an isolated Preview database and explicitly approved accounts before a shared test:
 
 1. Configure `DATABASE_URL` (and `DATABASE_URL_UNPOOLED` for migrations if provided), a randomly generated `BETTER_AUTH_SECRET` of at least 32 characters, and `BETTER_AUTH_URL` set to the exact HTTPS deployment origin. No secrets may use a `NEXT_PUBLIC_` prefix.
-2. Apply `npm run db:setup` against that reviewed target. Migration 001 preserves the earlier database foundation; 002 is generated from the pinned auth package; 003 adds ownership, auditing and attempt limits. Existing incidents without an owner remain admin-only. Test Preview separately from Production.
+2. Apply `npm run db:setup` against that reviewed UTF-8 target with environment variables supplied by the operator. Migration 001 preserves the earlier database foundation; 002 is generated from the pinned auth package; 003 adds ownership, auditing and attempt limits; 004 adds MFA; 005 adds source versions and recovery; 006 records second-factor verification on each session. Existing incidents without an owner remain admin-only. Test Preview separately from Production.
 3. Provision the first approved administrator from a secure operator environment with `FSA_ALLOW_ADMIN_BOOTSTRAP=1`, `FSA_ADMIN_EMAIL`, `FSA_ADMIN_NAME`, and `FSA_ADMIN_PASSWORD`, then run `npx tsx scripts/bootstrap-admin.ts`. The script refuses to create a bootstrap admin if an active admin already exists. Remove bootstrap variables afterward.
 4. Sign in over HTTPS and repeat the two-user isolation, cookie, logout and account-revocation checks on the hosted preview. Review the diff and agree the roles before merging.
 
 Unconfigured deployments can build and show the sign-in screen, but authentication/data access fail closed. No public demo password or unauthenticated fallback is provided.
 
-Not implemented: university SSO, MFA, invitation/reset email delivery, automatic identity verification, enterprise audit retention, or a completed hosted security review. These remain relevant before real people or real incident data use the system. No emails or messages were sent.
+Not implemented or verified: university SSO, invitation/reset email delivery, automatic identity verification, enterprise audit retention, or a completed hosted security review. MFA is available but actual users have not been enrolled. Administrator-issued recovery links require private delivery and identity verification by the team. No emails or messages were sent.
 
 References: [Better Auth setup](https://better-auth.com/docs/installation), [Next.js integration](https://better-auth.com/docs/integrations/next), [session management](https://better-auth.com/docs/concepts/session-management), and [Next.js authentication guidance](https://nextjs.org/docs/app/guides/authentication).
 

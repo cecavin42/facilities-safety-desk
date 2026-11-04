@@ -9,9 +9,19 @@ export type SafetyDocument = {
   credit: string;
 };
 
-export type Passage = { id: string; docId: string; label: string; text: string };
+export type Passage = {
+  id: string;
+  docId: string;
+  label: string;
+  text: string;
+};
 
-export type Citation = { document: SafetyDocument; label: string; passage: string; excerpt: string };
+export type Citation = {
+  document: SafetyDocument;
+  label: string;
+  passage: string;
+  excerpt: string;
+};
 
 export type AskResult =
   | { answered: true; citations: Citation[] }
@@ -21,12 +31,18 @@ export const DOCUMENTS = data.documents as SafetyDocument[];
 const PASSAGES = data.passages as Passage[];
 
 const STOP = new Set(
-  ("a an and are as at be been but by can could did do does for from had has have how i if in into is it its me my of on or our should so than that the their them then there these they this to us was we were what when where which who why will with would you your about any after before need needs must shall there here " +
-    "often much many get got getting fast quickly soon long take go going someone somebody coworker coworkers co worker workers employee employees person people okay ok please tell know want am").split(" "),
+  (
+    "a an and are as at be been but by can could did do does for from had has have how i if in into is it its me my of on or our should so than that the their them then there these they this to us was we were what when where which who why will with would you your about any after before need needs must shall there here " +
+    "ut utk guide procedure document according mention mentions mentioned say says often much many get got getting fast quickly soon long take go going someone somebody coworker coworkers co worker workers employee employees person people okay ok please tell know want am"
+  ).split(" "),
 );
 
 // Word families the documents use for common questions ("inspected" vs "examined").
 const SYNONYMS: Record<string, string> = {
+  allow: "permit",
+  permi: "permit",
+  passenger: "ride",
+  rid: "ride",
   inspect: "examin",
   check: "examin",
   hospit: "hospitaliz",
@@ -53,7 +69,19 @@ const SYNONYMS: Record<string, string> = {
 
 function stem(word: string): string {
   let w = word.toLowerCase();
-  for (const suf of ["ations", "ation", "ings", "ing", "edly", "ed", "ies", "es", "s", "ly", "al"]) {
+  for (const suf of [
+    "ations",
+    "ation",
+    "ings",
+    "ing",
+    "edly",
+    "ed",
+    "ies",
+    "es",
+    "s",
+    "ly",
+    "al",
+  ]) {
     if (w.length - suf.length >= 4 && w.endsWith(suf)) {
       w = w.slice(0, -suf.length);
       break;
@@ -64,7 +92,9 @@ function stem(word: string): string {
 }
 
 function tokens(text: string): string[] {
-  return (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((t) => t.length > 1 && !STOP.has(t)).map(stem);
+  return (text.toLowerCase().match(/[a-z0-9]+/g) ?? [])
+    .filter((t) => t.length > 1 && !STOP.has(t))
+    .map(stem);
 }
 
 const indexed = PASSAGES.map((p) => {
@@ -75,7 +105,8 @@ const indexed = PASSAGES.map((p) => {
 });
 const avgLen = indexed.reduce((a, x) => a + x.len, 0) / indexed.length;
 const df = new Map<string, number>();
-for (const x of indexed) for (const t of x.tf.keys()) df.set(t, (df.get(t) ?? 0) + 1);
+for (const x of indexed)
+  for (const t of x.tf.keys()) df.set(t, (df.get(t) ?? 0) + 1);
 const N = indexed.length;
 
 function idf(t: string) {
@@ -104,14 +135,19 @@ function coverage(qTerms: string[], x: (typeof indexed)[number]) {
 function intentTerms(question: string): string[] {
   const q = question.toLowerCase();
   const words: string[] = [];
-  if (/how often|how frequent|every|daily/.test(q)) words.push("daily", "shift", "year", "annual", "month", "least");
-  if (/how (fast|soon|quick|long)|deadline|within|how many (hours|days)/.test(q)) words.push("hour", "within", "eight", "twenty");
+  if (/how often|how frequent|every|daily/.test(q))
+    words.push("daily", "shift", "year", "annual", "month", "least");
+  if (
+    /how (fast|soon|quick|long)|deadline|within|how many (hours|days)/.test(q)
+  )
+    words.push("hour", "within", "eight", "twenty");
   if (/\bwho\b|whom/.test(q)) words.push("supervisor", "immediate", "contact");
   if (/trouble|punish|retaliat|fired/.test(q)) words.push("free", "discharg");
   return words.map(stem);
 }
 
-const HEADER = /Effective Date|Version \d|Revision Date|Procedure AD-|Page \d+ of/i;
+const HEADER =
+  /Effective Date|Version \d|Revision Date|Procedure AD-|Page \d+ of/i;
 
 function bestExcerpt(text: string, qTerms: string[], intent: string[]): string {
   const sentences = text.split(/(?<=[.;:?])\s+(?=[A-Z0-9(•])/);
@@ -136,31 +172,99 @@ function bestExcerpt(text: string, qTerms: string[], intent: string[]): string {
 const MIN_COVERAGE = 0.5;
 const MIN_SCORE = 3;
 
-export function retrieveCandidates(question: string, limit = 8): Passage[] {
-  const qTerms = [...new Set(tokens(question))];
+export function retrieveCandidates(
+  question: string,
+  limit = 8,
+  passages: Passage[] = PASSAGES,
+  minCoverage = 0,
+): Passage[] {
+  const terms = [...new Set(tokens(question))];
   const intent = intentTerms(question);
-  return indexed.map(x => ({ x, score: bm25(qTerms, x) + 0.5 * bm25(intent, x) }))
-    .filter(r => r.score >= MIN_SCORE && !HEADER.test(r.x.p.text.slice(0, 70)))
-    .sort((a, b) => b.score - a.score).slice(0, limit).map(r => r.x.p);
+  const entries = passages.map((p) => {
+    const words = tokens(p.text);
+    const tf = new Map<string, number>();
+    for (const w of words) tf.set(w, (tf.get(w) || 0) + 1);
+    return { p, tf, len: words.length };
+  });
+  const average =
+    entries.reduce((n, x) => n + x.len, 0) / Math.max(1, entries.length);
+  const frequency = new Map<string, number>();
+  for (const x of entries)
+    for (const word of x.tf.keys())
+      frequency.set(word, (frequency.get(word) || 0) + 1);
+  const rank = (words: string[], x: (typeof entries)[number]) =>
+    words.reduce((sum, t) => {
+      const f = x.tf.get(t) || 0;
+      const n = frequency.get(t) || 0;
+      const weight = Math.log(1 + (entries.length - n + 0.5) / (n + 0.5));
+      return (
+        sum +
+        (f
+          ? (weight * (f * 2.2)) /
+            (f + 1.2 * (0.25 + (0.75 * x.len) / Math.max(1, average)))
+          : 0)
+      );
+    }, 0);
+  const weight = (t: string) =>
+    Math.log(
+      1 +
+        (entries.length - (frequency.get(t) || 0) + 0.5) /
+          ((frequency.get(t) || 0) + 0.5),
+    );
+  const total = terms.reduce((n, t) => n + weight(t), 0);
+  return entries
+    .map((x) => ({
+      x,
+      score: rank(terms, x) + 0.5 * rank(intent, x),
+      coverage: total
+        ? terms.filter((t) => x.tf.has(t)).reduce((n, t) => n + weight(t), 0) /
+          total
+        : 0,
+    }))
+    .filter(
+      (r) =>
+        r.coverage >= minCoverage &&
+        r.score >=
+          (entries.length < 10
+            ? Math.log1p(entries.length) * 0.4
+            : MIN_SCORE) &&
+        !(r.x.p.text.length < 300 && HEADER.test(r.x.p.text.slice(0, 70))),
+    )
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((r) => r.x.p);
 }
 
 export function ask(question: string): AskResult {
   const qTerms = [...new Set(tokens(question))];
-  if (qTerms.length === 0) return { answered: false, message: declineMessage(question) };
+  if (qTerms.length === 0)
+    return { answered: false, message: declineMessage(question) };
 
   const intent = intentTerms(question);
   const ranked = indexed
-    .map((x) => ({ x, score: bm25(qTerms, x) + 0.5 * bm25(intent, x), cov: coverage(qTerms, x) }))
+    .map((x) => ({
+      x,
+      score: bm25(qTerms, x) + 0.5 * bm25(intent, x),
+      cov: coverage(qTerms, x),
+    }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  const strong = ranked.filter((r) => r.cov >= MIN_COVERAGE && r.score >= MIN_SCORE);
-  if (strong.length === 0) return { answered: false, message: declineMessage(question) };
+  const strong = ranked.filter(
+    (r) => r.cov >= MIN_COVERAGE && r.score >= MIN_SCORE,
+  );
+  if (strong.length === 0)
+    return { answered: false, message: declineMessage(question) };
 
   const picked: typeof strong = [];
   for (const r of strong) {
     if (picked.length >= 3) break;
-    if (picked.some((p) => p.x.p.docId === r.x.p.docId && p.x.p.label === r.x.p.label)) continue;
+    if (
+      picked.some(
+        (p) => p.x.p.docId === r.x.p.docId && p.x.p.label === r.x.p.label,
+      )
+    )
+      continue;
     if (r.score < strong[0].score * 0.5) break;
     picked.push(r);
   }
@@ -178,10 +282,11 @@ export function ask(question: string): AskResult {
 
 function declineMessage(question: string): string {
   const q = question.toLowerCase();
-  const extra = /pay|paid|salary|wage|vacation|leave|benefit|holiday|raise/.test(q)
-    ? " For pay, leave or benefits questions, contact Human Resources."
-    : /pain|hurt|medic|ibuprofen|doctor|er\b|emergency|bleed|sick/.test(q)
-      ? " For an injury, tell your supervisor. In an emergency, call 911."
-      : "";
+  const extra =
+    /pay|paid|salary|wage|vacation|leave|benefit|holiday|raise/.test(q)
+      ? " For pay, leave or benefits questions, contact Human Resources."
+      : /pain|hurt|medic|ibuprofen|doctor|er\b|emergency|bleed|sick/.test(q)
+        ? " For an injury, tell your supervisor. In an emergency, call 911."
+        : "";
   return `I couldn't find that in the safety documents I have, so I won't guess.${extra}`;
 }

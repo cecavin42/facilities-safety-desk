@@ -1,5 +1,5 @@
 import { createPool } from "../src/lib/db/pool";
-import { migrate, seed } from "./database";
+import { migrate, seed, seedSources } from "./database";
 
 async function main() {
   const action = process.argv[2];
@@ -11,6 +11,7 @@ async function main() {
   try {
     if (action !== "seed") await migrate(pool);
     if (action !== "migrate") await seed(pool);
+    await seedSources(pool);
     console.log(`Database ${action} complete. Existing data preserved.`);
   } finally {
     await pool.end();

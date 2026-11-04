@@ -24,11 +24,13 @@ export async function currentUser(
   const {
     rows: [user],
   } = await database().query(
-    'SELECT id, name, email, role, banned FROM "user" WHERE id = $1',
-    [session.user.id],
+    'SELECT u.id, u.name, u.email, u.role, u.banned, u."twoFactorEnabled", s.mfa_verified FROM "user" u JOIN "session" s ON s."userId"=u.id WHERE u.id=$1 AND s.id=$2',
+    [session.user.id, session.session.id],
   );
   if (!user || user.banned || !["user", "admin"].includes(user.role))
     return null;
+  // A password-only session is never sufficient after MFA is enabled.
+  if (user.twoFactorEnabled && !user.mfa_verified) return null;
   return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 export async function pageUser() {
@@ -56,6 +58,22 @@ export async function requireFreshAdmin(request: Request) {
   )
     throw new HttpError(
       "Sign out and sign in again before changing account access.",
+      403,
+    );
+  return user;
+}
+export async function requireFreshUser(request: Request) {
+  const user = await requireUser(request);
+  const session = await auth().api.getSession({
+    headers: request.headers,
+    query: { disableCookieCache: true },
+  });
+  if (
+    !session ||
+    Date.now() - new Date(session.session.createdAt).getTime() > 15 * 60_000
+  )
+    throw new HttpError(
+      "Sign out and sign in again before changing authenticator settings.",
       403,
     );
   return user;

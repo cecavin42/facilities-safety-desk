@@ -40,8 +40,9 @@ export default function SignIn() {
         );
         return;
       }
+      const result = await response.json();
       setPassword("");
-      window.location.replace("/");
+      window.location.replace(result.twoFactorRedirect ? "/verify" : "/");
     } catch {
       setError("Could not reach sign-in. Check your connection and retry.");
     } finally {

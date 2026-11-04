@@ -1,8 +1,9 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Pool } from "pg";
 import { transaction } from "../src/lib/db/repository";
+import { DOCUMENTS, PASSAGES } from "../src/lib/assistant/topics";
 import { seedQuestions, seedRecords } from "../src/lib/seed";
 
 export async function migrate(pool: Pool) {
@@ -83,4 +84,29 @@ export async function seed(pool: Pool, today = new Date()) {
     }
     return true;
   });
+}
+
+export async function seedSources(pool: Pool) {
+  for (const d of DOCUMENTS) {
+    const passages = PASSAGES.filter((p) => p.docId === d.id);
+    await pool.query(
+      "INSERT INTO source_versions(id,document_id,version,title,publisher,revision,source_url,scope,credit,origin,state,passages,content_hash,activated_at) VALUES($1,$2,1,$3,$4,$5,$6,$7,$8,'bundled','active',$9,$10,now()) ON CONFLICT DO NOTHING",
+      [
+        randomUUID(),
+        d.id,
+        d.title,
+        d.owner,
+        d.dated,
+        d.url,
+        d.id.startsWith("ut-")
+          ? "UT Knoxville reference"
+          : d.id.startsWith("tn-")
+            ? "Tennessee reporting rule"
+            : "Federal forklift standard",
+        d.credit,
+        JSON.stringify(passages),
+        createHash("sha256").update(JSON.stringify(passages)).digest("hex"),
+      ],
+    );
+  }
 }

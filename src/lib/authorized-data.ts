@@ -183,6 +183,10 @@ export async function updateAccount(
     );
     await client.query('DELETE FROM "session" WHERE "userId"=$1', [id]);
     await client.query(
+      "DELETE FROM account_recovery WHERE user_id=$1 AND used_at IS NULL",
+      [id],
+    );
+    await client.query(
       "INSERT INTO audit_log(actor_id,action,target_id,details) VALUES($1,'account.access_changed',$2,$3)",
       [actor.id, id, JSON.stringify({ role, active })],
     );

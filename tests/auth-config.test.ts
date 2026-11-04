@@ -19,6 +19,7 @@ test("auth configuration fails closed and uses secure cookies on HTTPS", () => {
     assert.equal(config.advanced.useSecureCookies, true);
     assert.equal(config.advanced.defaultCookieAttributes.httpOnly, true);
     assert.equal(config.session.cookieCache.enabled, false);
+    assert.equal(config.session.disableSessionRefresh, true);
     assert.equal(config.emailAndPassword.disableSignUp, true);
     assert.equal(config.emailAndPassword.minPasswordLength, 15);
     assert.deepEqual(config.trustedOrigins, ["https://review.example.invalid"]);

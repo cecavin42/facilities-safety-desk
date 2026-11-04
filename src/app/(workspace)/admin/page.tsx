@@ -5,6 +5,13 @@ import { useCurrentUser } from "@/components/SessionUser";
 import { Plus, X, ShieldCheck } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 const actionLabels: Record<string, string> = {
+  "source.draft_created": "Source draft uploaded",
+  "source.activated": "Source version activated",
+  "source.retired": "Source version retired",
+  "account.mfa_enabled": "Authenticator enabled",
+  "account.mfa_disabled": "Authenticator disabled",
+  "account.recovery_issued": "Recovery link issued",
+  "account.password_recovered": "Password recovered",
   "report.created": "Report created",
   "report.status_changed": "Report status updated",
   "reports.imported": "Reports imported",
@@ -27,9 +34,16 @@ type Audit = {
 };
 export default function AdminPage() {
   const actor = useCurrentUser();
+  const recoveryDialog = useRef<HTMLDialogElement>(null);
+  const [recovery, setRecovery] = useState<{
+    url: string;
+    expiresAt: string;
+    name: string;
+  } | null>(null);
   const accountDialog = useRef<HTMLDialogElement>(null);
   const [visibleAudit, setVisibleAudit] = useState(6);
   const [users, setUsers] = useState<User[]>([]);
+  const [showDisabled, setShowDisabled] = useState(false);
   const [audit, setAudit] = useState<Audit[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -69,6 +83,24 @@ export default function AdminPage() {
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Account was not created.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function recoveryLink(id: string, name: string) {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await api<{ url: string; expiresAt: string }>(
+        `/api/admin/users/${id}/recovery`,
+        { method: "POST", body: "{}" },
+      );
+      setRecovery({ ...result, name });
+      requestAnimationFrame(() => recoveryDialog.current?.showModal());
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Recovery link could not be issued.",
+      );
     } finally {
       setBusy(false);
     }
@@ -114,6 +146,35 @@ export default function AdminPage() {
           Add account
         </button>
       </PageHeader>
+      <dialog
+        ref={recoveryDialog}
+        className="account-dialog"
+        aria-label="One-time recovery link"
+        onClose={() => setRecovery(null)}
+      >
+        <h2 className="text-xl font-semibold">Recovery for {recovery?.name}</h2>
+        <p className="mt-3 text-sm leading-7">
+          Verify the person before sharing this link privately. It expires in 30
+          minutes and works once. No email has been sent.
+        </p>
+        <label className="mt-4 block text-sm">
+          One-time recovery link
+          <input
+            className="control mt-2"
+            readOnly
+            value={recovery?.url || ""}
+          />
+        </label>
+        <p className="mt-3 text-xs text-slate-500">
+          Authenticator protection remains enabled after a password reset.
+        </p>
+        <button
+          className="btn-secondary mt-5"
+          onClick={() => recoveryDialog.current?.close()}
+        >
+          Close and hide link
+        </button>
+      </dialog>
       {error && (
         <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">
           {error}
@@ -217,61 +278,79 @@ export default function AdminPage() {
           </h2>
           <small>{users.filter((u) => !u.banned).length} active accounts</small>
         </div>
-        {users.map((user) => (
-          <form
-            onSubmit={(event) => void access(event, user.id)}
-            key={user.id}
-            className="member-row"
-          >
-            <span className="member-avatar">
-              {user.name
-                .split(/\s+/)
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join("")}
-            </span>
-            <div className="member-identity">
-              <p className="font-semibold">
-                {user.name}
-                {user.id === actor.id ? " (you)" : ""}
-              </p>
-              <p className="break-all text-sm text-slate-500">{user.email}</p>
-            </div>
-            <span
-              className={`member-state ${user.banned ? "member-disabled" : ""}`}
+        <label className="flex min-h-11 items-center gap-2 px-5 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={showDisabled}
+            onChange={(e) => setShowDisabled(e.target.checked)}
+          />
+          Show disabled accounts ({users.filter((u) => u.banned).length})
+        </label>
+        {users
+          .filter((u) => showDisabled || !u.banned)
+          .map((user) => (
+            <form
+              onSubmit={(event) => void access(event, user.id)}
+              key={user.id}
+              className="member-row"
             >
-              {user.banned ? "Disabled" : "Active"}
-            </span>
-            <label className="member-role">
-              <span className="sr-only">Role for {user.name}</span>
-              <select
-                name="role"
-                className="control mt-1"
-                defaultValue={user.role}
+              <span className="member-avatar">
+                {user.name
+                  .split(/\s+/)
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")}
+              </span>
+              <div className="member-identity">
+                <p className="font-semibold">
+                  {user.name}
+                  {user.id === actor.id ? " (you)" : ""}
+                </p>
+                <p className="break-all text-sm text-slate-500">{user.email}</p>
+              </div>
+              <span
+                className={`member-state ${user.banned ? "member-disabled" : ""}`}
+              >
+                {user.banned ? "Disabled" : "Active"}
+              </span>
+              <label className="member-role">
+                <span className="sr-only">Role for {user.name}</span>
+                <select
+                  name="role"
+                  className="control mt-1"
+                  defaultValue={user.role}
+                  disabled={busy || user.id === actor.id}
+                >
+                  <option value="user">Employee</option>
+                  <option value="admin">Safety manager / admin</option>
+                </select>
+              </label>
+              <label className="member-enable">
+                <input
+                  name="active"
+                  type="checkbox"
+                  defaultChecked={!user.banned}
+                  disabled={busy || user.id === actor.id}
+                />
+                Active
+              </label>
+              <button
+                className="btn-secondary member-save"
+                aria-label={`Save access for ${user.name}`}
                 disabled={busy || user.id === actor.id}
               >
-                <option value="user">Employee</option>
-                <option value="admin">Safety manager / admin</option>
-              </select>
-            </label>
-            <label className="member-enable">
-              <input
-                name="active"
-                type="checkbox"
-                defaultChecked={!user.banned}
-                disabled={busy || user.id === actor.id}
-              />
-              Active
-            </label>
-            <button
-              className="btn-secondary member-save"
-              aria-label={`Save access for ${user.name}`}
-              disabled={busy || user.id === actor.id}
-            >
-              Save access
-            </button>
-          </form>
-        ))}
+                Save access
+              </button>
+              <button
+                type="button"
+                className="text-action"
+                disabled={busy || user.banned || user.id === actor.id}
+                onClick={() => void recoveryLink(user.id, user.name)}
+              >
+                Issue recovery link
+              </button>
+            </form>
+          ))}
       </section>
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="text-xl font-semibold">

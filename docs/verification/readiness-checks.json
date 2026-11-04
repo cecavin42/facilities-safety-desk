@@ -1,0 +1,1298 @@
+{
+  "recordedAt": "2026-11-04T03:29:25.570934+00:00",
+  "branch": "codex/prototype-readiness",
+  "environment": "Isolated local PostgreSQL and production-built Next.js app; synthetic accounts and data only",
+  "unitChecks": {
+    "app_csv": 19,
+    "assistant": 40,
+    "catalog_including_frozen_challenge": 23,
+    "auth_configuration": 1,
+    "client_mfa_error": 1
+  },
+  "build": {
+    "productionBuild": true,
+    "typecheck": true,
+    "lint": true,
+    "productionAuditKnownVulnerabilities": 0
+  },
+  "browser": [
+    "Draft upload, extraction inspection, activation, cited answer, retirement, fresh-answer withholding",
+    "Account security settings visible; real-user MFA not enrolled",
+    "MFA error stays on verification screen; recovery missing-link state",
+    "Source and account responsive checks at 320/390 pixels; no horizontal overflow",
+    "Mobile source selection focuses the selected heading",
+    "Disabled accounts hidden by default and restored by filter; source empty state visible"
+  ],
+  "focusedBoundaryChecks": [
+    "Malformed source UUIDs return 404 on detail, mutation and file routes",
+    "Employees cannot download retired source files",
+    "Admin downloads use attachment headers",
+    "Source URLs containing credentials are rejected"
+  ],
+  "notVerified": [
+    "Hosted configuration and hosted MFA/PDF behavior",
+    "Real user enrollment and private recovery delivery",
+    "Independent unseen-question evaluation",
+    "Production security, accessibility, usability or operational readiness"
+  ],
+  "receipts": {
+    "challenge_initial": {
+      "passed": 9,
+      "total": 18,
+      "live": false,
+      "results": [
+        {
+          "id": "negative-binder",
+          "question": "Where should I store the inspection binder?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 2
+        },
+        {
+          "id": "negative-bicycle",
+          "question": "Where can students park bicycles on campus?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-60",
+            "cfr-1910-178-61"
+          ],
+          "elapsedMs": 1
+        },
+        {
+          "id": "negative-vet",
+          "question": "My dog was hospitalized. What must I report?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-course",
+          "question": "Can I work before I finish harassment training?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-43",
+            "cfr-1910-178-44"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-anonymous",
+          "question": "Can I stay anonymous when posting on social media?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-discipline",
+          "question": "Will I get in trouble for arriving late to class?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad021-k-1"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-car",
+          "question": "My car has bad brakes. Can I finish my trip?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-74"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-plant",
+          "question": "My office plant died. What should I do?",
+          "expected": "withhold",
+          "passed": false,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-shift",
+          "question": "Do forklifts working around the clock need more than a daily check?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-refresher",
+          "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-53",
+            "cfr-1910-178-54",
+            "ut-saad021-k-2",
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-training-record",
+          "question": "Which dates and names belong in forklift training records?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-56"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-hospital-observation",
+          "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-confidential",
+          "question": "Does UT guarantee complete anonymity for a safety complaint?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-litigation",
+          "question": "How long does UT keep accident records when litigation may take years?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad022-k-6",
+            "ut-saad021-k-4"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "excerpt-passengers",
+          "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+          "expected": "evidence",
+          "passed": false,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "cfr-1910-178-59",
+            "ut-sags130-k-1",
+            "ut-sags130-k-17"
+          ],
+          "elapsedMs": 14
+        },
+        {
+          "id": "excerpt-battery",
+          "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-sags130-k-11",
+            "cfr-1910-178-37",
+            "cfr-1910-178-35"
+          ],
+          "elapsedMs": 12
+        },
+        {
+          "id": "excerpt-investigation",
+          "question": "Who investigates a UT accident where personal protective equipment was defective?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-saad022-k-3",
+            "ut-saad021-k-1",
+            "ut-saad022-k-2"
+          ],
+          "elapsedMs": 11
+        },
+        {
+          "id": "excerpt-smoking",
+          "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-sags130-k-10",
+            "cfr-1910-178-38",
+            "cfr-1910-178-35"
+          ],
+          "elapsedMs": 11
+        }
+      ]
+    },
+    "challenge_deterministic_after": {
+      "passed": 18,
+      "total": 18,
+      "live": false,
+      "results": [
+        {
+          "id": "negative-binder",
+          "question": "Where should I store the inspection binder?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 15
+        },
+        {
+          "id": "negative-bicycle",
+          "question": "Where can students park bicycles on campus?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 15
+        },
+        {
+          "id": "negative-vet",
+          "question": "My dog was hospitalized. What must I report?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-course",
+          "question": "Can I work before I finish harassment training?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-anonymous",
+          "question": "Can I stay anonymous when posting on social media?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 0
+        },
+        {
+          "id": "negative-discipline",
+          "question": "Will I get in trouble for arriving late to class?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 14
+        },
+        {
+          "id": "negative-car",
+          "question": "My car has bad brakes. Can I finish my trip?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 12
+        },
+        {
+          "id": "negative-plant",
+          "question": "My office plant died. What should I do?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-shift",
+          "question": "Do forklifts working around the clock need more than a daily check?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 1
+        },
+        {
+          "id": "positive-refresher",
+          "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-53",
+            "cfr-1910-178-54",
+            "ut-saad021-k-2",
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-training-record",
+          "question": "Which dates and names belong in forklift training records?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "cfr-1910-178-56"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-hospital-observation",
+          "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-confidential",
+          "question": "Does UT guarantee complete anonymity for a safety complaint?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "positive-litigation",
+          "question": "How long does UT keep accident records when litigation may take years?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "source-guide",
+          "evidenceIds": [
+            "ut-saad022-k-6",
+            "ut-saad021-k-4"
+          ],
+          "elapsedMs": 0
+        },
+        {
+          "id": "excerpt-passengers",
+          "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-sags130-k-14",
+            "ut-sags130-k-17"
+          ],
+          "elapsedMs": 5
+        },
+        {
+          "id": "excerpt-battery",
+          "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 5
+        },
+        {
+          "id": "excerpt-investigation",
+          "question": "Who investigates a UT accident where personal protective equipment was defective?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-saad022-k-3"
+          ],
+          "elapsedMs": 4
+        },
+        {
+          "id": "excerpt-smoking",
+          "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "source-search",
+          "evidenceIds": [
+            "ut-sags130-k-10",
+            "ut-sags130-k-12",
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 5
+        }
+      ]
+    },
+    "challenge_live_initial": {
+      "passed": 16,
+      "total": 18,
+      "live": true,
+      "results": [
+        {
+          "id": "negative-binder",
+          "question": "Where should I store the inspection binder?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 14372
+        },
+        {
+          "id": "negative-bicycle",
+          "question": "Where can students park bicycles on campus?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 5326
+        },
+        {
+          "id": "negative-vet",
+          "question": "My dog was hospitalized. What must I report?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 13
+        },
+        {
+          "id": "negative-course",
+          "question": "Can I work before I finish harassment training?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 9
+        },
+        {
+          "id": "negative-anonymous",
+          "question": "Can I stay anonymous when posting on social media?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 8
+        },
+        {
+          "id": "negative-discipline",
+          "question": "Will I get in trouble for arriving late to class?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 4487
+        },
+        {
+          "id": "negative-car",
+          "question": "My car has bad brakes. Can I finish my trip?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 4863
+        },
+        {
+          "id": "negative-plant",
+          "question": "My office plant died. What should I do?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 11
+        },
+        {
+          "id": "positive-shift",
+          "question": "Do forklifts working around the clock need more than a daily check?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 6025
+        },
+        {
+          "id": "positive-refresher",
+          "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-53",
+            "cfr-1910-178-54"
+          ],
+          "elapsedMs": 5294
+        },
+        {
+          "id": "positive-training-record",
+          "question": "Which dates and names belong in forklift training records?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-56"
+          ],
+          "elapsedMs": 7068
+        },
+        {
+          "id": "positive-hospital-observation",
+          "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 7494
+        },
+        {
+          "id": "positive-confidential",
+          "question": "Does UT guarantee complete anonymity for a safety complaint?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 3395
+        },
+        {
+          "id": "positive-litigation",
+          "question": "How long does UT keep accident records when litigation may take years?",
+          "expected": "answer",
+          "passed": false,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-6",
+            "ut-saad021-k-4"
+          ],
+          "elapsedMs": 5727
+        },
+        {
+          "id": "excerpt-passengers",
+          "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-14"
+          ],
+          "elapsedMs": 3386
+        },
+        {
+          "id": "excerpt-battery",
+          "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 3841
+        },
+        {
+          "id": "excerpt-investigation",
+          "question": "Who investigates a UT accident where personal protective equipment was defective?",
+          "expected": "evidence",
+          "passed": false,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-2"
+          ],
+          "elapsedMs": 4815
+        },
+        {
+          "id": "excerpt-smoking",
+          "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-10"
+          ],
+          "elapsedMs": 4540
+        }
+      ]
+    },
+    "challenge_live_intermediate": {
+      "passed": 17,
+      "total": 18,
+      "live": true,
+      "results": [
+        {
+          "id": "negative-binder",
+          "question": "Where should I store the inspection binder?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 5235
+        },
+        {
+          "id": "negative-bicycle",
+          "question": "Where can students park bicycles on campus?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 4974
+        },
+        {
+          "id": "negative-vet",
+          "question": "My dog was hospitalized. What must I report?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 9
+        },
+        {
+          "id": "negative-course",
+          "question": "Can I work before I finish harassment training?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 6
+        },
+        {
+          "id": "negative-anonymous",
+          "question": "Can I stay anonymous when posting on social media?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 6
+        },
+        {
+          "id": "negative-discipline",
+          "question": "Will I get in trouble for arriving late to class?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 4380
+        },
+        {
+          "id": "negative-car",
+          "question": "My car has bad brakes. Can I finish my trip?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 4752
+        },
+        {
+          "id": "negative-plant",
+          "question": "My office plant died. What should I do?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 9
+        },
+        {
+          "id": "positive-shift",
+          "question": "Do forklifts working around the clock need more than a daily check?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 5859
+        },
+        {
+          "id": "positive-refresher",
+          "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-53",
+            "cfr-1910-178-54"
+          ],
+          "elapsedMs": 5473
+        },
+        {
+          "id": "positive-training-record",
+          "question": "Which dates and names belong in forklift training records?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-56"
+          ],
+          "elapsedMs": 6470
+        },
+        {
+          "id": "positive-hospital-observation",
+          "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 6866
+        },
+        {
+          "id": "positive-confidential",
+          "question": "Does UT guarantee complete anonymity for a safety complaint?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 3035
+        },
+        {
+          "id": "positive-litigation",
+          "question": "How long does UT keep accident records when litigation may take years?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-6",
+            "ut-saad021-k-4"
+          ],
+          "elapsedMs": 5281
+        },
+        {
+          "id": "excerpt-passengers",
+          "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-14",
+            "ut-sags130-k-17"
+          ],
+          "elapsedMs": 3347
+        },
+        {
+          "id": "excerpt-battery",
+          "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 3430
+        },
+        {
+          "id": "excerpt-investigation",
+          "question": "Who investigates a UT accident where personal protective equipment was defective?",
+          "expected": "evidence",
+          "passed": false,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-2"
+          ],
+          "elapsedMs": 4558
+        },
+        {
+          "id": "excerpt-smoking",
+          "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-10",
+            "ut-sags130-k-12",
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 4303
+        }
+      ]
+    },
+    "challenge_live_verified": {
+      "passed": 18,
+      "total": 18,
+      "live": true,
+      "results": [
+        {
+          "id": "negative-binder",
+          "question": "Where should I store the inspection binder?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 873
+        },
+        {
+          "id": "negative-bicycle",
+          "question": "Where can students park bicycles on campus?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 545
+        },
+        {
+          "id": "negative-vet",
+          "question": "My dog was hospitalized. What must I report?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 8
+        },
+        {
+          "id": "negative-course",
+          "question": "Can I work before I finish harassment training?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 8
+        },
+        {
+          "id": "negative-anonymous",
+          "question": "Can I stay anonymous when posting on social media?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 7
+        },
+        {
+          "id": "negative-discipline",
+          "question": "Will I get in trouble for arriving late to class?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 555
+        },
+        {
+          "id": "negative-car",
+          "question": "My car has bad brakes. Can I finish my trip?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "ai-assisted",
+          "evidenceIds": [],
+          "elapsedMs": 576
+        },
+        {
+          "id": "negative-plant",
+          "question": "My office plant died. What should I do?",
+          "expected": "withhold",
+          "passed": true,
+          "outcome": "unsupported",
+          "method": "source-guide",
+          "evidenceIds": [],
+          "elapsedMs": 9
+        },
+        {
+          "id": "positive-shift",
+          "question": "Do forklifts working around the clock need more than a daily check?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "inspection-complete"
+          ],
+          "elapsedMs": 656
+        },
+        {
+          "id": "positive-refresher",
+          "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-53",
+            "cfr-1910-178-54"
+          ],
+          "elapsedMs": 731
+        },
+        {
+          "id": "positive-training-record",
+          "question": "Which dates and names belong in forklift training records?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "cfr-1910-178-56"
+          ],
+          "elapsedMs": 726
+        },
+        {
+          "id": "positive-hospital-observation",
+          "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "tn-0800-01-03-05-1",
+            "tn-0800-01-03-05-5",
+            "tn-0800-01-03-05-6",
+            "tn-0800-01-03-05-7"
+          ],
+          "elapsedMs": 661
+        },
+        {
+          "id": "positive-confidential",
+          "question": "Does UT guarantee complete anonymity for a safety complaint?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad021-k-3"
+          ],
+          "elapsedMs": 655
+        },
+        {
+          "id": "positive-litigation",
+          "question": "How long does UT keep accident records when litigation may take years?",
+          "expected": "answer",
+          "passed": true,
+          "outcome": "answer",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-6",
+            "ut-saad021-k-4"
+          ],
+          "elapsedMs": 991
+        },
+        {
+          "id": "excerpt-passengers",
+          "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-14",
+            "ut-sags130-k-17"
+          ],
+          "elapsedMs": 915
+        },
+        {
+          "id": "excerpt-battery",
+          "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 993
+        },
+        {
+          "id": "excerpt-investigation",
+          "question": "Who investigates a UT accident where personal protective equipment was defective?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-saad022-k-3",
+            "ut-saad022-k-2"
+          ],
+          "elapsedMs": 1151
+        },
+        {
+          "id": "excerpt-smoking",
+          "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+          "expected": "evidence",
+          "passed": true,
+          "outcome": "partial",
+          "method": "ai-assisted",
+          "evidenceIds": [
+            "ut-sags130-k-10",
+            "ut-sags130-k-12",
+            "ut-sags130-k-11"
+          ],
+          "elapsedMs": 926
+        }
+      ]
+    },
+    "http_access": {
+      "passed": 23,
+      "total": 23,
+      "results": [
+        {
+          "name": "anonymous blocked: /api/data",
+          "passed": true
+        },
+        {
+          "name": "anonymous blocked: /api/records/S-0001",
+          "passed": true
+        },
+        {
+          "name": "anonymous blocked: /api/admin/users",
+          "passed": true
+        },
+        {
+          "name": "anonymous blocked: /api/admin/audit",
+          "passed": true
+        },
+        {
+          "name": "public registration and built-in admin endpoints disabled",
+          "passed": true
+        },
+        {
+          "name": "real password sign-in and protected cookie",
+          "passed": true
+        },
+        {
+          "name": "authenticated empty assistant question is rejected",
+          "passed": true
+        },
+        {
+          "name": "creator ownership comes from session, not submitted reporter email",
+          "passed": true
+        },
+        {
+          "name": "same-user retry is idempotent, another user cannot claim its batch",
+          "passed": true
+        },
+        {
+          "name": "employee data contains no other owner's record or shared question log",
+          "passed": true
+        },
+        {
+          "name": "employee cannot change status, import or manage accounts",
+          "passed": true
+        },
+        {
+          "name": "record owner and status forgery rejected",
+          "passed": true
+        },
+        {
+          "name": "administrator can update status; stale version is rejected",
+          "passed": true
+        },
+        {
+          "name": "cross-site mutations rejected",
+          "passed": true
+        },
+        {
+          "name": "administrator import validates and deduplicates atomically",
+          "passed": true
+        },
+        {
+          "name": "administrator cannot disable or demote own last-admin account",
+          "passed": true
+        },
+        {
+          "name": "disabled account loses its existing session and cannot sign in",
+          "passed": true
+        },
+        {
+          "name": "role change revokes sessions and new session receives current role",
+          "passed": true
+        },
+        {
+          "name": "admin creates an approved employee without exposing password hashes",
+          "passed": true
+        },
+        {
+          "name": "logout revokes the server session, not only the browser cookie",
+          "passed": true
+        },
+        {
+          "name": "forged cookie cannot authenticate",
+          "passed": true
+        },
+        {
+          "name": "unknown-account brute force is throttled",
+          "passed": true
+        },
+        {
+          "name": "audit records actions without credential material",
+          "passed": true
+        }
+      ]
+    },
+    "mfa_recovery": {
+      "passed": 7,
+      "results": [
+        "TOTP enrollment requires verification and revokes old password-only sessions",
+        "Password alone cannot access data; valid TOTP completes sign-in",
+        "Backup codes work once and cannot be replayed",
+        "Recovery token is stored hashed, consumed once under concurrency, and revokes sessions",
+        "Password recovery does not bypass MFA",
+        "Expired links and employee-issued recovery requests are rejected",
+        "Sessions without server-recorded MFA verification cannot access data or change passwords"
+      ]
+    },
+    "source_lifecycle": {
+      "passed": 6,
+      "results": [
+        "Only admins can upload; draft text is invisible to employees and new answers",
+        "Activation makes exact text searchable and changes the source snapshot",
+        "Draft replacement does not change answers; activation retires the old version and invalidates cached evidence",
+        "Retired versions cannot support new responses",
+        "Retiring a bundled document also disables its static answer-guide citations",
+        "Text PDFs extract with page references; malformed PDFs are rejected"
+      ]
+    },
+    "concurrency": {
+      "concurrentSameRequestCount": 10,
+      "createdOnce": true,
+      "concurrentUniqueRequests": 10,
+      "uniqueIds": true,
+      "staleUpdateConflict": true,
+      "consistentSnapshotDuringWrites": true
+    },
+    "restore": {
+      "tables": {
+        "account": 12,
+        "audit_log": 103,
+        "demo_seed_runs": 1,
+        "incident_records": 172,
+        "question_log": 148,
+        "record_batches": 22,
+        "schema_migrations": 6,
+        "source_versions": 12,
+        "twoFactor": 4,
+        "user": 12
+      },
+      "tableHashesMatch": true,
+      "sequencesMatch": true,
+      "sessionsNotRestored": true,
+      "recoveryLinksNotRestored": true,
+      "restoredAdminPasswordWorks": true,
+      "tamperRejected": true,
+      "wrongKeyRejected": true,
+      "nonemptyTargetRejected": true,
+      "encryptedBackup": ".local/backups/verified-1793762464352.json.enc"
+    }
+  }
+}
