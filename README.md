@@ -1,3 +1,19 @@
+# Report-form UI/UX proposal
+
+This branch improves the existing incident-report flow while preserving the team app's teal styling and validation rules. It is based on the current master branch, so its preview can run before the shared Postgres connection is available.
+
+- Three labeled sections: when/where, what happened, reporter details.
+- Required/optional guidance, readable mobile controls, linked error summary and field-level screen-reader descriptions.
+- Confirmation with the record ID and a path to Records or another report.
+- Failed browser-storage writes keep the entered report and never claim success. Existing unreadable records are not overwritten.
+- This preview still uses browser-local demo storage. The Postgres work remains in PR #3.
+
+Validation: `npm run test:ui`, `npm run lint`, `npm run build`, plus browser checks of required/conditional fields, save confirmation, persistence, keyboard focus and responsive layout. AI-assisted implementation by Codex at Forrest's direction; team review is pending.
+
+`IncidentReportForm` accepts an asynchronous `onSave(record, requestId)` callback and optional loading/error props so the same interface can use the Postgres adapter when that work is integrated.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

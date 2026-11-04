@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { IncidentRecord, Status } from "./options";
 import { seedQuestions, seedRecords } from "./seed";
+import { appendLocalRecords } from "./local-records";
+export { newRecordId } from "./local-records";
 
 export type QuestionLogEntry = { question: string; answered: boolean; askedAt: string };
 
@@ -28,13 +30,6 @@ function write(key: string, value: unknown) {
   } catch {}
 }
 
-export function newRecordId(existing: IncidentRecord[]): string {
-  const max = existing
-    .filter((r) => r.id.startsWith("R-"))
-    .reduce((m, r) => Math.max(m, parseInt(r.id.slice(2), 10) || 0), 0);
-  return `R-${String(max + 1).padStart(4, "0")}`;
-}
-
 export function useAppData() {
   const [ready, setReady] = useState(false);
   const [seed, setSeed] = useState<IncidentRecord[]>([]);
@@ -58,17 +53,8 @@ export function useAppData() {
     .sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.id.localeCompare(a.id));
 
   const addRecords = useCallback((items: Omit<IncidentRecord, "id" | "createdAt" | "status">[]) => {
-    const current = read<IncidentRecord[]>(KEYS.records, []);
-    const createdAt = new Date().toISOString().slice(0, 10);
-    const next = [...current];
-    const ids: string[] = [];
-    for (const item of items) {
-      const id = newRecordId(next);
-      ids.push(id);
-      next.unshift({ ...item, id, createdAt, status: "Open" });
-    }
-    write(KEYS.records, next);
-    setAdded(next);
+    const { records, ids } = appendLocalRecords(localStorage, items);
+    setAdded(records);
     return ids;
   }, []);
 

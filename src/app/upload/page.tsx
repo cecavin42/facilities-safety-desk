@@ -37,10 +37,12 @@ export default function UploadPage() {
   const { addRecords } = useAppData();
   const [checked, setChecked] = useState<Checked | null>(null);
   const [imported, setImported] = useState<number | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     setImported(null);
+    setImportError(null);
     if (!file) return setChecked(null);
     if (file.size > 5_000_000) return setChecked({ fileName: file.name, good: [], bad: [], error: "The file is larger than 5 MB." });
     setChecked(check(file.name, await file.text()));
@@ -86,7 +88,11 @@ export default function UploadPage() {
             {imported === null ? (
               <button
                 disabled={checked.good.length === 0}
-                onClick={() => setImported(addRecords(checked.good).length)}
+                onClick={() => {
+                  setImportError(null);
+                  try { setImported(addRecords(checked.good).length); }
+                  catch (error) { setImportError(error instanceof Error ? error.message : "Could not save the imported records. Please retry."); }
+                }}
                 className="mt-3 rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-40"
               >
                 Import {checked.good.length} good row{checked.good.length === 1 ? "" : "s"}
@@ -95,6 +101,7 @@ export default function UploadPage() {
               <p role="status" className="mt-3 text-green-800">Imported {imported} records. They now appear in Records and Reports.</p>
             )}
           </div>
+          {importError && <p role="alert" className="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-900">{importError}</p>}
           {checked.bad.length > 0 && (
             <div className="rounded-md border border-red-200 bg-white">
               <h2 className="border-b border-red-100 px-4 py-2 text-sm font-semibold text-red-900">Rejected rows</h2>
