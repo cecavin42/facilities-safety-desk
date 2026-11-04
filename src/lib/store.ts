@@ -1,119 +1,106 @@
 "use client";
-
-import { useCallback, useEffect, useState } from "react";
-import type { IncidentRecord, Status } from "./options";
-import type { QuestionLogEntry } from "./data-types";
-import { appendLocalRecords } from "./local-records";
-import {
-  DATA_KEYS,
-  loadBrowserData,
-  readQuestions,
-  saveStatus,
-  writeValue,
-} from "./browser-data";
-import { planImport } from "./incident-import";
-export { newRecordId } from "./local-records";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Status } from "./options";
+import type { AppData, NewIncident } from "./data-types";
+import { api } from "./client-api";
 export type { QuestionLogEntry } from "./data-types";
-const CHANGED = "fsa-data-changed";
-
-async function mutate<T>(work: () => T): Promise<T> {
-  const commit = () => {
-    const value = work();
-    window.dispatchEvent(new Event(CHANGED));
-    return value;
-  };
-  return navigator.locks
-    ? navigator.locks.request("fsa-browser-write", commit)
-    : commit();
-}
-
 export function useAppData() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [records, setRecords] = useState<IncidentRecord[]>([]);
-  const [questions, setQuestions] = useState<QuestionLogEntry[]>([]);
-  const refresh = useCallback(() => {
+  const [data, setData] = useState<AppData>({ records: [], questions: [] });
+  const generation = useRef(0);
+  const pendingImport = useRef<{ payload: string; id: string } | null>(null);
+  const refresh = useCallback(async () => {
+    const ticket = ++generation.current;
     try {
-      const data = loadBrowserData(localStorage);
-      setRecords(data.records);
-      setQuestions(data.questions);
-      setError(null);
-      setReady(true);
+      const next = await api<AppData>("/api/data");
+      if (ticket === generation.current) {
+        setData(next);
+        setReady(true);
+        setError(null);
+      }
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Browser data could not be loaded.",
-      );
-      setReady(false);
+      if (ticket === generation.current) {
+        setData({ records: [], questions: [] });
+        setReady(false);
+        setError(e instanceof Error ? e.message : "Could not load records.");
+      }
     }
   }, []);
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
-    refresh();
-    /* eslint-enable react-hooks/set-state-in-effect */
-    const storage = (event: StorageEvent) => {
-      if (!event.key || Object.values(DATA_KEYS).includes(event.key)) refresh();
+    const stateGuard = generation;
+    void Promise.resolve().then(refresh);
+    const focus = () => {
+      void refresh();
     };
-    window.addEventListener("storage", storage);
-    window.addEventListener("focus", refresh);
-    window.addEventListener(CHANGED, refresh);
+    const logout = (e: StorageEvent) => {
+      if (e.key === "fsa.session-event") {
+        setData({ records: [], questions: [] });
+        window.location.replace("/sign-in");
+      }
+    };
+    const interval = setInterval(focus, 15000);
+    window.addEventListener("focus", focus);
+    window.addEventListener("storage", logout);
     return () => {
-      window.removeEventListener("storage", storage);
-      window.removeEventListener("focus", refresh);
-      window.removeEventListener(CHANGED, refresh);
+      stateGuard.current++;
+      clearInterval(interval);
+      window.removeEventListener("focus", focus);
+      window.removeEventListener("storage", logout);
     };
   }, [refresh]);
   const addRecords = useCallback(
-    (items: Omit<IncidentRecord, "id" | "createdAt" | "status">[]) =>
-      mutate(() => {
-        loadBrowserData(localStorage);
-        return appendLocalRecords(localStorage, items).ids;
-      }),
-    [],
+    async (items: NewIncident[], requestId = crypto.randomUUID()) => {
+      const result = await api<{ ids: string[] }>("/api/records", {
+        method: "POST",
+        body: JSON.stringify({ records: items, requestId }),
+      });
+      await refresh();
+      return result.ids;
+    },
+    [refresh],
   );
   const setStatus = useCallback(
-    (id: string, status: Status) =>
-      mutate(() => saveStatus(localStorage, id, status)),
-    [],
+    async (id: string, status: Status) => {
+      const record = data.records.find((r) => r.id === id);
+      await api(`/api/records/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, expectedUpdatedAt: record?.updatedAt }),
+      });
+      await refresh();
+    },
+    [data.records, refresh],
   );
   const importRecords = useCallback(
-    (
-      items: Omit<IncidentRecord, "id" | "createdAt" | "status">[],
-      allowDuplicates = false,
-    ) =>
-      mutate(() => {
-        const current = loadBrowserData(localStorage);
-        const plan = allowDuplicates
-          ? { records: items, duplicateCount: 0 }
-          : planImport(items, current.records);
-        return {
-          ids: plan.records.length
-            ? appendLocalRecords(localStorage, plan.records).ids
-            : [],
-          duplicateCount: plan.duplicateCount,
-        };
-      }),
-    [],
-  );
-  const logQuestion = useCallback(
-    (question: string, answered: boolean) =>
-      mutate(() => {
-        const rows = readQuestions(localStorage);
-        writeValue(localStorage, DATA_KEYS.questions, [
-          ...rows,
-          { question, answered, askedAt: new Date().toISOString() },
-        ]);
-      }),
-    [],
+    async (items: NewIncident[], allowDuplicates = false) => {
+      const payload = JSON.stringify({ records: items, allowDuplicates });
+      if (pendingImport.current?.payload !== payload)
+        pendingImport.current = { payload, id: crypto.randomUUID() };
+      const result = await api<{ ids: string[]; duplicateCount: number }>(
+        "/api/import",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            records: items,
+            allowDuplicates,
+            requestId: pendingImport.current.id,
+          }),
+        },
+      );
+      pendingImport.current = null;
+      await refresh();
+      return result;
+    },
+    [refresh],
   );
   return {
     ready,
     error,
-    records,
-    questions,
-    addRecords,
-    importRecords,
-    setStatus,
-    logQuestion,
+    records: data.records,
+    questions: data.questions,
     refresh,
+    addRecords,
+    setStatus,
+    importRecords,
   };
 }

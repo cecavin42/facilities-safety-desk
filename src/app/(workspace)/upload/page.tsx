@@ -174,7 +174,7 @@ export default function UploadPage() {
           </h2>
           <p className="mt-2 text-sm text-teal-900">
             {completed.skipped} duplicate or invalid rows were skipped. The
-            imported reports are saved in this browser.
+            imported reports are saved to the shared server.
           </p>
           <Link href="/records" className="btn-primary mt-5">
             View records

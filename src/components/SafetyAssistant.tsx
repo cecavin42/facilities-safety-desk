@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import type { AssistantAnswer } from "@/lib/assistant/answer";
-import { useAppData } from "@/lib/store";
 
 type Source = { id: string; title: string; dated: string; url: string };
 type Turn = { id: number; question: string; result?: AssistantAnswer; error?: string };
@@ -14,7 +13,6 @@ const EXAMPLES = [
 ];
 
 export default function SafetyAssistant({ sources }: { sources: Source[] }) {
-  const { logQuestion } = useAppData();
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -38,8 +36,6 @@ export default function SafetyAssistant({ sources }: { sources: Source[] }) {
       if (!Array.isArray(data.sections) || !Array.isArray(data.evidence) || typeof data.answered !== "boolean") throw new Error("The assistant returned an incomplete response. Please retry.");
       setTurns(t => [{ id, question: text, result: data }, ...t].slice(0, 20));
       setQuestion(""); setStatus("Response ready. Sources and limitations are included below.");
-      // Logging problems must not hide a successfully retrieved answer.
-      try { await logQuestion(text, data.answered); } catch { setStatus("Response ready. The local question count could not be saved."); }
       requestAnimationFrame(() => resultHeading.current?.focus());
     } catch (error) {
       if (id !== sequence.current || controller.signal.aborted) return;

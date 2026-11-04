@@ -1,14 +1,19 @@
 "use client";
 import Link from "next/link";
+import { useCurrentUser } from "./SessionUser";
 import DataStatus from "./DataStatus";
 import { useAppData } from "@/lib/store";
 export default function Dashboard({ lastUpdated }: { lastUpdated: string }) {
+  const user = useCurrentUser();
   const { ready, error, refresh, records } = useAppData();
   const tasks = [
     {
       href: "/records",
       label: "Review the register",
-      text: "Find a report, read its details, and update its status.",
+      text:
+        user.role === "admin"
+          ? "Find a report, read its details, and update its status."
+          : "Find your reports and follow their current status.",
       tag: "Follow through",
     },
     {
@@ -60,7 +65,10 @@ export default function Dashboard({ lastUpdated }: { lastUpdated: string }) {
         className="grid grid-cols-2 gap-3 lg:grid-cols-4"
       >
         {[
-          [records.length, "Total records"],
+          [
+            records.length,
+            user.role === "admin" ? "Total records" : "Your reports",
+          ],
           [
             records.filter((r) => r.status !== "Closed").length,
             "Open or under review",
@@ -83,29 +91,33 @@ export default function Dashboard({ lastUpdated }: { lastUpdated: string }) {
         ))}
       </section>
       <section className="grid gap-4 md:grid-cols-3" aria-label="Next tasks">
-        {tasks.map((task) => (
-          <Link
-            key={task.href}
-            href={task.href}
-            className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-600"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
-              {task.tag}
-            </p>
-            <h2 className="mt-3 text-lg font-semibold">
-              {task.label}{" "}
-              <span aria-hidden="true" className="text-teal-700">
-                →
-              </span>
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{task.text}</p>
-          </Link>
-        ))}
+        {tasks
+          .filter((task) => user.role === "admin" || task.href === "/records")
+          .map((task) => (
+            <Link
+              key={task.href}
+              href={task.href}
+              className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:border-teal-600"
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide text-teal-800">
+                {task.tag}
+              </p>
+              <h2 className="mt-3 text-lg font-semibold">
+                {task.label}{" "}
+                <span aria-hidden="true" className="text-teal-700">
+                  →
+                </span>
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                {task.text}
+              </p>
+            </Link>
+          ))}
       </section>
       <section className="grid gap-6 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Recent reports</h2>
+            <h2 className="text-lg font-semibold">Recent accessible reports</h2>
             <Link
               href="/records"
               className="inline-flex min-h-11 items-center text-sm font-semibold text-teal-800 underline"
@@ -138,7 +150,9 @@ export default function Dashboard({ lastUpdated }: { lastUpdated: string }) {
             <p className="mt-4 text-sm text-slate-500">
               {error
                 ? "Records are unavailable until browser data can be read."
-                : "Loading the demo register…"}
+                : ready
+                  ? "No reports yet. Create your first report to start your register."
+                  : "Loading your reports…"}
             </p>
           )}
         </div>
@@ -149,8 +163,8 @@ export default function Dashboard({ lastUpdated }: { lastUpdated: string }) {
           <ul className="mt-4 space-y-4 text-sm leading-7 text-teal-950">
             <li>All incidents and reporter details should be fictional.</li>
             <li>
-              Records are saved in this browser. The shared database is a
-              separate draft.
+              Reports are saved to the server. Employees see their own reports;
+              safety managers manage the shared register.
             </li>
             <li>
               The assistant links answers to five source documents and labels

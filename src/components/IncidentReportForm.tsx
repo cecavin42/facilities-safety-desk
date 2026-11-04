@@ -28,6 +28,7 @@ type NewReport = Omit<IncidentRecord, "id" | "createdAt" | "status">;
 type Errors = Partial<Record<FormField, string>>;
 type Props = {
   ready: boolean;
+  draftKey?: string;
   onSave: (record: NewReport, requestId: string) => Promise<string>;
   storageDescription: string;
   loadError?: string | null;
@@ -130,6 +131,7 @@ function Section({
 }
 
 export default function IncidentReportForm({
+  draftKey = "fsa.report-draft.v1",
   ready,
   onSave,
   storageDescription,
@@ -158,7 +160,7 @@ export default function IncidentReportForm({
   }, [saved]);
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("fsa.report-draft.v1");
+      const raw = sessionStorage.getItem(draftKey);
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (
@@ -181,7 +183,7 @@ export default function IncidentReportForm({
         "The saved draft could not be read. Keep this page open while completing your report.",
       );
     }
-  }, []);
+  }, [draftKey]);
 
   const change =
     (name: FormField) =>
@@ -202,7 +204,7 @@ export default function IncidentReportForm({
       };
       setValues(next);
       try {
-        sessionStorage.setItem("fsa.report-draft.v1", JSON.stringify(next));
+        sessionStorage.setItem(draftKey, JSON.stringify(next));
         setDraftNotice(
           "Draft kept in this tab. It has not been added to the register.",
         );
@@ -256,7 +258,7 @@ export default function IncidentReportForm({
       setDraftNotice("A new draft will be kept in this tab as you type.");
       setValues({});
       try {
-        sessionStorage.removeItem("fsa.report-draft.v1");
+        sessionStorage.removeItem(draftKey);
       } catch {
         /* The confirmed record remains saved. */
       }
@@ -404,7 +406,7 @@ export default function IncidentReportForm({
             disabled={saving}
             onClick={() => {
               try {
-                sessionStorage.removeItem("fsa.report-draft.v1");
+                sessionStorage.removeItem(draftKey);
                 setValues({});
                 setErrors({});
                 setSaveError(null);

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useCurrentUser } from "@/components/SessionUser";
 import Link from "next/link";
 import Filters, { EMPTY_FILTERS, applyFilters } from "@/components/Filters";
 import PageHeader from "@/components/PageHeader";
@@ -21,6 +22,7 @@ function RecordCard({
   busy: boolean;
 }) {
   const r = record;
+  const canManage = useCurrentUser().role === "admin";
   return (
     <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -87,24 +89,27 @@ function RecordCard({
           ))}
         </dl>
       </details>
-      <label className="mt-3 block text-xs font-semibold text-slate-600">
-        Status of {r.id}
-        <select
-          className="control mt-2"
-          value={r.status}
-          disabled={busy}
-          onChange={(e) => changeStatus(r.id, e.target.value as Status)}
-        >
-          {STATUSES.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
-      </label>
+      {canManage && (
+        <label className="mt-3 block text-xs font-semibold text-slate-600">
+          Status of {r.id}
+          <select
+            className="control mt-2"
+            value={r.status}
+            disabled={busy}
+            onChange={(e) => changeStatus(r.id, e.target.value as Status)}
+          >
+            {STATUSES.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </label>
+      )}
     </article>
   );
 }
 
 export default function RecordsPage() {
+  const user = useCurrentUser();
   const { ready, error, refresh, records, setStatus } = useAppData();
   const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
   const [shown, setShown] = useState(PAGE);
@@ -133,7 +138,11 @@ export default function RecordsPage() {
       <PageHeader
         eyebrow="Incident register"
         title="Find a report. Follow it through."
-        description="Search incidents and near misses, review the full report, and keep its status current."
+        description={
+          user.role === "admin"
+            ? "Search incidents and near misses, review the full report, and keep its status current."
+            : "Search and review your submitted reports. Safety managers update their status."
+        }
       >
         <Link href="/report" className="btn-primary">
           New report
@@ -208,10 +217,13 @@ export default function RecordsPage() {
             </div>
           ) : (
             <section className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-              <h2 className="text-xl font-semibold">No matching reports</h2>
+              <h2 className="text-xl font-semibold">
+                {records.length ? "No matching reports" : "No reports yet"}
+              </h2>
               <p className="mt-2 text-sm text-slate-600">
-                Try fewer filters or a different search term. Your saved reports
-                have not changed.
+                {records.length
+                  ? "Try fewer filters or a different search term. Your saved reports have not changed."
+                  : "Create your first report to start your register. You will see only reports that your account can access."}
               </p>
               <button
                 className="btn-secondary mt-5"

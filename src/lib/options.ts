@@ -47,6 +47,7 @@ export type Status = (typeof STATUSES)[number];
 export type IncidentRecord = {
   id: string;
   createdAt: string;
+  updatedAt?: string;
   status: Status;
   eventDate: string;
   eventTime: string;

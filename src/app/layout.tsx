@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Nav from "@/components/Nav";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,7 +19,11 @@ export const metadata: Metadata = {
     "Report incidents and near misses, see safety trends, and ask questions answered only from five safety documents. A student project, not an official university site.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"
@@ -33,14 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Class project (MSAI 5563, Lipscomb University). Not an official
           University of Tennessee site. All records are fake.
         </div>
-        <Nav />
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 outline-none sm:px-6"
-        >
-          {children}
-        </main>
+        {children}
         <footer className="no-print border-t border-slate-200 px-4 py-6 text-center text-xs text-slate-500">
           Team A draft. University of Tennessee documents are used under their
           nonprofit educational-use terms, with credit to The University of
