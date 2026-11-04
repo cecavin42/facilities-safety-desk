@@ -88,7 +88,7 @@ export default function UploadPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Import records"
-        title="Check the file. Then import."
+        title="Import incidents"
         description="Preview your spreadsheet, correct any problems, and bring valid incidents into the register. Nothing is saved until you confirm the import."
       />
       <DataStatus error={error} retry={refresh} />

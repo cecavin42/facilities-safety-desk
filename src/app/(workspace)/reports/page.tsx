@@ -71,7 +71,7 @@ export default function ReportsPage() {
       <div className="space-y-6">
         <PageHeader
           eyebrow="Safety insights"
-          title="See patterns. Decide what to review."
+          title="Safety insights"
           description="Explore incident trends and assistant coverage. Every chart has exact values you can inspect or export."
         />
         <DataStatus error={error} retry={refresh} />
@@ -146,7 +146,7 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Safety insights"
-        title="See patterns. Decide what to review."
+        title="Safety insights"
         description="Explore incident trends and assistant coverage. Every chart has exact values you can inspect or export."
       >
         <button

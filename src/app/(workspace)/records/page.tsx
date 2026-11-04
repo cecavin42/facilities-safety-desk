@@ -1,5 +1,8 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ChevronDown, MapPin, FileText, Download, Plus } from "lucide-react";
+import StatusBadge from "@/components/StatusBadge";
 import { useCurrentUser } from "@/components/SessionUser";
 import Link from "next/link";
 import Filters, { EMPTY_FILTERS, applyFilters } from "@/components/Filters";
@@ -13,7 +16,7 @@ import { useAppData } from "@/lib/store";
 const PAGE = 12;
 
 function RecordCard({
-  record,
+  record: r,
   changeStatus,
   busy,
 }: {
@@ -21,97 +24,116 @@ function RecordCard({
   changeStatus: (id: string, status: Status) => void;
   busy: boolean;
 }) {
-  const r = record;
   const canManage = useCurrentUser().role === "admin";
+  const [expanded, setExpanded] = useState(false);
   return (
-    <article className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-mono text-sm font-bold text-teal-900">
-              {r.id}
-            </h3>
-            <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">
-              {r.id.startsWith("S-") ? "Sample" : "Added report"}
-            </span>
-          </div>
-          <p className="mt-2 text-sm font-semibold">
-            {r.eventType}{" "}
-            <span className="font-normal text-slate-500">· {r.eventDate}</span>
-          </p>
-        </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${r.status === "Closed" ? "bg-slate-100 text-slate-600" : r.status === "Open" ? "bg-amber-50 text-amber-900" : "bg-blue-50 text-blue-900"}`}
-        >
-          {r.status}
-        </span>
-      </div>
-      <p className="mt-4 break-words text-sm leading-7 text-slate-800">
-        {r.description}
-      </p>
-      <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 text-xs leading-5">
-        <div>
-          <dt className="text-slate-500">Location</dt>
-          <dd className="break-words font-medium">
-            {r.location}
-            {r.buildingName && ` · ${r.buildingName}`}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-slate-500">Severity</dt>
-          <dd className="break-words font-medium">
-            {r.severity}
-            {r.daysAway !== null ? ` · ${r.daysAway} days away` : ""}
-          </dd>
-        </div>
-      </dl>
-      <details className="mt-4 border-t border-slate-100 pt-2">
-        <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-teal-800">
-          Report details{" "}
-          <span aria-hidden="true" className="ml-2">
-            +
+    <article className={`register-row ${expanded ? "register-row-open" : ""}`}>
+      <div className="register-row-summary">
+        <div className="register-identity">
+          <span className="register-file">
+            <FileText size={17} />
           </span>
-        </summary>
-        <dl className="grid gap-3 py-3 text-sm sm:grid-cols-2">
-          {[
-            ["Time", r.eventTime || "Not provided"],
-            ["Shift", r.shift],
-            ["Equipment", r.equipment],
-            ["Immediate action", r.immediateAction || "Not provided"],
-            ["Reporter", r.reporterName],
-            ["Reporter email", r.reporterEmail],
-            ["Created", r.createdAt.slice(0, 10)],
-          ].map(([name, value]) => (
-            <div key={name} className="min-w-0">
-              <dt className="text-xs text-slate-500">{name}</dt>
-              <dd className="mt-1 break-words">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </details>
-      {canManage && (
-        <label className="mt-3 block text-xs font-semibold text-slate-600">
-          Status of {r.id}
-          <select
-            className="control mt-2"
-            value={r.status}
-            disabled={busy}
-            onChange={(e) => changeStatus(r.id, e.target.value as Status)}
-          >
-            {STATUSES.map((s) => (
-              <option key={s}>{s}</option>
+          <span>
+            <h3>{r.id}</h3>
+            <small>{r.eventType}</small>
+          </span>
+        </div>
+        <p className="register-description">{r.description}</p>
+        <span className="register-location">
+          <MapPin size={13} />
+          {r.location}
+        </span>
+        <time className="register-date">{r.eventDate}</time>
+        <StatusBadge status={r.status} />
+        <button
+          className="icon-button row-toggle"
+          aria-label={`${expanded ? "Hide" : "View"} details for ${r.id}`}
+          aria-expanded={expanded}
+          aria-controls={`details-${r.id}`}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          <ChevronDown size={17} />
+        </button>
+      </div>
+      {expanded && (
+        <div className="register-details" id={`details-${r.id}`}>
+          <p className="register-full-description">{r.description}</p>
+          <dl>
+            {[
+              [
+                "Location",
+                r.location + (r.buildingName ? ` · ${r.buildingName}` : ""),
+              ],
+              [
+                "Severity",
+                r.severity +
+                  (r.daysAway !== null ? ` · ${r.daysAway} days away` : ""),
+              ],
+              ["Time", r.eventTime || "Not provided"],
+              ["Shift", r.shift],
+              ["Equipment", r.equipment],
+              ["Immediate action", r.immediateAction || "Not provided"],
+              ["Reporter", r.reporterName],
+              ["Email", r.reporterEmail],
+              ["Created", r.createdAt.slice(0, 10)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
             ))}
-          </select>
-        </label>
+          </dl>
+          {canManage && (
+            <label className="register-status-label">
+              Status of {r.id}
+              <select
+                className="control"
+                value={r.status}
+                disabled={busy}
+                onChange={(e) => changeStatus(r.id, e.target.value as Status)}
+              >
+                {STATUSES.map((status) => (
+                  <option key={status}>{status}</option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
       )}
     </article>
   );
 }
 
 export default function RecordsPage() {
+  return (
+    <Suspense fallback={<p role="status">Loading register…</p>}>
+      <RecordsQuery />
+    </Suspense>
+  );
+}
+function RecordsQuery() {
+  const query = useSearchParams();
+  const q = query.get("q") || "";
+  const status = query.get("status") || "";
+  return (
+    <RecordsContent
+      key={query.toString()}
+      initialFilters={{
+        ...EMPTY_FILTERS,
+        search: q.slice(0, 120),
+        status: STATUSES.includes(status as Status) ? status : "",
+      }}
+    />
+  );
+}
+function RecordsContent({
+  initialFilters,
+}: {
+  initialFilters: typeof EMPTY_FILTERS;
+}) {
   const user = useCurrentUser();
   const { ready, error, refresh, records, setStatus } = useAppData();
-  const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
+  const [filters, setFilters] = useState(initialFilters);
   const [shown, setShown] = useState(PAGE);
   const [order, setOrder] = useState<SortOrder>("newest");
   const [busy, setBusy] = useState<string | null>(null);
@@ -137,7 +159,7 @@ export default function RecordsPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Incident register"
-        title="Find a report. Follow it through."
+        title="Incident register"
         description={
           user.role === "admin"
             ? "Search incidents and near misses, review the full report, and keep its status current."
@@ -145,7 +167,7 @@ export default function RecordsPage() {
         }
       >
         <Link href="/report" className="btn-primary">
-          New report
+          <Plus size={15} /> New report
         </Link>
         <button
           className="btn-secondary"
@@ -157,7 +179,8 @@ export default function RecordsPage() {
             )
           }
         >
-          Export {rows.length} {rows.length === 1 ? "record" : "records"}
+          <Download size={14} />{" "}
+          {`Export ${rows.length} ${rows.length === 1 ? "record" : "records"}`}
         </button>
       </PageHeader>
       <DataStatus error={error} retry={refresh} />
@@ -205,7 +228,7 @@ export default function RecordsPage() {
             </label>
           </div>
           {rows.length ? (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="register-list">
               {rows.slice(0, shown).map((record) => (
                 <RecordCard
                   key={record.id}

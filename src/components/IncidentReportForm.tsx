@@ -357,7 +357,7 @@ export default function IncidentReportForm({
 
   return (
     <div className="space-y-6">
-      <header className="space-y-3">
+      <header className="page-header report-page-header">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-800">
           Incident reporting
         </p>
@@ -365,7 +365,7 @@ export default function IncidentReportForm({
           id="report-heading"
           className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl"
         >
-          Report an incident or near miss
+          New incident report
         </h1>
         <p className="max-w-3xl text-base leading-7 text-slate-600">
           Record what happened, where and when. Fields marked{" "}

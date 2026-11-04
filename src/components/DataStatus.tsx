@@ -1,6 +1,6 @@
 "use client";
+import { LockKeyhole, RefreshCw } from "lucide-react";
 import { useCurrentUser } from "./SessionUser";
-import { ROLE_LABELS } from "@/lib/access";
 export default function DataStatus({
   error,
   retry,
@@ -10,16 +10,17 @@ export default function DataStatus({
 }) {
   const user = useCurrentUser();
   return (
-    <div
-      className={`no-print rounded-xl border p-4 ${error ? "border-red-200 bg-red-50" : "border-slate-200 bg-white"}`}
-    >
-      <p className="text-xs text-slate-600">
-        {user.name} · {ROLE_LABELS[user.role]} · Server-saved records
-      </p>
+    <div className={`connection-strip ${error ? "connection-error" : ""}`}>
+      <LockKeyhole size={13} />
+      <span>
+        {user.role === "admin" ? "Shared register" : "Your reports only"}
+        <b>·</b>Server-saved records
+      </span>
       {error && (
-        <div role="alert" className="mt-3 text-sm text-red-900">
+        <div role="alert">
           {error}
-          <button className="btn-secondary ml-3" onClick={retry}>
+          <button className="btn-secondary" onClick={retry}>
+            <RefreshCw size={13} />
             Retry loading
           </button>
         </div>

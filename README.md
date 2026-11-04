@@ -1,4 +1,8 @@
-# Authenticated Facilities Safety Desk — draft
+# Facilities Safety Desk product design — draft
+
+This branch adds a coherent product shell, original brand assets, live overview, compact register, responsive navigation and branded sign-in to the authenticated application. See [design review and asset credits](docs/DESIGN_REVIEW.md) for the public market references, screenshots, source assets and full illustration prompt. All changes remain draft for team review.
+
+## Authenticated application
 
 This branch adds working sign-in and server-enforced Employee / Safety manager access to the full-app draft. Employees can read only their own reports. Administrators manage the shared register, imports, insights and approved accounts. Public registration is disabled.
 

@@ -2,78 +2,128 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  FilePlus2,
+  ChartNoAxesCombined,
+  FileSpreadsheet,
+  Sparkles,
+  UsersRound,
+  Settings2,
+  LogOut,
+  Building2,
+  ArrowUpRight,
+} from "lucide-react";
 import { useCurrentUser, signOut } from "./SessionUser";
-import { ROLE_LABELS } from "@/lib/access";
-const LINKS = [
-  { href: "/", label: "Overview" },
-  { href: "/report", label: "New report" },
-  { href: "/records", label: "Records" },
-  { href: "/upload", label: "Import CSV", admin: true },
-  { href: "/reports", label: "Insights", admin: true },
-  { href: "/assistant", label: "Assistant" },
-  { href: "/admin", label: "Accounts", admin: true },
+import Brand from "./Brand";
+const links = [
+  { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/records", label: "Incident register", icon: ClipboardList },
+  { href: "/report", label: "New report", icon: FilePlus2 },
+  {
+    href: "/reports",
+    label: "Safety insights",
+    icon: ChartNoAxesCombined,
+    admin: true,
+  },
+  {
+    href: "/upload",
+    label: "Import incidents",
+    icon: FileSpreadsheet,
+    admin: true,
+  },
+  { href: "/assistant", label: "Safety assistant", icon: Sparkles },
 ];
-export default function Nav() {
+export default function Nav({ onNavigate }: { onNavigate?: () => void }) {
   const path = usePathname();
   const user = useCurrentUser();
   const [error, setError] = useState("");
+  const initials = user.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("");
+  const item = (href: string, label: string, Icon: typeof LayoutDashboard) => (
+    <Link
+      key={href}
+      href={href}
+      onClick={onNavigate}
+      aria-current={path === href ? "page" : undefined}
+      className={`side-link ${path === href ? "side-link-active" : ""}`}
+    >
+      <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
+      <span>{label}</span>
+      {path === href && <span className="active-dot" />}
+    </Link>
+  );
   return (
-    <header className="no-print border-b border-slate-200 bg-white">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 py-3">
+    <div className="sidenav">
+      <Link
+        href="/"
+        className="side-brand"
+        onClick={onNavigate}
+        aria-label="Facilities Safety Desk overview"
+      >
+        <Brand light />
+      </Link>
+      <div className="workspace-label">
+        <span className="workspace-symbol">
+          <Building2 size={18} />
+        </span>
+        <span>
+          <strong>Team A</strong>
+          <small>Facilities workspace</small>
+        </span>
+        <span className="workspace-initial">TA</span>
+      </div>
+      <nav aria-label="Main navigation">
+        <p className="nav-section-label">WORKSPACE</p>
+        {links
+          .filter((l) => !l.admin || user.role === "admin")
+          .map((l) => item(l.href, l.label, l.icon))}
+        <p className="nav-section-label nav-section-second">MANAGE</p>
+        {user.role === "admin" && item("/admin", "Team access", UsersRound)}
+        {item("/account", "My account", Settings2)}
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="sidebar-note">
+          <span className="note-dot" />
+          Classroom environment
           <Link
-            href="/"
-            className="inline-flex min-h-11 items-center gap-3 font-bold text-teal-950"
+            href="/assistant"
+            onClick={onNavigate}
+            aria-label="Open the safety assistant"
           >
-            <span
-              aria-hidden="true"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-800 text-sm text-white"
-            >
-              FS
-            </span>
-            Facilities Safety Desk
+            <ArrowUpRight size={15} />
           </Link>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-slate-600">
-              {user.name} · {ROLE_LABELS[user.role]}
-            </span>
-            <Link
-              href="/account"
-              className="min-h-11 content-center text-sm font-semibold text-teal-800 underline"
-            >
-              My account
-            </Link>
-            <button
-              className="btn-secondary"
-              onClick={() => {
-                void signOut().catch((e) => setError(e.message));
-              }}
-            >
-              Sign out
-            </button>
-          </div>
         </div>
         {error && (
-          <p role="alert" className="p-3 text-red-800">
+          <p role="alert" className="side-error">
             {error}
           </p>
         )}
-        <nav
-          aria-label="Main navigation"
-          className="grid grid-cols-3 gap-1 py-2 sm:flex sm:flex-wrap"
-        >
-          {LINKS.filter((l) => !l.admin || user.role === "admin").map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              aria-current={path === l.href ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center justify-center rounded-lg px-3 text-sm font-semibold sm:px-5 ${path === l.href ? "bg-teal-50 text-teal-950" : "text-slate-600 hover:bg-slate-50"}`}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="side-profile">
+          <span className="avatar">{initials}</span>
+          <Link href="/account" onClick={onNavigate}>
+            <strong>{user.name}</strong>
+            <small>
+              {user.role === "admin" ? "Safety manager" : "Employee"}
+            </small>
+          </Link>
+          <button
+            aria-label="Sign out"
+            title="Sign out"
+            className="side-signout icon-button"
+            onClick={() => {
+              void signOut().catch((e) => setError(e.message));
+            }}
+          >
+            <LogOut size={17} />
+          </button>
+        </div>
       </div>
-    </header>
+    </div>
   );
 }

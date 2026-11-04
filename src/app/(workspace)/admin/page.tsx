@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/client-api";
 import { useCurrentUser } from "@/components/SessionUser";
+import { Plus, X, ShieldCheck } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 const actionLabels: Record<string, string> = {
   "report.created": "Report created",
@@ -26,6 +27,8 @@ type Audit = {
 };
 export default function AdminPage() {
   const actor = useCurrentUser();
+  const accountDialog = useRef<HTMLDialogElement>(null);
+  const [visibleAudit, setVisibleAudit] = useState(6);
   const [users, setUsers] = useState<User[]>([]);
   const [audit, setAudit] = useState<Audit[]>([]);
   const [message, setMessage] = useState("");
@@ -59,6 +62,7 @@ export default function AdminPage() {
         body: JSON.stringify(Object.fromEntries(data)),
       });
       form.reset();
+      accountDialog.current?.close();
       setMessage(
         "Account created. Share the initial password privately with the approved person.",
       );
@@ -93,12 +97,23 @@ export default function AdminPage() {
     }
   }
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 team-access-page">
       <PageHeader
         eyebrow="Access management"
-        title="Approved people. Clear permissions."
-        description="Employees access their own reports. Safety managers manage all reports, imports, insights and accounts. Access changes end the affected account's existing sessions."
-      />
+        title="Team access"
+        description="Manage approved accounts, roles, and access to the facilities workspace."
+      >
+        <button
+          className="btn-primary"
+          onClick={() => {
+            setError("");
+            accountDialog.current?.showModal();
+          }}
+        >
+          <Plus size={15} />
+          Add account
+        </button>
+      </PageHeader>
       {error && (
         <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">
           {error}
@@ -109,8 +124,43 @@ export default function AdminPage() {
           {message}
         </p>
       )}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="text-xl font-semibold">Create an approved account</h2>
+      <div className="access-callout">
+        <ShieldCheck size={18} />
+        <div>
+          <strong>Access follows the role.</strong>
+          <p>
+            Employees see their own reports. Safety managers manage the shared
+            register. Access changes end the affected account&apos;s sessions.
+          </p>
+        </div>
+      </div>
+      <dialog
+        ref={accountDialog}
+        className="account-dialog"
+        aria-labelledby="account-dialog-title"
+        onCancel={(e) => {
+          if (busy) e.preventDefault();
+        }}
+      >
+        <div className="dialog-heading">
+          <div>
+            <p className="section-kicker">APPROVED ACCESS</p>
+            <h2 id="account-dialog-title">Create an approved account</h2>
+          </div>
+          <button
+            className="icon-button"
+            aria-label="Close account form"
+            disabled={busy}
+            onClick={() => accountDialog.current?.close()}
+          >
+            <X size={19} />
+          </button>
+        </div>
+        {error && (
+          <p role="alert" className="signin-error">
+            {error}
+          </p>
+        )}
         <form onSubmit={create} className="mt-4 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-semibold">
             Name
@@ -159,24 +209,41 @@ export default function AdminPage() {
           by this prototype. Account management requires a sign-in from the last
           15 minutes.
         </p>
-      </section>
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Accounts</h2>
+      </dialog>
+      <section className="member-section">
+        <div className="member-section-heading">
+          <h2>
+            Team members <span>{users.length}</span>
+          </h2>
+          <small>{users.filter((u) => !u.banned).length} active accounts</small>
+        </div>
         {users.map((user) => (
           <form
             onSubmit={(event) => void access(event, user.id)}
             key={user.id}
-            className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-white p-4"
+            className="member-row"
           >
-            <div className="min-w-0 flex-1">
+            <span className="member-avatar">
+              {user.name
+                .split(/\s+/)
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")}
+            </span>
+            <div className="member-identity">
               <p className="font-semibold">
                 {user.name}
                 {user.id === actor.id ? " (you)" : ""}
               </p>
               <p className="break-all text-sm text-slate-500">{user.email}</p>
             </div>
-            <label className="text-sm">
-              Role for {user.name}
+            <span
+              className={`member-state ${user.banned ? "member-disabled" : ""}`}
+            >
+              {user.banned ? "Disabled" : "Active"}
+            </span>
+            <label className="member-role">
+              <span className="sr-only">Role for {user.name}</span>
               <select
                 name="role"
                 className="control mt-1"
@@ -187,7 +254,7 @@ export default function AdminPage() {
                 <option value="admin">Safety manager / admin</option>
               </select>
             </label>
-            <label className="flex min-h-11 items-center gap-2 text-sm">
+            <label className="member-enable">
               <input
                 name="active"
                 type="checkbox"
@@ -197,7 +264,8 @@ export default function AdminPage() {
               Active
             </label>
             <button
-              className="btn-secondary"
+              className="btn-secondary member-save"
+              aria-label={`Save access for ${user.name}`}
               disabled={busy || user.id === actor.id}
             >
               Save access
@@ -210,7 +278,7 @@ export default function AdminPage() {
           Recent security and record activity
         </h2>
         <ul className="mt-4 divide-y">
-          {audit.map((item) => (
+          {audit.slice(0, visibleAudit).map((item) => (
             <li className="py-3 text-sm" key={item.id}>
               <p className="font-medium">
                 {actionLabels[item.action] || item.action} ·{" "}
@@ -223,6 +291,14 @@ export default function AdminPage() {
             </li>
           ))}
         </ul>
+        {visibleAudit < audit.length && (
+          <button
+            className="text-action audit-more"
+            onClick={() => setVisibleAudit((n) => n + 10)}
+          >
+            Show more activity
+          </button>
+        )}
         {!audit.length && (
           <p className="mt-3 text-sm text-slate-500">
             No recorded changes yet.

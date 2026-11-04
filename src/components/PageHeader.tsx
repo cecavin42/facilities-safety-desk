@@ -11,7 +11,7 @@ export default function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-5">
+    <header className="page-header">
       <div className="max-w-3xl">
         <p className="text-xs font-bold uppercase tracking-widest text-teal-800">
           {eyebrow}

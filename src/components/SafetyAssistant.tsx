@@ -61,7 +61,7 @@ export default function SafetyAssistant({ sources }: { sources: Source[] }) {
   return <div className="mx-auto max-w-6xl space-y-8">
     <header className="max-w-3xl">
       <p className="text-xs font-bold uppercase tracking-widest text-teal-800">Safety knowledge desk</p>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Find the rule. See the source.</h1>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Safety assistant</h1>
       <p className="mt-3 text-base leading-7 text-slate-600">Ask about forklift safety, incident reporting, or near misses. Each response separates what the documents support from what still needs checking.</p>
     </header>
 
