@@ -13,7 +13,8 @@
     "test:db": "tsx --test tests/database.test.ts",
     "test:unit": "tsx --test tests/csv.test.ts",
     "test:api": "tsx scripts/check-api.ts",
-    "db:local": "tsx scripts/local-db.ts"
+    "db:local": "tsx scripts/local-db.ts",
+    "test:ui": "tsx --test tests/local-records.test.ts"
   },
   "dependencies": {
     "next": "16.4.3",

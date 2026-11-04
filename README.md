@@ -33,12 +33,17 @@ The database files stay in ignored `.test-db/local`. Ctrl+C stops the local data
 npm run lint
 npm run test:db
 npm run test:unit
+npm run test:ui
 npm run build
 # With the local production app running on port 3100:
 npm run test:api
 ```
 
 `test:db` starts an isolated real PostgreSQL instance and checks independent connections, concurrent IDs, duplicate-request handling, rollback, idempotent migrations/seeds, and request boundaries. `test:api` writes synthetic records only to a localhost app. The `db:migrate`, `db:seed`, and `db:setup` commands can also be run separately with the appropriate environment.
+
+## Report-form UI proposal
+
+This draft integrates the report-form proposal from PR #4 with the shared Postgres save adapter. PR #4 remains independently reviewable on the current browser-local app; this branch verifies the same form with shared storage. The interface groups fields, links errors to controls and shows a confirmed saved-record summary. Both proposals still require team review before production merge.
 
 ## Data behavior
 
