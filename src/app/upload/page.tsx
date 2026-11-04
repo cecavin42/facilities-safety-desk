@@ -2,59 +2,47 @@
 
 import { useRef, useState } from "react";
 import StorageStatus from "@/components/StorageStatus";
-import { downloadText, parseCsv } from "@/lib/csv";
-import { CSV_HEADER, COLUMN_HELP, templateCsv } from "@/lib/export";
-import type { IncidentRecord, ReportInput } from "@/lib/options";
+import { downloadText } from "@/lib/csv";
+import { COLUMN_HELP, templateCsv } from "@/lib/export";
 import { useAppData } from "@/lib/store";
-import { validateReport } from "@/lib/validation";
-
-type Good = Omit<IncidentRecord, "id" | "createdAt" | "status">;
-type Checked = { fileName: string; good: Good[]; bad: { row: number; reasons: string[] }[]; error?: string };
-
-const MAX_ROWS = 5000;
-
-function check(fileName: string, text: string): Checked {
-  const rows = parseCsv(text);
-  if (rows.length < 2) return { fileName, good: [], bad: [], error: "The file has no data rows." };
-  const header = rows[0].map((h) => h.trim());
-  const missing = CSV_HEADER.filter((c) => !header.includes(c));
-  if (missing.length) return { fileName, good: [], bad: [], error: `The first row is missing these column names: ${missing.join(", ")}.` };
-  if (rows.length - 1 > MAX_ROWS) return { fileName, good: [], bad: [], error: `The file has more than ${MAX_ROWS} rows.` };
-
-  const good: Good[] = [];
-  const bad: Checked["bad"] = [];
-  rows.slice(1).forEach((cells, i) => {
-    const input: ReportInput = {};
-    CSV_HEADER.forEach((c) => (input[c] = cells[header.indexOf(c)] ?? ""));
-    const result = validateReport(input);
-    // Row 1 is the header, so the first data row is row 2, matching what a spreadsheet shows.
-    if (result.ok) good.push(result.record);
-    else bad.push({ row: i + 2, reasons: Object.values(result.errors) });
-  });
-  return { fileName, good, bad };
-}
+import { checkIncidentCsv, type CheckedImport } from "@/lib/incident-import";
+import { MAX_CSV_BYTES } from "@/lib/import-limits";
 
 export default function UploadPage() {
   const { addRecords, ready, error, refresh, saving } = useAppData();
   const requestId = useRef<string | null>(null);
   const importing = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [checked, setChecked] = useState<Checked | null>(null);
+  const [checked, setChecked] = useState<CheckedImport | null>(null);
   const [imported, setImported] = useState<number | null>(null);
+  const [reading, setReading] = useState<string | null>(null);
+  const selection = useRef(0);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    if (importing.current) return;
     const file = e.target.files?.[0];
+    e.target.value = "";
+    const selected = ++selection.current;
     requestId.current = null;
     setSaveError(null);
     setImported(null);
-    if (!file) return setChecked(null);
-    if (file.size > 5_000_000) return setChecked({ fileName: file.name, good: [], bad: [], error: "The file is larger than 5 MB." });
-    setChecked(check(file.name, await file.text()));
-    e.target.value = "";
+    setChecked(null);
+    setReading(null);
+    if (!file) return;
+    if (file.size > MAX_CSV_BYTES) return setChecked({ fileName: file.name, good: [], bad: [], error: "The file is larger than 5 MB." });
+    setReading(file.name);
+    try {
+      const text = await file.text();
+      if (selected === selection.current) setChecked(checkIncidentCsv(file.name, text));
+    } catch {
+      if (selected === selection.current) setChecked({ fileName: file.name, good: [], bad: [], error: "Could not read this file. Choose it again or export a fresh CSV." });
+    } finally {
+      if (selected === selection.current) setReading(null);
+    }
   }
 
   async function importChecked() {
-    if (!checked || importing.current) return;
+    if (!checked || checked.error || !checked.good.length || reading || !ready || importing.current) return;
     importing.current = true;
     requestId.current ??= crypto.randomUUID();
     setSaveError(null);
@@ -77,7 +65,7 @@ export default function UploadPage() {
       {saveError && <p role="alert" className="rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">{saveError}</p>}
       <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <label className="cursor-pointer rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800">
+          <label className="cursor-pointer rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 focus-within:ring-2 focus-within:ring-teal-600 focus-within:ring-offset-2">
             Choose CSV file
             <input type="file" accept=".csv,text/csv" onChange={onFile} disabled={saving} className="sr-only" />
           </label>
@@ -88,6 +76,7 @@ export default function UploadPage() {
         <p className="text-xs text-slate-500">Columns needed in the first row: {COLUMN_HELP}. Dates as YYYY-MM-DD.</p>
       </div>
 
+      {reading && <p role="status" className="text-sm text-slate-600">Reading {reading}...</p>}
       {checked?.error && (
         <div role="alert" className="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-900">
           {checked.fileName}: {checked.error}

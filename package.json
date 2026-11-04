@@ -11,6 +11,7 @@
     "db:seed": "tsx scripts/db-cli.ts seed",
     "db:setup": "tsx scripts/db-cli.ts setup",
     "test:db": "tsx --test tests/database.test.ts",
+    "test:unit": "tsx --test tests/csv.test.ts",
     "test:api": "tsx scripts/check-api.ts",
     "db:local": "tsx scripts/local-db.ts"
   },

@@ -1,3 +1,5 @@
+import { MAX_JSON_BYTES } from "./import-limits";
+
 export class RequestError extends Error {
   constructor(message: string, public status = 400) { super(message); }
 }
@@ -17,7 +19,7 @@ export async function readJson(request: Request) {
   if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
     throw new RequestError("Send JSON data.", 415);
   }
-  const limit = 3_500_000;
+  const limit = MAX_JSON_BYTES;
   if (Number(request.headers.get("content-length")) > limit) throw new RequestError("Request is too large. Import a smaller file.", 413);
   const reader = request.body?.getReader();
   if (!reader) throw new RequestError("Request body is required.");

@@ -32,6 +32,7 @@ The database files stay in ignored `.test-db/local`. Ctrl+C stops the local data
 ```powershell
 npm run lint
 npm run test:db
+npm run test:unit
 npm run build
 # With the local production app running on port 3100:
 npm run test:api
@@ -41,6 +42,7 @@ npm run test:api
 
 ## Data behavior
 
+- CSV previews reject malformed quotes, duplicate headers and inconsistent column counts; blank rows retain their original error row numbers. Oversized JSON batches are caught before submission, and replacing a selected file cannot import the previous preview.
 - Form and CSV writes are confirmed by the server before showing success. The server applies the same validation as the browser, generates IDs and dates, and initializes status to Open. Confirmed batches are atomic; a retry with the same request ID returns the original records.
 - Records/reports refresh on focus and every 15 seconds. Failed saves retain the form/import; failed reads show an error instead of silently falling back to browser storage.
 - The original 150 incident records and 80 example questions are inserted once. There is no public reset endpoint or reset button that could erase another teammate's data.

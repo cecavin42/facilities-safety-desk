@@ -4,11 +4,12 @@ import { failure, isObject, readJson, RequestError } from "@/lib/api";
 import { FORM_FIELDS, type ReportInput } from "@/lib/options";
 import { validateReport } from "@/lib/validation";
 import type { NewIncident } from "@/lib/data-types";
+import { MAX_IMPORT_ROWS } from "@/lib/import-limits";
 
 export async function POST(request: Request) {
   try {
     const body = await readJson(request);
-    if (!isObject(body) || !Array.isArray(body.records) || body.records.length < 1 || body.records.length > 5000) {
+    if (!isObject(body) || !Array.isArray(body.records) || body.records.length < 1 || body.records.length > MAX_IMPORT_ROWS) {
       throw new RequestError("Send 1 to 5,000 records.");
     }
     if (typeof body.requestId !== "string" || !/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i.test(body.requestId)) {
