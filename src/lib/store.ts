@@ -2,85 +2,118 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { IncidentRecord, Status } from "./options";
-import { seedQuestions, seedRecords } from "./seed";
+import type { QuestionLogEntry } from "./data-types";
 import { appendLocalRecords } from "./local-records";
+import {
+  DATA_KEYS,
+  loadBrowserData,
+  readQuestions,
+  saveStatus,
+  writeValue,
+} from "./browser-data";
+import { planImport } from "./incident-import";
 export { newRecordId } from "./local-records";
+export type { QuestionLogEntry } from "./data-types";
+const CHANGED = "fsa-data-changed";
 
-export type QuestionLogEntry = { question: string; answered: boolean; askedAt: string };
-
-// Draft storage: new data lives only in this browser until a database is added.
-const KEYS = {
-  records: "fsa.records.v1",
-  statuses: "fsa.statuses.v1",
-  questions: "fsa.questions.v1",
-};
-
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function write(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+async function mutate<T>(work: () => T): Promise<T> {
+  const commit = () => {
+    const value = work();
+    window.dispatchEvent(new Event(CHANGED));
+    return value;
+  };
+  return navigator.locks
+    ? navigator.locks.request("fsa-browser-write", commit)
+    : commit();
 }
 
 export function useAppData() {
   const [ready, setReady] = useState(false);
-  const [seed, setSeed] = useState<IncidentRecord[]>([]);
-  const [added, setAdded] = useState<IncidentRecord[]>([]);
-  const [statuses, setStatuses] = useState<Record<string, Status>>({});
+  const [error, setError] = useState<string | null>(null);
+  const [records, setRecords] = useState<IncidentRecord[]>([]);
   const [questions, setQuestions] = useState<QuestionLogEntry[]>([]);
-
+  const refresh = useCallback(() => {
+    try {
+      const data = loadBrowserData(localStorage);
+      setRecords(data.records);
+      setQuestions(data.questions);
+      setError(null);
+      setReady(true);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Browser data could not be loaded.",
+      );
+      setReady(false);
+    }
+  }, []);
   useEffect(() => {
-    // Loaded after mount because localStorage only exists in the browser.
     /* eslint-disable react-hooks/set-state-in-effect */
-    setSeed(seedRecords());
-    setAdded(read(KEYS.records, []));
-    setStatuses(read(KEYS.statuses, {}));
-    setQuestions([...seedQuestions(), ...read<QuestionLogEntry[]>(KEYS.questions, [])]);
-    setReady(true);
+    refresh();
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
-
-  const records = [...added, ...seed]
-    .map((r) => (statuses[r.id] ? { ...r, status: statuses[r.id] } : r))
-    .sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.id.localeCompare(a.id));
-
-  const addRecords = useCallback((items: Omit<IncidentRecord, "id" | "createdAt" | "status">[]) => {
-    const { records, ids } = appendLocalRecords(localStorage, items);
-    setAdded(records);
-    return ids;
-  }, []);
-
-  const setStatus = useCallback((id: string, status: Status) => {
-    const next = { ...read<Record<string, Status>>(KEYS.statuses, {}), [id]: status };
-    write(KEYS.statuses, next);
-    setStatuses(next);
-  }, []);
-
-  const logQuestion = useCallback((question: string, answered: boolean) => {
-    const entry = { question, answered, askedAt: new Date().toISOString() };
-    const next = [...read<QuestionLogEntry[]>(KEYS.questions, []), entry];
-    write(KEYS.questions, next);
-    setQuestions((q) => [...q, entry]);
-  }, []);
-
-  const resetDemo = useCallback(() => {
-    Object.values(KEYS).forEach((k) => {
-      try {
-        localStorage.removeItem(k);
-      } catch {}
-    });
-    setAdded([]);
-    setStatuses({});
-    setQuestions(seedQuestions());
-  }, []);
-
-  return { ready, records, questions, addRecords, setStatus, logQuestion, resetDemo };
+    const storage = (event: StorageEvent) => {
+      if (!event.key || Object.values(DATA_KEYS).includes(event.key)) refresh();
+    };
+    window.addEventListener("storage", storage);
+    window.addEventListener("focus", refresh);
+    window.addEventListener(CHANGED, refresh);
+    return () => {
+      window.removeEventListener("storage", storage);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener(CHANGED, refresh);
+    };
+  }, [refresh]);
+  const addRecords = useCallback(
+    (items: Omit<IncidentRecord, "id" | "createdAt" | "status">[]) =>
+      mutate(() => {
+        loadBrowserData(localStorage);
+        return appendLocalRecords(localStorage, items).ids;
+      }),
+    [],
+  );
+  const setStatus = useCallback(
+    (id: string, status: Status) =>
+      mutate(() => saveStatus(localStorage, id, status)),
+    [],
+  );
+  const importRecords = useCallback(
+    (
+      items: Omit<IncidentRecord, "id" | "createdAt" | "status">[],
+      allowDuplicates = false,
+    ) =>
+      mutate(() => {
+        const current = loadBrowserData(localStorage);
+        const plan = allowDuplicates
+          ? { records: items, duplicateCount: 0 }
+          : planImport(items, current.records);
+        return {
+          ids: plan.records.length
+            ? appendLocalRecords(localStorage, plan.records).ids
+            : [],
+          duplicateCount: plan.duplicateCount,
+        };
+      }),
+    [],
+  );
+  const logQuestion = useCallback(
+    (question: string, answered: boolean) =>
+      mutate(() => {
+        const rows = readQuestions(localStorage);
+        writeValue(localStorage, DATA_KEYS.questions, [
+          ...rows,
+          { question, answered, askedAt: new Date().toISOString() },
+        ]);
+      }),
+    [],
+  );
+  return {
+    ready,
+    error,
+    records,
+    questions,
+    addRecords,
+    importRecords,
+    setStatus,
+    logQuestion,
+    refresh,
+  };
 }

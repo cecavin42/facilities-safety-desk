@@ -39,7 +39,7 @@ export default function SafetyAssistant({ sources }: { sources: Source[] }) {
       setTurns(t => [{ id, question: text, result: data }, ...t].slice(0, 20));
       setQuestion(""); setStatus("Response ready. Sources and limitations are included below.");
       // Logging problems must not hide a successfully retrieved answer.
-      try { logQuestion(text, data.answered); } catch { setStatus("Response ready. The local question count could not be saved."); }
+      try { await logQuestion(text, data.answered); } catch { setStatus("Response ready. The local question count could not be saved."); }
       requestAnimationFrame(() => resultHeading.current?.focus());
     } catch (error) {
       if (id !== sequence.current || controller.signal.aborted) return;

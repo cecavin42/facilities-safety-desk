@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:ui": "tsx --test tests/local-records.test.ts",
+    "test:app": "tsx --test tests/app-quality.test.ts tests/csv.test.ts tests/local-records.test.ts",
     "test:assistant": "node --conditions=react-server --import tsx --test tests/assistant.test.ts tests/assistant-service.test.ts",
     "eval:assistant": "tsx scripts/evaluate-assistant.ts",
     "assistant:local": "node scripts/start-assistant-local.mjs"

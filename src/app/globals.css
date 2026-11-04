@@ -17,11 +17,158 @@ body {
   color: var(--foreground);
 }
 
+.control {
+  @apply block min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900;
+}
+.control:focus {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+.control:disabled {
+  background: #f1f5f9;
+  opacity: 0.7;
+}
+.btn-primary,
+.btn-secondary {
+  @apply inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold;
+}
+.btn-primary {
+  @apply border border-teal-700 bg-teal-700 text-white hover:bg-teal-800;
+}
+.btn-secondary {
+  @apply border border-slate-300 bg-white text-slate-700 hover:border-teal-700 hover:bg-slate-50;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+.btn-primary:focus-within {
+  outline: 2px solid #0f766e;
+  outline-offset: 3px;
+}
+.skip-link {
+  position: fixed;
+  top: -5rem;
+  left: 1rem;
+  z-index: 100;
+  background: white;
+  color: #134e4a;
+  padding: 1rem;
+  border: 2px solid #0f766e;
+  border-radius: 0.5rem;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
   }
   body {
     background: white;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  details::details-content {
+    content-visibility: visible !important;
+  }
+  details > :not(summary) {
+    display: block !important;
+  }
+  details > summary {
+    display: none !important;
+  }
+  .chart-scroll {
+    overflow: visible !important;
+  }
+  .chart-scroll > div {
+    min-width: 0 !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body {
+    font-size: 11px;
+  }
+  .skip-link,
+  .chart-instructions {
+    display: none !important;
+  }
+  .print-only {
+    display: block;
+    font-size: 10px;
+    margin: 8px 0;
+  }
+  main > div {
+    display: block;
+  }
+  main > div > * {
+    margin-top: 12px !important;
+  }
+  h1 {
+    font-size: 22px !important;
+    line-height: 1.2 !important;
+  }
+  h2 {
+    font-size: 16px !important;
+    break-after: avoid;
+  }
+  h3 {
+    break-after: avoid;
+  }
+  p,
+  li {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+  .print-section {
+    break-inside: auto !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 8px 0 !important;
+  }
+  .print-section > p {
+    margin-bottom: 8px !important;
+  }
+  .chart-column {
+    height: 100px !important;
+  }
+  .data-table-scroll {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  table {
+    font-size: 10px !important;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tr {
+    break-inside: avoid;
+  }
+  th,
+  td {
+    padding: 4px !important;
   }
 }
