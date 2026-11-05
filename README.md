@@ -1,4 +1,10 @@
-# Assistant quality proposal (draft)
+# Full-app quality proposal (draft)
+
+This draft builds on the assistant proposal (#5). It refreshes the overview, navigation, register, CSV import and insights; preserves unfinished form drafts in the current tab; confirms status writes before showing success; and synchronizes browser data across tabs. It incorporates the stronger CSV checks from the database draft without requiring a hosted database. The last-updated indicator remains in the overview.
+
+Run `npm run test:app` for storage, import, filter and analytics regressions. See [full-app review notes](docs/APP_REVIEW.md) for screenshots and observed end-to-end checks. This is still a browser-local classroom demo. Authentication, shared hosted storage and team acceptance remain separate work; no numeric quality score is claimed from internal tests alone.
+
+## Assistant quality proposal
 
 This branch adds clearer source-backed answers, explicit jurisdiction and coverage limits, an optional local AI interpreter, and a redesigned assistant experience. It builds on the report-form draft (PR #4); shared PostgreSQL remains in PR #3. Team review is pending. No production merge or deployment is implied.
 

@@ -1,177 +1,320 @@
 "use client";
 
 import { useState } from "react";
+
 import { DataTable, HorizontalBars, StackedColumns } from "@/components/Charts";
+
 import Filters, { EMPTY_FILTERS, applyFilters } from "@/components/Filters";
+
+import PageHeader from "@/components/PageHeader";
+
+import DataStatus from "@/components/DataStatus";
+
 import { downloadText, toCsv } from "@/lib/csv";
+
 import { recordsToCsv } from "@/lib/export";
-import { EQUIPMENT, EVENT_TYPES, LOCATIONS, SEVERITIES, type IncidentRecord } from "@/lib/options";
-import { useAppData, type QuestionLogEntry } from "@/lib/store";
 
-function lastMonths(n: number) {
-  const out: string[] = [];
-  const d = new Date();
-  for (let i = n - 1; i >= 0; i--) {
-    const m = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i, 1));
-    out.push(m.toISOString().slice(0, 7));
-  }
-  return out;
+import {
+  EQUIPMENT,
+  EVENT_TYPES,
+  LOCATIONS,
+  SEVERITIES,
+  type IncidentRecord,
+} from "@/lib/options";
+
+import { assistantWindow, monthSeries } from "@/lib/analytics";
+
+import { filterError } from "@/lib/record-view";
+
+import { useAppData } from "@/lib/store";
+
+function countBy(
+  rows: IncidentRecord[],
+  field: keyof IncidentRecord,
+  values: readonly string[],
+) {
+  return values
+    .map((label) => ({
+      label,
+      value: rows.filter((r) => r[field] === label).length,
+    }))
+    .sort((a, b) => b.value - a.value);
 }
 
-function monthLabel(ym: string) {
-  return new Date(ym + "-01T00:00:00Z").toLocaleString("en-US", { month: "short", timeZone: "UTC" });
-}
-
-function weekStart(iso: string) {
-  const d = new Date(iso);
-  const day = (d.getUTCDay() + 6) % 7;
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - day)).toISOString().slice(0, 10);
-}
-
-function countBy<T extends string>(rows: IncidentRecord[], key: keyof IncidentRecord, values: readonly T[]) {
-  return values.map((v) => ({ label: v, value: rows.filter((r) => r[key] === v).length })).sort((a, b) => b.value - a.value);
-}
-
-function topDeclined(questions: QuestionLogEntry[], n = 5) {
-  const counts = new Map<string, number>();
-  for (const q of questions) if (!q.answered) counts.set(q.question, (counts.get(q.question) ?? 0) + 1);
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, n);
-}
-
-function Card({ title, viewer, children }: { title: string; viewer: string; children: React.ReactNode }) {
+function Card({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="break-inside-avoid rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="font-semibold">{title}</h2>
-      <p className="mb-4 text-xs text-slate-500">For: {viewer}</p>
+    <section className="print-section min-w-0 break-inside-avoid rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <p className="mb-5 mt-2 text-sm leading-6 text-slate-600">
+        {description}
+      </p>
       {children}
     </section>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
-    </div>
-  );
-}
-
 export default function ReportsPage() {
-  const { ready, records, questions } = useAppData();
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
-  if (!ready) return <p className="text-sm text-slate-500">Loading...</p>;
+  const { ready, error, refresh, records, questions } = useAppData();
+
+  const [filters, setFilters] = useState({ ...EMPTY_FILTERS });
+
+  if (!ready)
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow="Safety insights"
+          title="See patterns. Decide what to review."
+          description="Explore incident trends and assistant coverage. Every chart has exact values you can inspect or export."
+        />
+        <DataStatus error={error} retry={refresh} />
+        {!error && <p role="status">Loading insights…</p>}
+      </div>
+    );
 
   const rows = applyFilters(records, filters);
-  const months = lastMonths(12);
-  const byMonth = months.map((m) => ({
-    label: monthLabel(m),
-    values: EVENT_TYPES.map((t) => rows.filter((r) => r.eventDate.startsWith(m) && r.eventType === t).length),
+
+  const timeline = monthSeries(rows, filters.from, filters.to);
+
+  const byMonth = timeline.months.map((m) => ({
+    label: m.label,
+    values: EVENT_TYPES.map(
+      (type) =>
+        rows.filter(
+          (r) => r.eventDate.startsWith(m.key) && r.eventType === type,
+        ).length,
+    ),
   }));
+
   const byLocation = countBy(rows, "location", LOCATIONS);
   const byEquipment = countBy(rows, "equipment", EQUIPMENT);
-  const bySeverity = SEVERITIES.map((s) => ({ label: s, value: rows.filter((r) => r.severity === s).length }));
-  const open = rows.filter((r) => r.status !== "Closed").length;
 
-  const weeks = [...new Set(questions.map((q) => weekStart(q.askedAt)))].sort().slice(-12);
-  const byWeek = weeks.map((w) => ({
-    label: w.slice(5),
-    values: [
-      questions.filter((q) => q.answered && weekStart(q.askedAt) === w).length,
-      questions.filter((q) => !q.answered && weekStart(q.askedAt) === w).length,
-    ],
-  }));
-  const answeredPct = questions.length ? Math.round((100 * questions.filter((q) => q.answered).length) / questions.length) : 0;
-  const declined = topDeclined(questions);
+  const assistant = assistantWindow(questions);
+  const answeredPct = assistant.selected.length
+    ? Math.round((100 * assistant.answered) / assistant.selected.length)
+    : null;
 
-  const range = `${filters.from || rows.at(-1)?.eventDate || "-"} to ${filters.to || rows[0]?.eventDate || "-"}`;
+  const range = rows.length
+    ? `${filters.from || rows.at(-1)?.eventDate} to ${filters.to || rows[0]?.eventDate}`
+    : "No matching records";
 
   function exportSummary() {
-    const line = (label: string, value: string | number) => [label, value];
-    const csv = toCsv(["Item", "Value"], [
-      line("Date range", range),
-      line("Filters", [filters.location, filters.shift, filters.eventType].filter(Boolean).join(", ") || "None"),
-      line("Total records", rows.length),
-      line("Open or under review", open),
-      ...EVENT_TYPES.map((t) => line(`Event type: ${t}`, rows.filter((r) => r.eventType === t).length)),
-      ...byLocation.map((l) => line(`Location: ${l.label}`, l.value)),
-      ...bySeverity.map((s) => line(`Severity: ${s.label}`, s.value)),
-      line("Assistant questions answered (%)", answeredPct),
-      ...declined.map(([q, n], i) => line(`Top declined question ${i + 1}`, `${q} (${n})`)),
-    ]);
-    downloadText(`safety-summary-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    const lines: (string | number)[][] = [
+      ["Record date range", range],
+      ["Record filters", JSON.stringify(filters)],
+      ["Total records", rows.length],
+      [
+        "Open or under review",
+        rows.filter((r) => r.status !== "Closed").length,
+      ],
+      ...EVENT_TYPES.map((type) => [
+        `Event type: ${type}`,
+        rows.filter((r) => r.eventType === type).length,
+      ]),
+      ...byLocation.map((r) => [`Location: ${r.label}`, r.value]),
+      ...byEquipment.map((r) => [`Equipment: ${r.label}`, r.value]),
+      ...countBy(rows, "severity", SEVERITIES).map((r) => [
+        `Severity: ${r.label}`,
+        r.value,
+      ]),
+      [
+        "Assistant period (independent of record filters)",
+        `${assistant.from} to ${assistant.to}`,
+      ],
+      ["Assistant questions", assistant.selected.length],
+      [
+        "Assistant responses marked answered (%) - not accuracy",
+        answeredPct ?? "N/A",
+      ],
+      ...assistant.declined.map(([q, n]) => [`Unanswered or partial: ${q}`, n]),
+    ];
+
+    downloadText(
+      `safety-summary-${new Date().toISOString().slice(0, 10)}.csv`,
+      toCsv(["Measure", "Value"], lines),
+    );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
-          <p className="text-sm text-slate-600">
-            {rows.length} records, {range}.
-          </p>
-        </div>
-        <div className="no-print flex flex-wrap gap-2">
-          <button onClick={() => downloadText(`incidents-${new Date().toISOString().slice(0, 10)}.csv`, recordsToCsv(rows))} className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800">
-            Export records CSV
-          </button>
-          <button onClick={exportSummary} className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
-            Export summary CSV
-          </button>
-          <button onClick={() => window.print()} className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
-            Print / save as PDF
-          </button>
-        </div>
-      </div>
-
+      <PageHeader
+        eyebrow="Safety insights"
+        title="See patterns. Decide what to review."
+        description="Explore incident trends and assistant coverage. Every chart has exact values you can inspect or export."
+      >
+        <button
+          className="btn-secondary"
+          disabled={!ready || !!filterError(filters)}
+          onClick={exportSummary}
+        >
+          Export summary
+        </button>
+        <button
+          className="btn-secondary"
+          disabled={!ready}
+          onClick={() => window.print()}
+        >
+          Print report
+        </button>
+      </PageHeader>
+      <p className="print-only">
+        Facilities Safety Desk · Team A classroom demo · all incident data is
+        fictional.
+      </p>
+      <DataStatus error={error} retry={refresh} />
       <Filters value={filters} onChange={setFilters} />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Records" value={rows.length} />
-        <Stat label="Injuries" value={rows.filter((r) => r.eventType === "Injury").length} />
-        <Stat label="Near misses" value={rows.filter((r) => r.eventType === "Near miss").length} />
-        <Stat label="Open or under review" value={open} />
-      </div>
-
-      <Card title="1. Incidents over time (last 12 months, by event type)" viewer="safety manager, leadership, safety committee">
-        <StackedColumns data={byMonth} names={[...EVENT_TYPES]} />
-        <DataTable head={["Month", ...EVENT_TYPES, "Total"]} rows={byMonth.map((m) => [m.label, ...m.values, m.values.reduce((a, b) => a + b, 0)])} />
-      </Card>
-
-      <Card title="2. Where and with what" viewer="shift supervisors">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div>
-            <h3 className="mb-2 text-sm font-medium">By location</h3>
-            <HorizontalBars data={byLocation} />
+      {ready && (
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-slate-600">
+              Incident period: <strong>{range}</strong>
+            </p>
+            <button
+              disabled={!rows.length}
+              className="no-print min-h-11 text-sm font-semibold text-teal-800 underline"
+              onClick={() =>
+                downloadText("filtered-incidents.csv", recordsToCsv(rows))
+              }
+            >
+              Export {rows.length} matching records
+            </button>
           </div>
-          <div>
-            <h3 className="mb-2 text-sm font-medium">By equipment</h3>
-            <HorizontalBars data={byEquipment} />
-          </div>
-        </div>
-        <DataTable head={["Category", "Count"]} rows={[...byLocation.map((l) => [`Location: ${l.label}`, l.value]), ...byEquipment.map((e) => [`Equipment: ${e.label}`, e.value])]} />
-      </Card>
-
-      <Card title="3. Assistant questions (last 12 weeks, answered vs. declined)" viewer="safety manager">
-        <p className="mb-3 text-sm">
-          <span className="text-2xl font-semibold tabular-nums">{answeredPct}%</span> of {questions.length} questions answered. Not
-          affected by the record filters.
-        </p>
-        <StackedColumns data={byWeek} names={["Answered", "Declined"]} height={140} />
-        <DataTable head={["Week of", "Answered", "Declined"]} rows={byWeek.map((w) => [w.label, ...w.values])} />
-        <h3 className="mt-5 mb-2 text-sm font-medium">Top declined questions</h3>
-        {declined.length ? (
-          <ol className="list-decimal space-y-1 pl-5 text-sm text-slate-700">
-            {declined.map(([q, n]) => (
-              <li key={q}>
-                {q} <span className="text-slate-500">({n})</span>
-              </li>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              [rows.length, "Matching records"],
+              [rows.filter((r) => r.eventType === "Injury").length, "Injuries"],
+              [
+                rows.filter((r) => r.eventType === "Near miss").length,
+                "Near misses",
+              ],
+              [
+                rows.filter((r) => r.status !== "Closed").length,
+                "Open or under review",
+              ],
+            ].map(([value, label]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-slate-200 bg-white p-4"
+              >
+                <p className="text-3xl font-bold tabular-nums text-teal-950">
+                  {value}
+                </p>
+                <p className="mt-2 text-xs text-slate-600">{label}</p>
+              </div>
             ))}
-          </ol>
-        ) : (
-          <p className="text-sm text-slate-500">None yet.</p>
-        )}
-      </Card>
+          </div>
+
+          <Card
+            title="Incidents over time"
+            description="Matching records by month and event type. Months with no records remain visible."
+          >
+            {!rows.length ? (
+              <p className="py-6 text-sm text-slate-500">
+                No incidents match these filters. Clear or adjust them to see
+                the trend.
+              </p>
+            ) : timeline.warning ? (
+              <p role="status" className="text-sm text-amber-900">
+                {timeline.warning}
+              </p>
+            ) : (
+              <>
+                <StackedColumns data={byMonth} names={[...EVENT_TYPES]} />
+                <DataTable
+                  head={["Month", ...EVENT_TYPES, "Total"]}
+                  rows={byMonth.map((m) => [
+                    m.label,
+                    ...m.values,
+                    m.values.reduce((a, b) => a + b, 0),
+                  ])}
+                />
+              </>
+            )}
+          </Card>
+
+          <Card
+            title="Where incidents happen"
+            description="Counts show where to investigate; they do not measure risk without exposure or staffing data."
+          >
+            <div className="grid gap-8 md:grid-cols-2">
+              <div>
+                <h3 className="mb-4 font-semibold">Location</h3>
+                <HorizontalBars data={byLocation} />
+              </div>
+              <div>
+                <h3 className="mb-4 font-semibold">Equipment involved</h3>
+                <HorizontalBars data={byEquipment} />
+              </div>
+            </div>
+            <DataTable
+              head={["Category", "Count"]}
+              rows={[
+                ...byLocation.map((r) => [r.label, r.value]),
+                ...byEquipment.map((r) => [r.label, r.value]),
+              ]}
+            />
+          </Card>
+
+          <Card
+            title="Assistant coverage"
+            description={`The last 12 calendar weeks (${assistant.from} to ${assistant.to}, UTC). Independent of incident filters; empty weeks are included.`}
+          >
+            <div className="mb-5 rounded-xl bg-teal-50 p-4">
+              <p className="text-3xl font-bold text-teal-950">
+                {answeredPct === null ? "—" : `${answeredPct}%`}
+              </p>
+              <p className="mt-2 text-sm text-teal-950">
+                {assistant.answered} of {assistant.selected.length} questions
+                marked answered.
+              </p>
+              <p className="mt-1 text-xs leading-6 text-teal-900">
+                This measures response availability, not correctness. Partial
+                and unsupported responses are counted together below.
+              </p>
+            </div>
+            <StackedColumns
+              data={assistant.weeks}
+              names={["Answered", "Partial / unsupported"]}
+              height={150}
+              unit="questions"
+            />
+            <DataTable
+              head={["Week beginning", "Answered", "Partial / unsupported"]}
+              rows={assistant.weeks.map((w) => [w.start, ...w.values])}
+            />
+            <h3 className="mb-3 mt-6 font-semibold">Questions to review</h3>
+            {assistant.declined.length ? (
+              <ol className="space-y-3">
+                {assistant.declined.map(([q, n]) => (
+                  <li
+                    key={q}
+                    className="flex items-start justify-between gap-3 rounded-lg bg-slate-50 p-3 text-sm"
+                  >
+                    <span className="break-words leading-6">{q}</span>
+                    <span className="rounded-full bg-white px-2 py-1 text-xs font-bold">
+                      {n}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-sm text-slate-500">
+                No partial or unsupported questions in this period.
+              </p>
+            )}
+          </Card>
+        </>
+      )}
+
+      {!ready && !error && <p role="status">Loading insights…</p>}
     </div>
   );
 }
