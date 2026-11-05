@@ -1,100 +1,92 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { IncidentRecord, Status } from "./options";
-import { seedQuestions, seedRecords } from "./seed";
+import type { AppData, NewIncident } from "./data-types";
+export type { QuestionLogEntry } from "./data-types";
 
-export type QuestionLogEntry = { question: string; answered: boolean; askedAt: string };
-
-// Draft storage: new data lives only in this browser until a database is added.
-const KEYS = {
-  records: "fsa.records.v1",
-  statuses: "fsa.statuses.v1",
-  questions: "fsa.questions.v1",
-};
-
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function write(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
-}
-
-export function newRecordId(existing: IncidentRecord[]): string {
-  const max = existing
-    .filter((r) => r.id.startsWith("R-"))
-    .reduce((m, r) => Math.max(m, parseInt(r.id.slice(2), 10) || 0), 0);
-  return `R-${String(max + 1).padStart(4, "0")}`;
+async function json<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, { cache: "no-store", ...options });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(body?.error ?? "Shared storage is unavailable. Please retry.");
+  return body as T;
 }
 
 export function useAppData() {
   const [ready, setReady] = useState(false);
-  const [seed, setSeed] = useState<IncidentRecord[]>([]);
-  const [added, setAdded] = useState<IncidentRecord[]>([]);
-  const [statuses, setStatuses] = useState<Record<string, Status>>({});
-  const [questions, setQuestions] = useState<QuestionLogEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<AppData>({ records: [], questions: [] });
+  const [saving, setSaving] = useState(false);
+  const generation = useRef(0);
+  const pending = useRef(0);
+
+  const refresh = useCallback(async () => {
+    if (pending.current) return;
+    const request = ++generation.current;
+    try {
+      const next = await json<AppData>("/api/data");
+      if (request !== generation.current) return;
+      setData(next);
+      setReady(true);
+      setError(null);
+    } catch (err) {
+      if (request === generation.current) setError(err instanceof Error ? err.message : "Could not load shared records.");
+    }
+  }, []);
 
   useEffect(() => {
-    // Loaded after mount because localStorage only exists in the browser.
-    /* eslint-disable react-hooks/set-state-in-effect */
-    setSeed(seedRecords());
-    setAdded(read(KEYS.records, []));
-    setStatuses(read(KEYS.statuses, {}));
-    setQuestions([...seedQuestions(), ...read<QuestionLogEntry[]>(KEYS.questions, [])]);
-    setReady(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
+    const version = generation;
+    // refresh updates state only after its network request resolves.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void refresh();
+    const onFocus = () => { if (document.visibilityState === "visible") void refresh(); };
+    const timer = window.setInterval(onFocus, 15_000);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      ++version.current;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [refresh]);
 
-  const records = [...added, ...seed]
-    .map((r) => (statuses[r.id] ? { ...r, status: statuses[r.id] } : r))
-    .sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.id.localeCompare(a.id));
-
-  const addRecords = useCallback((items: Omit<IncidentRecord, "id" | "createdAt" | "status">[]) => {
-    const current = read<IncidentRecord[]>(KEYS.records, []);
-    const createdAt = new Date().toISOString().slice(0, 10);
-    const next = [...current];
-    const ids: string[] = [];
-    for (const item of items) {
-      const id = newRecordId(next);
-      ids.push(id);
-      next.unshift({ ...item, id, createdAt, status: "Open" });
+  const addRecords = useCallback(async (items: NewIncident[], requestId: string) => {
+    ++pending.current;
+    ++generation.current;
+    setSaving(true);
+    try {
+      const result = await json<{ records: IncidentRecord[] }>("/api/records", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ records: items, requestId }),
+      });
+      setData(old => {
+        const ids = new Set(result.records.map(r => r.id));
+        return { ...old, records: [...result.records, ...old.records.filter(r => !ids.has(r.id))] };
+      });
+      return result.records.map(r => r.id);
+    } finally {
+      --pending.current;
+      ++generation.current;
+      setSaving(pending.current > 0);
     }
-    write(KEYS.records, next);
-    setAdded(next);
-    return ids;
   }, []);
 
-  const setStatus = useCallback((id: string, status: Status) => {
-    const next = { ...read<Record<string, Status>>(KEYS.statuses, {}), [id]: status };
-    write(KEYS.statuses, next);
-    setStatuses(next);
+  const setStatus = useCallback(async (id: string, status: Status) => {
+    ++pending.current;
+    ++generation.current;
+    setSaving(true);
+    try {
+      const result = await json<{ record: IncidentRecord }>(`/api/records/${encodeURIComponent(id)}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }),
+      });
+      setData(old => ({ ...old, records: old.records.map(r => r.id === id ? result.record : r) }));
+    } finally {
+      --pending.current;
+      ++generation.current;
+      setSaving(pending.current > 0);
+    }
   }, []);
 
-  const logQuestion = useCallback((question: string, answered: boolean) => {
-    const entry = { question, answered, askedAt: new Date().toISOString() };
-    const next = [...read<QuestionLogEntry[]>(KEYS.questions, []), entry];
-    write(KEYS.questions, next);
-    setQuestions((q) => [...q, entry]);
-  }, []);
-
-  const resetDemo = useCallback(() => {
-    Object.values(KEYS).forEach((k) => {
-      try {
-        localStorage.removeItem(k);
-      } catch {}
-    });
-    setAdded([]);
-    setStatuses({});
-    setQuestions(seedQuestions());
-  }, []);
-
-  return { ready, records, questions, addRecords, setStatus, logQuestion, resetDemo };
+  const records = [...data.records].sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.id.localeCompare(a.id, undefined, { numeric: true }));
+  return { ready, error, saving, refresh, records, questions: data.questions, addRecords, setStatus };
 }

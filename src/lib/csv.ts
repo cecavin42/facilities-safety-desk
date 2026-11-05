@@ -3,6 +3,7 @@ export function parseCsv(text: string): string[][] {
   let row: string[] = [];
   let field = "";
   let inQuotes = false;
+  let closedQuote = false;
   const s = text.replace(/^﻿/, "");
 
   for (let i = 0; i < s.length; i++) {
@@ -11,25 +12,33 @@ export function parseCsv(text: string): string[][] {
       if (c === '"' && s[i + 1] === '"') {
         field += '"';
         i++;
-      } else if (c === '"') inQuotes = false;
+      } else if (c === '"') { inQuotes = false; closedQuote = true; }
       else field += c;
-    } else if (c === '"') inQuotes = true;
+    } else if (c === '"') {
+      if (closedQuote || field !== "") throw new Error("Unexpected quote in an unquoted CSV field. Wrap the entire field in quotes and double any quotes inside it.");
+      inQuotes = true;
+    }
     else if (c === ",") {
       row.push(field);
       field = "";
+      closedQuote = false;
     } else if (c === "\n" || c === "\r") {
       if (c === "\r" && s[i + 1] === "\n") i++;
       row.push(field);
       rows.push(row);
       row = [];
       field = "";
+      closedQuote = false;
+    } else if (closedQuote) {
+      if (c !== " " && c !== "\t") throw new Error("Unexpected text after a closing CSV quote. Check the quotation marks and separator.");
     } else field += c;
   }
-  if (field !== "" || row.length > 0) {
+  if (inQuotes) throw new Error("A CSV quoted field is not closed. Add its closing quote and try again.");
+  if (field !== "" || row.length > 0 || closedQuote) {
     row.push(field);
     rows.push(row);
   }
-  return rows.filter((r) => r.some((f) => f.trim() !== ""));
+  return rows;
 }
 
 function escapeField(value: unknown): string {

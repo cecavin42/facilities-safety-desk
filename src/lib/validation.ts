@@ -97,7 +97,7 @@ export function validateReport(input: ReportInput, today = isoDate(new Date())):
 
   const reporterEmail = v("reporterEmail");
   if (!reporterEmail) errors.reporterEmail = "Reporter email is required.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reporterEmail)) errors.reporterEmail = "Reporter email must be a valid email address.";
+  else if (reporterEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reporterEmail)) errors.reporterEmail = "Reporter email must be a valid email address of at most 254 characters.";
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };
 

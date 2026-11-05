@@ -39,7 +39,7 @@ export default function Home() {
         <h2 className="font-semibold text-slate-800">About this draft</h2>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>The app starts with 150 fake incident records so the reports have something to show.</li>
-          <li>Reports you add are saved only in this web browser for now. A shared database comes in a later version.</li>
+          <li>Reports, status changes and question statistics are saved in shared storage and visible across browsers.</li>
           <li>The assistant finds and quotes matching passages. It does not use an AI model yet.</li>
           <li>No sign-in yet. Roles (employee, supervisor, safety manager) come in a later version.</li>
         </ul>
