@@ -1,4 +1,12 @@
-# Report-form UI/UX proposal
+# Assistant quality proposal (draft)
+
+This branch adds clearer source-backed answers, explicit jurisdiction and coverage limits, an optional local AI interpreter, and a redesigned assistant experience. It builds on the report-form draft (PR #4); shared PostgreSQL remains in PR #3. Team review is pending. No production merge or deployment is implied.
+
+Run `npm ci`, then `npm run assistant:local` and open http://127.0.0.1:3102/assistant. The launcher builds the app and warms the already-installed `qwen3.6:35b-a3b` model through local Ollama. It downloads no models. Without Ollama, the source guide still works and is labeled accordingly. For a normal source-guide preview, use `npm run build` followed by `npm start`.
+
+Run `npm run test:assistant`, `npm run test:ui`, `npm run lint`, and `npm run build`. `npm run eval:assistant` compares the saved original retrieval behavior with the draft on the development cases. See [assistant review notes](docs/ASSISTANT_REVIEW.md) for architecture, evidence, limits and database integration.
+
+## Report-form UI/UX proposal
 
 This branch improves the existing incident-report flow while preserving the team app's teal styling and validation rules. It is based on the current master branch, so its preview can run before the shared Postgres connection is available.
 

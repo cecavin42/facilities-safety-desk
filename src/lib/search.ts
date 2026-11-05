@@ -136,6 +136,14 @@ function bestExcerpt(text: string, qTerms: string[], intent: string[]): string {
 const MIN_COVERAGE = 0.5;
 const MIN_SCORE = 3;
 
+export function retrieveCandidates(question: string, limit = 8): Passage[] {
+  const qTerms = [...new Set(tokens(question))];
+  const intent = intentTerms(question);
+  return indexed.map(x => ({ x, score: bm25(qTerms, x) + 0.5 * bm25(intent, x) }))
+    .filter(r => r.score >= MIN_SCORE && !HEADER.test(r.x.p.text.slice(0, 70)))
+    .sort((a, b) => b.score - a.score).slice(0, limit).map(r => r.x.p);
+}
+
 export function ask(question: string): AskResult {
   const qTerms = [...new Set(tokens(question))];
   if (qTerms.length === 0) return { answered: false, message: declineMessage(question) };

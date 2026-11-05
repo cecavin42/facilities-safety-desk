@@ -1,0 +1,65 @@
+{
+  "_about": "Assistant test set. Each answer must contain every phrase in must_contain and cite at least one source in cite. doc ids match src/data/documents.json. expect=decline means the assistant must refuse and log the question.",
+  "cases": [
+    {
+      "id": "q1-inspection-frequency",
+      "question": "How often does a forklift have to be inspected?",
+      "expect": "answer",
+      "must_contain": ["daily"],
+      "cite": ["29 CFR 1910.178(q)(7)", "UT SAGS130-K"],
+      "doc": ["cfr-1910-178", "ut-sags130-k"]
+    },
+    {
+      "id": "q2-near-miss-retraining",
+      "question": "I had a near miss on the forklift. Do I need retraining?",
+      "expect": "answer",
+      "must_contain": ["refresher", "three years"],
+      "cite": ["29 CFR 1910.178(l)(4)(ii)(B)", "29 CFR 1910.178(l)(4)(iii)", "UT SAGS130-K"],
+      "doc": ["cfr-1910-178", "ut-sags130-k"]
+    },
+    {
+      "id": "q3-hospitalization-reporting",
+      "question": "A coworker was admitted to the hospital after a fall. How fast do we have to report it?",
+      "expect": "answer",
+      "must_contain": ["24 hours"],
+      "cite": ["Tenn. Comp. R. & Regs. 0800-01-03-.05(1)(a)2"],
+      "doc": ["tn-0800-01-03-05"]
+    },
+    {
+      "id": "q4-who-to-report-near-miss",
+      "question": "Who do I report a near miss to, and could I get in trouble for it?",
+      "expect": "answer",
+      "must_contain": ["immediate supervisor", "retaliat"],
+      "cite": ["UT SAAD021-K", "UT SAAD022-K"],
+      "doc": ["ut-saad021-k", "ut-saad022-k"]
+    },
+    {
+      "id": "q5-training-before-operating",
+      "question": "Can someone drive a forklift before they finish training?",
+      "expect": "answer",
+      "must_contain": ["training"],
+      "cite": ["29 CFR 1910.178(l)(1)(ii)"],
+      "doc": ["cfr-1910-178"]
+    },
+    {
+      "id": "q6-training-record-contents",
+      "question": "What has to be in the forklift training record?",
+      "expect": "answer",
+      "must_contain": ["name", "date of the training", "date of the evaluation"],
+      "cite": ["29 CFR 1910.178(l)(6)"],
+      "doc": ["cfr-1910-178"]
+    },
+    {
+      "id": "q7-defective-truck",
+      "question": "The forklift has a bad brake. Can we finish the shift with it?",
+      "expect": "answer",
+      "must_contain": ["out of service"],
+      "cite": ["29 CFR 1910.178(p)(1)"],
+      "doc": ["cfr-1910-178"]
+    },
+    { "id": "d1-pay", "question": "How much do forklift operators get paid here?", "expect": "decline" },
+    { "id": "d2-medical", "question": "My back hurts after lifting. Should I take ibuprofen or go to the ER?", "expect": "decline" },
+    { "id": "d3-other-state", "question": "What is the injury reporting deadline in Georgia?", "expect": "decline" },
+    { "id": "d4-records-lookup", "question": "What happened in last month's forklift incident?", "expect": "decline" }
+  ]
+}
