@@ -127,11 +127,11 @@ export default function IncidentReportForm({ ready, onSave, storageDescription, 
   return <div className="space-y-6">
     <header className="space-y-3">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-800">Incident reporting</p>
-      <h1 id="report-heading" className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Report an incident or near miss</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Report an incident or near miss</h1>
       <p className="max-w-3xl text-base leading-7 text-slate-600">Record what happened, where and when. Fields marked <span className="font-semibold text-teal-800">*</span> are required.</p>
       <nav aria-label="Report sections" className="flex flex-wrap gap-2 pt-1 text-sm">
-        {[["when-where", "1 · When & where", "eventDate"], ["event-details", "2 · Event", "eventType"], ["reporter", "3 · Reporter", "reporterName"]].map(([id, label, field]) =>
-          <a key={id} href={`#f-${field}`} onClick={event => { event.preventDefault(); focusField(field as FormField); }} className="inline-flex min-h-11 items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:border-teal-600 focus-visible:outline-2 focus-visible:outline-teal-700">{label}</a>)}
+        {[["when-where", "1 · When & where"], ["event-details", "2 · Event"], ["reporter", "3 · Reporter"]].map(([id, label]) =>
+          <a key={id} href={`#${id}`} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-slate-700 hover:border-teal-600 focus-visible:outline-2 focus-visible:outline-teal-700">{label}</a>)}
       </nav>
     </header>
 
@@ -143,7 +143,7 @@ export default function IncidentReportForm({ ready, onSave, storageDescription, 
     </div>}
 
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_15rem]">
-      <form onSubmit={submit} noValidate aria-labelledby="report-heading" aria-busy={saving} className="min-w-0 space-y-5">
+      <form onSubmit={submit} noValidate aria-busy={saving} className="min-w-0 space-y-5">
         <Section id="when-where" number="1" title="When and where" description="Record the event date and the area where it happened." disabled={saving}>
           <Field name="eventDate" required hint="Today or a past date within the last year." error={errors.eventDate}><input id="f-eventDate" type="date" className={control} value={values.eventDate ?? ""} onChange={change("eventDate")} /></Field>
           <Field name="eventTime" hint="Use the local time of the event, if known." error={errors.eventTime}><input id="f-eventTime" type="time" className={control} value={values.eventTime ?? ""} onChange={change("eventTime")} /></Field>
