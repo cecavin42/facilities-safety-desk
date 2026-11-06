@@ -1,6 +1,5 @@
 import "server-only";
 import { createHash, randomUUID } from "node:crypto";
-import { PDFParse } from "pdf-parse";
 import { database } from "./database";
 import { transaction } from "./db/repository";
 import { HttpError } from "./server-access";
@@ -68,6 +67,17 @@ export async function extractPages(bytes: Uint8Array, type: string) {
     new TextDecoder().decode(bytes.slice(0, 5)) !== "%PDF-"
   )
     throw new HttpError("Choose a text PDF, TXT, or Markdown file.");
+  // Loaded only when a PDF is uploaded. The PDF library needs native files
+  // that are not present on every server, and nothing else in the app, the
+  // assistant included, should fail when it cannot load.
+  let PDFParse: typeof import("pdf-parse").PDFParse;
+  try {
+    ({ PDFParse } = await import("pdf-parse"));
+  } catch {
+    throw new HttpError(
+      "PDF reading is not available on this server. Upload a TXT or Markdown file instead.",
+    );
+  }
   const parser = new PDFParse({ data: bytes });
   try {
     const info = await parser.getInfo();
@@ -91,6 +101,11 @@ export async function extractPages(bytes: Uint8Array, type: string) {
     return result.pages.map((p) => ({ page: p.num, text: p.text }));
   } catch (e) {
     if (e instanceof HttpError) throw e;
+    // The reason is logged for whoever runs the server. It is not shown to the user.
+    console.error(
+      "PDF extraction failed:",
+      e instanceof Error ? e.message.slice(0, 300) : "unknown error",
+    );
     throw new HttpError(
       "The PDF could not be read. Use an unlocked, text-based PDF.",
     );
