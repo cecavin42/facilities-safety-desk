@@ -32,6 +32,7 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 - Keep the private copy of `BETTER_AUTH_SECRET` somewhere safe, for example a password manager. A backup can only be restored with the same value.
 - Do not put any of these values in GitHub, Drive or a `NEXT_PUBLIC_` variable.
 - Do not add `ASSISTANT_OLLAMA_MODEL` or `AUTH_MFA_ENABLED` in Vercel.
+- Check that the project runs Node.js 24.x: **Settings → Build and Deployment → Node.js Version**. This version was verified on 24. A newly created Vercel project now starts on 26.
 
 **2. Merge the pull request on GitHub** with the green **Merge pull request** button, using the default option, "Create a merge commit". Plan to do steps 3 to 6 right after, in one sitting, because from the merge on the live site asks everyone to sign in.
 
@@ -111,7 +112,7 @@ In Vercel, open **Deployments**, open the menu (⋮) on the previous production 
 - Leave the two settings you kept in place.
 - After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged, have it checked on a computer first, because its preview cannot be signed in to. When its deployment shows Ready, open the project's **Overview** page, choose **Undo Rollback** on the production deployment, pick the new deployment and confirm. The accounts created earlier work again. Do not repeat steps 1 to 4.
 
-An actual rollback on the hosted site has not been rehearsed.
+This was rehearsed on a separate Vercel test project on November 5. The sign-in version was rolled back to the version without sign-in in a few seconds. That older version worked against the database that already had the new tables. After the rollback was undone, the accounts were still there and sign-in worked. It has not been rehearsed on the team's project.
 
 ## Reviewing pull requests after this one
 
@@ -135,11 +136,21 @@ Checked on a development computer on November 5, 2026, against local PostgreSQL:
 - A preview build with no settings and no database: it builds, shows the sign-in page, refuses data requests, connects to no database and creates no administrator.
 - The checks listed in the root `README.md`.
 
+Checked on a separate Vercel test project on November 5, 2026 (free plan, Node.js 24, its own Neon database connected to both Production and Preview):
+
+- A production deployment with no settings stopped at the settings check. With the database connected but no administrator settings it stopped again, and the database still had no tables.
+- With the five settings it deployed in under a minute, the build log said `First administrator created.`, and that account signed in. `npm run test:hosted` passed against it.
+- Over HTTPS on that site: the register with the 150 sample records, a new report, both assistant questions from the pull request, the source library, a text upload and a PDF upload, and an Employee account that saw only its own reports and no Team access.
+- After the three administrator settings were deleted, the next deployment passed and sign-in still worked.
+- A preview deployment skipped the database step and created no administrator. Row counts in the shared database were identical before and after. The preview showed the sign-in page and refused a sign-in attempt.
+- Instant Rollback, as described under "Rolling back". After a rollback, a new production deployment stayed off the live address until it was promoted.
+- The first hosted run found a fault that no local check could: every assistant question returned a server error, because the PDF library did not load on Vercel. That is fixed in this version and was re-tested there.
+
 Not checked:
 
-- This version has not been deployed to Vercel. Hosted sign-in, source upload and recovery have not been exercised there. The first time it runs on Vercel will be the live site.
-- `npm run test:hosted` is written for a hosted address and an approved test account. It has not been run.
+- This version has not been deployed to the team's Vercel project. The first time it runs there will be the live site.
 - Applying migrations 002 to 006 to the real production database.
+- Account recovery links and backup and restore have not been exercised on a hosted site.
 
 ## Known limits
 

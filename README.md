@@ -87,7 +87,7 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-Results are from one run on November 5, 2026, on Windows with Node.js 24.13. The assistant cases were written during development, so they are not an independent accuracy estimate.
+Results are from one run on November 5, 2026, on Windows with Node.js 24.13. What was checked on a hosted Vercel test project is listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 
