@@ -1,7 +1,8 @@
 // First step of the Vercel build (see vercel.json). A production build stops here,
-// before any database migration, when a required setting is missing or malformed.
+// before any database migration, when a required setting is missing or malformed,
+// or when the deployment would go live with nobody able to sign in.
 // Vercel then keeps serving the previous deployment. Setting values are never printed.
-export {};
+import { createPool } from "../src/lib/db/pool";
 
 const REQUIRED = ["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"];
 
@@ -22,8 +23,7 @@ function findProblems(env: NodeJS.ProcessEnv) {
     }
   }
   // The first administrator is created during the build from these three
-  // settings. They are optional, but a partial or malformed set stops the
-  // build here, before the database step.
+  // settings. A partial or malformed set stops the build here.
   const admin = [
     env.FSA_ADMIN_NAME,
     env.FSA_ADMIN_EMAIL,
@@ -45,19 +45,60 @@ function findProblems(env: NodeJS.ProcessEnv) {
   return problems;
 }
 
-const target = process.env.VERCEL_ENV ?? "local";
-const problems = findProblems(process.env);
-const list = problems.map((problem) => `- ${problem}`).join("\n");
-
-if (!problems.length) {
-  console.log(`Deployment settings check passed (${target}).`);
-} else if (target === "production") {
-  console.error(
-    `Production build stopped. No database change was made.\n${list}\nAdd the settings in the Vercel project, then redeploy. See docs/DEPLOYMENT.md.`,
-  );
-  process.exitCode = 1;
-} else {
-  console.warn(
-    `Sign-in will not work on this ${target} build until these are fixed:\n${list}`,
-  );
+// Read-only. Answers undefined when the database cannot be read; the database
+// step that follows then reports the connection problem itself.
+async function administratorExists(env: NodeJS.ProcessEnv) {
+  let pool: ReturnType<typeof createPool> | undefined;
+  try {
+    pool = createPool(env.DATABASE_URL_UNPOOLED || env.DATABASE_URL);
+    const {
+      rows: [table],
+    } = await pool.query(`SELECT to_regclass('public."user"') AS name`);
+    if (!table?.name) return false;
+    const found = await pool.query(
+      "SELECT 1 FROM \"user\" WHERE role='admin' AND COALESCE(banned,false)=false LIMIT 1",
+    );
+    return Boolean(found.rowCount);
+  } catch {
+    return undefined;
+  } finally {
+    await pool?.end().catch(() => {});
+  }
 }
+
+async function main() {
+  const env = process.env;
+  const target = env.VERCEL_ENV ?? "local";
+  const problems = findProblems(env);
+  // Sign-in is useless without an administrator. If none exists and the
+  // deployment is not going to create one, stop instead of locking the site.
+  if (
+    target === "production" &&
+    !problems.length &&
+    !env.FSA_ADMIN_NAME &&
+    !env.FSA_ADMIN_EMAIL &&
+    !env.FSA_ADMIN_PASSWORD &&
+    (await administratorExists(env)) === false
+  )
+    problems.push(
+      "No administrator exists yet, and FSA_ADMIN_NAME, FSA_ADMIN_EMAIL and FSA_ADMIN_PASSWORD are not set",
+    );
+  const list = problems.map((problem) => `- ${problem}`).join("\n");
+  if (!problems.length) {
+    console.log(`Deployment settings check passed (${target}).`);
+  } else if (target === "production") {
+    console.error(
+      `Production build stopped. No database change was made.\n${list}\nAdd the settings in the Vercel project, then redeploy. See docs/DEPLOYMENT.md.`,
+    );
+    process.exitCode = 1;
+  } else {
+    console.warn(
+      `Sign-in will not work on this ${target} build until these are fixed:\n${list}`,
+    );
+  }
+}
+
+main().catch(() => {
+  console.error("The deployment settings check could not run.");
+  process.exitCode = 1;
+});
