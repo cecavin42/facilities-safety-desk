@@ -28,13 +28,22 @@ Production: https://facilities-safety-desk.vercel.app
 | Import CSV, view insights and question statistics | No | Yes |
 | Manage sources and accounts, view the audit log | No | Yes |
 
-MFA is switched off: the option does not appear and nobody can turn it on. It becomes available only where the setting `AUTH_MFA_ENABLED=1` is added. The team agreed in class on November 5 to get plain sign-in working first.
+MFA is switched off. The option does not appear, and it cannot be turned on from the app. It stays off unless the site owner adds the setting `AUTH_MFA_ENABLED=1`. Plain sign-in comes first, as discussed in class on November 5.
 
 The server enforces these rules on every request. The role names follow the team survey and still need team agreement.
 
 ## Run it on your computer
 
-Use Node.js 24, the version this was verified on. On Windows, use a normal terminal, not "Run as administrator": PostgreSQL refuses to start under an administrator account.
+You need Git and Node.js 24, the version this was verified on. Type the commands in any terminal: PowerShell on Windows, Terminal on a Mac. On Windows, use a normal terminal, not "Run as administrator": PostgreSQL refuses to start under an administrator account.
+
+The first time, get a copy of the repository:
+
+```powershell
+git clone https://github.com/cecavin42/facilities-safety-desk.git
+cd facilities-safety-desk
+```
+
+Then, inside that folder:
 
 ```powershell
 npm ci
@@ -45,7 +54,7 @@ Then open http://127.0.0.1:3103.
 
 The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C stops it and keeps the data.
 
-- The generated sign-in details are in `.local/review-accounts.json`.
+- The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. Open it with any text editor. It lists one Safety manager / admin account and two Employee accounts.
 - The local settings are in `.env.local`.
 - Both are ignored by Git, along with `.test-db/`. Do not share or commit them.
 
@@ -80,7 +89,14 @@ Results are from one run on November 5, 2026, on Windows with Node.js 24.13. The
 
 ## Deploying
 
-The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It lists the two settings to add, how the first administrator is created, what happens to existing data, and how to roll back.
+The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It lists the settings to add in Vercel, how the deployment creates the first administrator, what happens to existing data, and how to roll back. None of it needs a terminal.
+
+## Reviewing a pull request
+
+From this version on, the Vercel preview of a pull request stops at the sign-in page, so it can no longer be used to click through a change. That applies to every later pull request. Until sign-in on previews is built, there are two ways to check a change:
+
+- Run it on a computer, as described under "Run it on your computer". This is the route for QA.
+- Merge it, check the live site, and roll back in Vercel if something is wrong. `docs/DEPLOYMENT.md` says how.
 
 ## The assistant and AI models
 
@@ -106,6 +122,9 @@ The five review files were written on November 3 for separate draft pull request
 
 - University single sign-on, and email for invitations or password resets. An administrator shares an initial password or a recovery link privately.
 - A hosted AI model.
+- Sign-in on Vercel previews.
+- An automatic consistency check on uploaded source documents, which the instructor suggested on November 5. For now an upload stays a draft until an administrator has reviewed and activated it, and an exact duplicate of an existing version is refused.
+- MFA for users. The code is present but switched off.
 - Scheduled or off-site backups. `npm run backup` is a manual tool.
 - Hazardous-materials content and a staff directory, which the instructor asked about on October 29.
 - Real Lipscomb policies. The sources are federal, Tennessee and UT Knoxville reference documents.
