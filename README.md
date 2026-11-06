@@ -8,7 +8,7 @@ Production: https://facilities-safety-desk.vercel.app
 
 | Area | What it does |
 | --- | --- |
-| Sign-in | Email and password for approved accounts only. No public sign-up. Optional authenticator app (MFA) with backup codes. |
+| Sign-in | Email and password for approved accounts only. No public sign-up. An authenticator app option (MFA) is built but switched off in this version. |
 | New report | A guided incident form with the validation rules from `docs/spec.md`. |
 | Incident register | Search, filter, export to CSV, and change a report's status. |
 | Safety insights | Charts and tables over the reports, plus assistant question statistics. |
@@ -21,12 +21,14 @@ Production: https://facilities-safety-desk.vercel.app
 
 | Capability | Employee | Safety manager / admin |
 | --- | --- | --- |
-| Sign in, change own password, set up MFA | Yes | Yes |
+| Sign in, change own password | Yes | Yes |
 | Submit a report and use the assistant | Yes | Yes |
 | Read and export reports | Own reports only | All reports |
 | Change a report's status | No | Yes |
 | Import CSV, view insights and question statistics | No | Yes |
 | Manage sources and accounts, view the audit log | No | Yes |
+
+MFA is switched off: the option does not appear and nobody can turn it on. It becomes available only where the setting `AUTH_MFA_ENABLED=1` is added. The team agreed in class on November 5 to get plain sign-in working first.
 
 The server enforces these rules on every request. The role names follow the team survey and still need team agreement.
 
@@ -67,8 +69,8 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 
 | Command | What it covers | Result on this version |
 | --- | --- | --- |
-| `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit | 23 of 23 |
-| `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links | 7 of 7 |
+| `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
+| `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
 | `npm run test:sources` | Upload, activate and retire source versions | 6 of 6 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
