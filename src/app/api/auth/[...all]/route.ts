@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { auth } from "@/lib/auth";
 import { database } from "@/lib/database";
+import { mfaAvailable } from "@/lib/mfa";
 import {
   failure,
   HttpError,
@@ -26,6 +27,8 @@ const POST_ROUTES = new Set([
 async function handle(request: Request) {
   const route = new URL(request.url).pathname.replace(/^\/api\/auth\//, "");
   if (!(request.method === "GET" ? GET_ROUTES : POST_ROUTES).has(route))
+    return json({ error: "Not found." }, 404);
+  if (route === "two-factor/enable" && !mfaAvailable())
     return json({ error: "Not found." }, 404);
   try {
     if (

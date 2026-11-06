@@ -81,6 +81,12 @@ async function main() {
     await check(`anonymous blocked: ${path}`, async () => {
       assert.equal((await anon.request(path)).status, 401);
     });
+  await check("authenticator enrollment is off by default", async () => {
+    assert.equal(
+      (await anon.request("/api/auth/two-factor/enable", "POST", {})).status,
+      404,
+    );
+  });
   await check(
     "public registration and built-in admin endpoints disabled",
     async () => {

@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { api } from "@/lib/client-api";
 export default function TwoFactorSettings() {
   const [enabled, setEnabled] = useState(false);
+  const [available, setAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -17,8 +18,13 @@ export default function TwoFactorSettings() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    void api<{ enabled: boolean }>("/api/account/security")
-      .then((r) => setEnabled(r.enabled))
+    void api<{ enabled: boolean; available: boolean }>(
+      "/api/account/security",
+    )
+      .then((r) => {
+        setEnabled(r.enabled);
+        setAvailable(r.available);
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -82,6 +88,8 @@ export default function TwoFactorSettings() {
       setBusy(false);
     }
   }
+  // Held back for now: shown only where MFA is switched on, or to an account that already has it.
+  if (!available && !enabled) return null;
   return (
     <section className="mt-8 border-t border-slate-200 pt-7">
       <h2 className="text-xl font-semibold">Authenticator protection</h2>

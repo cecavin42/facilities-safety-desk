@@ -40,6 +40,10 @@ async function main() {
       password,
       method: "totp",
     });
+    if (enabled.status === 404)
+      throw new Error(
+        "MFA is switched off. Start the app with AUTH_MFA_ENABLED=1 to run this check.",
+      );
     assert.equal(enabled.status, 200);
     assert.ok(enabled.data.totpURI && enabled.data.backupCodes.length);
     assert.equal(
