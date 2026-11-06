@@ -41,6 +41,10 @@ body {
   top: 0;
   height: 100dvh;
   min-height: 620px;
+  /* On short windows the menu scrolls, so Sign out stays reachable. */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3d5c66 transparent;
   padding: 30px 17px 18px;
   background: #102e37;
   color: #d1e0e4;
