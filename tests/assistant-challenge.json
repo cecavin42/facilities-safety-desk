@@ -1,0 +1,105 @@
+{
+  "about": "Frozen development challenge added before the readiness fixes. Authored by Codex from existing source scope; not independent human acceptance. Excerpt cases require relevant evidence, not a claim of full answer certainty.",
+  "cases": [
+    {
+      "id": "negative-binder",
+      "question": "Where should I store the inspection binder?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-bicycle",
+      "question": "Where can students park bicycles on campus?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-vet",
+      "question": "My dog was hospitalized. What must I report?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-course",
+      "question": "Can I work before I finish harassment training?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-anonymous",
+      "question": "Can I stay anonymous when posting on social media?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-discipline",
+      "question": "Will I get in trouble for arriving late to class?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-car",
+      "question": "My car has bad brakes. Can I finish my trip?",
+      "expect": "withhold"
+    },
+    {
+      "id": "negative-plant",
+      "question": "My office plant died. What should I do?",
+      "expect": "withhold"
+    },
+    {
+      "id": "positive-shift",
+      "question": "Do forklifts working around the clock need more than a daily check?",
+      "expect": "answer",
+      "evidence": ["inspection-complete"]
+    },
+    {
+      "id": "positive-refresher",
+      "question": "After a close call on a forklift, does the three-year evaluation schedule mean refresher training can wait?",
+      "expect": "answer",
+      "evidence": ["cfr-1910-178-53", "cfr-1910-178-54"]
+    },
+    {
+      "id": "positive-training-record",
+      "question": "Which dates and names belong in forklift training records?",
+      "expect": "answer",
+      "evidence": ["cfr-1910-178-56"]
+    },
+    {
+      "id": "positive-hospital-observation",
+      "question": "Is a work-related hospital admission solely for diagnostic testing treated the same as admission for care?",
+      "expect": "answer",
+      "evidence": ["tn-0800-01-03-05-7"]
+    },
+    {
+      "id": "positive-confidential",
+      "question": "Does UT guarantee complete anonymity for a safety complaint?",
+      "expect": "answer",
+      "evidence": ["ut-saad021-k-3"]
+    },
+    {
+      "id": "positive-litigation",
+      "question": "How long does UT keep accident records when litigation may take years?",
+      "expect": "answer",
+      "evidence": ["ut-saad022-k-6"]
+    },
+    {
+      "id": "excerpt-passengers",
+      "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+      "expect": "evidence",
+      "evidence": ["ut-sags130-k-14"]
+    },
+    {
+      "id": "excerpt-battery",
+      "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+      "expect": "evidence",
+      "evidence": ["ut-sags130-k-11"]
+    },
+    {
+      "id": "excerpt-investigation",
+      "question": "Who investigates a UT accident where personal protective equipment was defective?",
+      "expect": "evidence",
+      "evidence": ["ut-saad022-k-3"]
+    },
+    {
+      "id": "excerpt-smoking",
+      "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+      "expect": "evidence",
+      "evidence": ["ut-sags130-k-10"]
+    }
+  ]
+}

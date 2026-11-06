@@ -12,13 +12,17 @@ export function parseCsv(text: string): string[][] {
       if (c === '"' && s[i + 1] === '"') {
         field += '"';
         i++;
-      } else if (c === '"') { inQuotes = false; closedQuote = true; }
-      else field += c;
+      } else if (c === '"') {
+        inQuotes = false;
+        closedQuote = true;
+      } else field += c;
     } else if (c === '"') {
-      if (closedQuote || field !== "") throw new Error("Unexpected quote in an unquoted CSV field. Wrap the entire field in quotes and double any quotes inside it.");
+      if (closedQuote || field !== "")
+        throw new Error(
+          "Unexpected quote in an unquoted CSV field. Wrap the entire field in quotes and double any quotes inside it.",
+        );
       inQuotes = true;
-    }
-    else if (c === ",") {
+    } else if (c === ",") {
       row.push(field);
       field = "";
       closedQuote = false;
@@ -30,10 +34,16 @@ export function parseCsv(text: string): string[][] {
       field = "";
       closedQuote = false;
     } else if (closedQuote) {
-      if (c !== " " && c !== "\t") throw new Error("Unexpected text after a closing CSV quote. Check the quotation marks and separator.");
+      if (c !== " " && c !== "\t")
+        throw new Error(
+          "Unexpected text after a closing CSV quote. Check the quotation marks and separator.",
+        );
     } else field += c;
   }
-  if (inQuotes) throw new Error("A CSV quoted field is not closed. Add its closing quote and try again.");
+  if (inQuotes)
+    throw new Error(
+      "A CSV quoted field is not closed. Add its closing quote and try again.",
+    );
   if (field !== "" || row.length > 0 || closedQuote) {
     row.push(field);
     rows.push(row);
@@ -44,20 +54,29 @@ export function parseCsv(text: string): string[][] {
 function escapeField(value: unknown): string {
   const s = value === null || value === undefined ? "" : String(value);
   // Leading =, +, - or @ would run as a formula when opened in Excel.
-  const safe = /^[=+\-@]/.test(s) ? "'" + s : s;
+  const safe = /^[\s]*[=+\-@]/.test(s) ? "'" + s : s;
   return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
 export function toCsv(header: string[], rows: unknown[][]): string {
-  return [header, ...rows].map((r) => r.map(escapeField).join(",")).join("\r\n") + "\r\n";
+  return (
+    [header, ...rows].map((r) => r.map(escapeField).join(",")).join("\r\n") +
+    "\r\n"
+  );
 }
 
-export function downloadText(filename: string, text: string, type = "text/csv") {
+export function downloadText(
+  filename: string,
+  text: string,
+  type = "text/csv",
+) {
   const blob = new Blob([text], { type: `${type};charset=utf-8` });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

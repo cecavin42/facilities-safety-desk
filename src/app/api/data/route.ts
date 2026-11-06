@@ -1,10 +1,9 @@
-import { database } from "@/lib/database";
-import { readData } from "@/lib/db/repository";
-import { failure } from "@/lib/api";
-import { connection } from "next/server";
-
-export async function GET() {
-  await connection();
-  try { return Response.json(await readData(database()), { headers: { "Cache-Control": "no-store" } }); }
-  catch (error) { return failure(error, "read"); }
+import { requireUser, json, failure } from "@/lib/server-access";
+import { scopedData } from "@/lib/authorized-data";
+export async function GET(request: Request) {
+  try {
+    return json(await scopedData(await requireUser(request)));
+  } catch (error) {
+    return failure(error);
+  }
 }
