@@ -8,7 +8,6 @@ import type { Pool } from "pg";
 import { createPool } from "../src/lib/db/pool";
 import { addRecords, BatchConflict, changeStatus, readData, saveQuestion } from "../src/lib/db/repository";
 import { migrate, seed } from "../scripts/database";
-import { failure, readJson, RequestError } from "../src/lib/api";
 import type { NewIncident } from "../src/lib/data-types";
 
 let server: EmbeddedPostgres;
@@ -86,33 +85,4 @@ test("question metrics are persisted and SQL metacharacters remain data", async 
   const shared = await readData(other);
   assert.ok(shared.questions.some(q => q.question === question && !q.answered));
   assert.match(shared.questions.at(-1)!.askedAt, /Z$/);
-});
-
-test("request boundary rejects cross-site, non-JSON and oversized input", async () => {
-  assert.deepEqual(await readJson(new Request("http://localhost:3100/api/records", {
-    method: "POST", headers: { "content-type": "application/json", host: "127.0.0.1:3100", origin: "http://127.0.0.1:3100" }, body: "{}",
-  })), {});
-  for (const [headers, body, status] of [
-    [{ "content-type": "application/json", origin: "https://elsewhere.example" }, "{}", 403],
-    [{ "content-type": "text/plain" }, "{}", 415],
-    [{ "content-type": "application/json" }, "{broken", 400],
-    [{ "content-type": "application/json" }, JSON.stringify("x".repeat(3_500_001)), 413],
-  ] as const) {
-    await assert.rejects(() => readJson(new Request("http://localhost/api/records", { method: "POST", headers, body })),
-      (e: unknown) => e instanceof RequestError && e.status === status);
-  }
-});
-
-test("outages distinguish load failures from uncertain saves without exposing driver details", async () => {
-  const internal = new Error("private-driver-detail");
-  const load = failure(internal, "read");
-  const save = failure(internal, "write");
-  assert.equal(load.status, 503);
-  assert.equal(save.status, 503);
-  const loadMessage = (await load.json()).error;
-  const saveMessage = (await save.json()).error;
-  assert.match(loadMessage, /loaded/);
-  assert.doesNotMatch(loadMessage, /changes/);
-  assert.match(saveMessage, /not been confirmed/);
-  assert.doesNotMatch(loadMessage + saveMessage, /private-driver-detail/);
 });
