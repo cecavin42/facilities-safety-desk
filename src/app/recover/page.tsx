@@ -48,8 +48,7 @@ export default function RecoverPage() {
       <h1 className="text-2xl font-semibold">Recover your account</h1>
       <p className="mt-3 text-sm leading-7 text-slate-600">
         Use the one-time link provided privately by your administrator. A
-        successful reset ends all existing sessions; authenticator protection
-        remains enabled.
+        successful reset ends all existing sessions.
       </p>
       {!token ? (
         <p className="mt-5 text-sm text-amber-900">

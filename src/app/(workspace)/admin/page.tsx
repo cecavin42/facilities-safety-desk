@@ -166,7 +166,7 @@ export default function AdminPage() {
           />
         </label>
         <p className="mt-3 text-xs text-slate-500">
-          Authenticator protection remains enabled after a password reset.
+          A password reset does not change any other sign-in protection on the account.
         </p>
         <button
           className="btn-secondary mt-5"
