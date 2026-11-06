@@ -28,7 +28,7 @@ Production: https://facilities-safety-desk.vercel.app
 | Import CSV, view insights and question statistics | No | Yes |
 | Manage sources and accounts, view the audit log | No | Yes |
 
-MFA is switched off. The option does not appear, and it cannot be turned on from the app. It stays off unless the site owner adds the setting `AUTH_MFA_ENABLED=1`. Plain sign-in comes first, as discussed in class on November 5.
+MFA is switched off. The option does not appear, and it cannot be turned on from the app. It stays off as long as the setting `AUTH_MFA_ENABLED` is not added, and the deployment guide says not to add it. Plain sign-in comes first, as discussed in class on November 5.
 
 The server enforces these rules on every request. The role names follow the team survey and still need team agreement.
 
@@ -49,6 +49,8 @@ Then, inside that folder:
 npm ci
 npm run auth:local
 ```
+
+To run a pull request that is not merged yet, run `git checkout <its branch name>` before `npm ci`.
 
 Then open http://127.0.0.1:3103.
 
@@ -73,6 +75,7 @@ These need nothing running:
 | `npm run test:auth-config` | Sign-in configuration fails closed | 1 of 1 |
 | `npm run test:client` | Browser API client | 1 of 1 |
 | `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
+| `npm run eval:assistant` | 31 development questions, answered by the assistant code directly | 31 of 31 (the earlier search passed 14) |
 
 These need `npm run auth:local` running in another terminal. Run them one at a time:
 
@@ -83,7 +86,6 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:sources` | Upload, activate and retire source versions | 6 of 6 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
-| `npm run eval:assistant` | 31 development questions | 31 of 31 (the earlier search passed 14) |
 
 Results are from one run on November 5, 2026, on Windows with Node.js 24.13. The assistant cases were written during development, so they are not an independent accuracy estimate.
 
@@ -93,10 +95,13 @@ The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It li
 
 ## Reviewing a pull request
 
-From this version on, the Vercel preview of a pull request stops at the sign-in page, so it can no longer be used to click through a change. That applies to every later pull request. Until sign-in on previews is built, there are two ways to check a change:
+From this version on, the Vercel preview of a pull request stops at the sign-in page, so it can no longer be used to click through a change. That applies to every later pull request. Until sign-in on previews is built, a workable routine is:
 
-- Run it on a computer, as described under "Run it on your computer". This is the route for QA.
-- Merge it, check the live site, and roll back in Vercel if something is wrong. `docs/DEPLOYMENT.md` says how.
+1. QA, or anyone with Git and Node.js, runs the pull request on a computer, as described under "Run it on your computer", and reports the result to the team.
+2. The Vercel owner merges it and checks the live site.
+3. If something is wrong, the owner rolls back in Vercel. `docs/DEPLOYMENT.md` says how.
+
+Merge one pull request at a time and check it before merging the next. Vercel's free plan can only roll back one step.
 
 ## The assistant and AI models
 
@@ -123,7 +128,7 @@ The five review files were written on November 3 for separate draft pull request
 - University single sign-on, and email for invitations or password resets. An administrator shares an initial password or a recovery link privately.
 - A hosted AI model.
 - Sign-in on Vercel previews.
-- An automatic consistency check on uploaded source documents, which the instructor suggested on November 5. For now an upload stays a draft until an administrator has reviewed and activated it, and an exact duplicate of an existing version is refused.
+- An automatic consistency check on uploaded source documents, which the instructor suggested on November 5. For now an upload stays a draft until an administrator has reviewed and activated it, and a file that is already a version of the same source is refused.
 - MFA for users. The code is present but switched off.
 - Scheduled or off-site backups. `npm run backup` is a manual tool.
 - Hazardous-materials content and a staff directory, which the instructor asked about on October 29.

@@ -2,13 +2,13 @@
 
 For the Vercel project owner. Read this before merging the pull request that adds sign-in.
 
-Everything in steps 1 to 7 is done in the Vercel and GitHub websites and in the app itself. No terminal, Node.js or Git is needed.
+Everything here is done in the Vercel and GitHub websites and in the app itself. No terminal, Node.js or Git is needed.
 
 ## What changes on the live site
 
 - Every page and every data request requires sign-in. There is no public view.
 - Existing records stay. The database changes only add tables and columns.
-- The deployment creates the first administrator from settings you add in step 1. Until an administrator exists, nobody can sign in.
+- The deployment creates the first administrator from settings you add in step 1.
 - Vercel previews stop at the sign-in page from this version on. See "Reviewing pull requests after this one".
 
 ## Before merging
@@ -21,7 +21,7 @@ Everything in steps 1 to 7 is done in the Vercel and GitHub websites and in the 
 
 | Setting | Value | Afterwards |
 | --- | --- | --- |
-| `BETTER_AUTH_SECRET` | A random string of at least 32 letters and digits. A password generator set to 48 characters works. | Keep it, and keep a private copy |
+| `BETTER_AUTH_SECRET` | A random string of at least 32 characters. Any characters are fine. A password generator set to 48 characters works. | Keep it, and keep a private copy |
 | `BETTER_AUTH_URL` | The exact address of the live site: `https://facilities-safety-desk.vercel.app`, with nothing after `.app` | Keep it |
 | `FSA_ADMIN_NAME` | Your name | Delete after step 4 |
 | `FSA_ADMIN_EMAIL` | Your email address. You sign in with it | Delete after step 4 |
@@ -39,41 +39,62 @@ Everything in steps 1 to 7 is done in the Vercel and GitHub websites and in the 
 
 The build command in `vercel.json` runs four steps in order:
 
-1. `npm run check:deploy` confirms the settings exist and are well formed: the two you keep, the three administrator settings, and `DATABASE_URL`. If something is missing or malformed, the build stops here, nothing in the database changes, and Vercel keeps serving the previous deployment.
+1. `npm run check:deploy` checks the settings before anything else happens. The build stops here, nothing in the database changes, and Vercel keeps serving the previous deployment, in any of these cases:
+   - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` or `DATABASE_URL` is missing, the secret is shorter than 32 characters, or the address does not start with `https://`.
+   - The three administrator settings are incomplete, the email is not an email address, or the password is shorter than 15 characters.
+   - No administrator exists yet and the three administrator settings are absent. This stops the site from going live with nobody able to sign in.
 2. `npm run db:setup` applies the migrations that have not run yet and loads the five bundled source documents. It is safe to run again: existing reports, statuses and question logs are kept. On a preview build this step is skipped, so a pull request never changes a database.
-3. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. When one exists, or the settings are absent, it does nothing. It is skipped on a preview build.
+3. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. Otherwise it does nothing. It is skipped on a preview build.
 4. `npm run build` builds the app.
+
+Once an administrator exists, the three `FSA_ADMIN_` settings are no longer needed. Deleting them in step 4 is safe for every later build.
 
 | Migration | Adds |
 | --- | --- |
 | `001_shared_storage` | Already applied in production. Unchanged. |
 | `002_better_auth` | Tables for users, sessions, accounts, verification and rate limits |
 | `003_access_controls` | An owner column on reports and questions, an audit log, sign-in attempt limits |
-| `004_two_factor` | Authenticator (MFA) data. Unused while MFA is switched off |
+| `004_two_factor` | A table and a column for authenticator (MFA) data. The sign-in code reads the column. It stays empty while MFA is switched off |
 | `005_recovery_and_sources` | Recovery links and source document versions |
-| `006_session_mfa_assurance` | A flag on each session recording that MFA was completed. Unused while MFA is switched off |
+| `006_session_mfa_assurance` | A flag on each session recording that MFA was completed. The sign-in code reads it. It stays off while MFA is switched off |
 
 ## After the merge
 
 **3. Confirm the deployment worked.**
 
 - In Vercel, **Deployments** should show the new production deployment as Ready.
-- Its build log should contain the line `First administrator created.`
-- If it shows Error instead, open its build log. The line "Production build stopped" lists the setting that is missing or malformed. Fix it under **Settings → Environment Variables**, then choose **Redeploy** on that deployment. The previous version of the site stays live in the meantime.
+- Click that deployment and open its build log. It should contain the line `First administrator created.`
 - Opening https://facilities-safety-desk.vercel.app should show the sign-in page.
+
+If the deployment shows Error instead, the previous version of the site stays live. Open the build log and look for one of these lines:
+
+| Line in the build log | What it means | What to do |
+| --- | --- | --- |
+| `Production build stopped.` | A setting is missing or malformed. The line below it says which. Nothing in the database changed. | Fix it under **Settings → Environment Variables**, then choose **Redeploy** on that deployment. |
+| `Database setup failed.` | The build could not reach or update the database. | Tell the developer. Do not change `DATABASE_URL`. |
+| `Administrator bootstrap did not complete.` | The database changes were applied, but the administrator could not be created, for example because the email address is already in use. | Tell the developer. |
 
 **4. Sign in, then delete the three administrator settings.**
 
 - Sign in on the live site with the email and password you entered as `FSA_ADMIN_EMAIL` and `FSA_ADMIN_PASSWORD`. Your account is a Safety manager / admin.
 - In Vercel, delete `FSA_ADMIN_NAME`, `FSA_ADMIN_EMAIL` and `FSA_ADMIN_PASSWORD`. They are no longer used, and while they remain the password is readable in your Vercel settings.
-- If sign-in fails, look at the build log. `No first-administrator settings found` means the three settings were not saved for Production. Add them and choose **Redeploy**.
+
+If the deployment is Ready but you cannot sign in:
+
+- The page says "Unable to sign in": check the email and password against what you entered in Vercel. If they are right, check that `BETTER_AUTH_URL` is exactly the address of the live site, correct it, and choose **Redeploy**.
+- The page says "Sign-in is not available": something is wrong on the server. Roll back (see "Rolling back") and tell the developer.
 
 **5. Create the team's accounts.** In the left menu open **Team access**. Add each person with their name, email, a role (Employee or Safety manager / admin) and an initial password of at least 15 characters. No email is sent, so give each person their password privately. They can change it under **My account**.
 
+- If the app answers "Sign out and sign in again before changing account access", do that. Changes to accounts need a sign-in from the last 15 minutes.
 - Create a second Safety manager / admin account early, so that one lost password cannot lock the team out.
 - For testing, QA needs one account of each role.
 
-**6. Tell the team.** The site now needs sign-in. Anyone with an open branch must update it from `master` before opening a pull request, because this version changes and removes files across the app.
+**6. Tell the team three things.**
+
+- The site now needs sign-in, and each person gets a password from you.
+- Vercel previews now stop at the sign-in page, for every pull request.
+- Every open branch and every open pull request must be updated from `master` and pushed again, because this version changes and moves files across the app. Each author can ask their coding assistant to bring in the latest `master`.
 
 **7. Authenticator app (MFA): nothing to do.** It is built but switched off in this version. The option does not appear and it cannot be turned on from the app.
 
@@ -88,59 +109,35 @@ In Vercel, open **Deployments**, open the menu (⋮) on the previous production 
 - On Vercel's free plan this is offered only for the deployment right before the current one. If you need to roll back, do it before merging any other pull request.
 - A rollback does not touch the database. The new tables, your administrator account and the team's accounts all stay. The previous version does not read them, and its storage tests pass against a database that has all six migrations applied.
 - Leave the two settings you kept in place.
-- After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged and its deployment shows Ready, open the project's **Overview** page, choose **Undo Rollback** on the production deployment, pick the new deployment and confirm. The accounts created earlier work again. Do not repeat steps 1 to 4.
+- After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged, have it checked on a computer first, because its preview cannot be signed in to. When its deployment shows Ready, open the project's **Overview** page, choose **Undo Rollback** on the production deployment, pick the new deployment and confirm. The accounts created earlier work again. Do not repeat steps 1 to 4.
 
 An actual rollback on the hosted site has not been rehearsed.
 
 ## Reviewing pull requests after this one
 
-Until now a reviewer could open the Vercel preview of a pull request and click around. From this version on, every preview stops at the sign-in page, and a sign-in attempt answers that the service is unavailable. A preview has no sign-in settings and a different address from the live site. This applies to every later pull request, not only to the one that adds sign-in.
+Until now a reviewer could open the Vercel preview of a pull request and click around. From this version on, every preview stops at the sign-in page, and a sign-in attempt there answers "Sign-in is not available". A preview has no sign-in settings and a different address from the live site. This applies to every later pull request, not only to the one that adds sign-in.
 
-Until sign-in on previews is built, which is planned as its own pull request, there are two ways to check a change:
+Until sign-in on previews is built, a workable routine is:
 
-- Run it on a computer with `npm run auth:local` (see the root `README.md`). This is the route for QA.
-- Merge it, check the live site, and use Instant Rollback if something is wrong.
+1. QA, or anyone with Git and Node.js, runs the pull request on a computer (see "Run it on your computer" in the root `README.md`) and reports the result to the team.
+2. The owner merges it and checks the live site.
+3. If something is wrong, the owner uses Instant Rollback.
 
-A preview build never changes a database. A Preview that has its own database can run the database step by adding `PREVIEW_DB_SETUP=1` for Preview. To see whether Preview has its own database, for a database connected through Vercel's Storage tab (Neon), open **Storage**, then the database, then **Projects**, and look for the option Neon's guide calls **Create database branch for deployment** with **Preview** selected. If it is not selected, previews and production share one database; leave `PREVIEW_DB_SETUP` unset. Neon's guide: https://neon.com/docs/guides/vercel-managed-integration
-
-## Creating the administrator from a computer instead
-
-This is an alternative to the three `FSA_ADMIN_` settings, for someone who prefers not to put a password in Vercel. Leave those three settings out in step 1, and after step 3 run the following. It needs Node.js 24, Git and a copy of the repository.
-
-Open a normal PowerShell window (not "Run as administrator") in the copy of the repository:
-
-```powershell
-git checkout master
-git pull
-$env:DATABASE_URL = '<the production connection string from Vercel>'
-$env:BETTER_AUTH_SECRET = '<the same value you put in Vercel>'
-$env:BETTER_AUTH_URL = 'https://facilities-safety-desk.vercel.app'
-$env:FSA_ALLOW_ADMIN_BOOTSTRAP = '1'
-$env:FSA_ADMIN_NAME = '<your name>'
-$env:FSA_ADMIN_EMAIL = '<your email>'
-$env:FSA_ADMIN_PASSWORD = '<at least 15 characters, no quote marks>'
-npm ci
-npm run auth:bootstrap-admin
-```
-
-- Success looks like: `First administrator created. No credentials were printed.`
-- `Administrator bootstrap did not complete` means a value is missing, the password is shorter than 15 characters, or an administrator already exists. The command refuses to create a second one.
-- Close the PowerShell window afterwards so the values are gone.
+Merge one pull request at a time and check it before merging the next, because the free plan can only roll back one step. A preview build never changes a database.
 
 ## Checked and not checked
 
 Checked on a development computer on November 5, 2026, against local PostgreSQL:
 
 - All six migrations apply to a fresh database, and apply again without changes.
-- The settings check stops a production build when a setting is missing, short or not `https`, and when the administrator settings are incomplete or the password is too short.
-- The build step creates one administrator on an empty database, stores the password hashed, and does nothing on a second run. That administrator can sign in and sees the 150 sample records.
-- The command run by hand refuses to create a second administrator.
+- The settings check stops a production build, before any database change, in each case listed under "What the production build does". With no administrator and no administrator settings, the database had no tables after the stopped build.
+- The build step creates one administrator on an empty database, stores the password hashed, and does nothing on a second run. That administrator can sign in and sees the 150 sample records. A later build with the three settings deleted passes.
 - A preview build with no settings and no database: it builds, shows the sign-in page, refuses data requests, connects to no database and creates no administrator.
 - The checks listed in the root `README.md`.
 
 Not checked:
 
-- This version has not been deployed to Vercel. Hosted sign-in, source upload and recovery have not been exercised there.
+- This version has not been deployed to Vercel. Hosted sign-in, source upload and recovery have not been exercised there. The first time it runs on Vercel will be the live site.
 - `npm run test:hosted` is written for a hosted address and an approved test account. It has not been run.
 - Applying migrations 002 to 006 to the real production database.
 
