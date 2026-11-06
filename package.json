@@ -14,6 +14,8 @@
     "assistant:local": "node scripts/start-assistant-local.mjs",
     "auth:db": "tsx scripts/auth-local.ts --db-only",
     "auth:local": "tsx scripts/auth-local.ts",
+    "auth:bootstrap-admin": "tsx scripts/bootstrap-admin.ts",
+    "check:deploy": "tsx scripts/check-deploy-config.ts",
     "db:migrate": "tsx scripts/db-cli.ts migrate",
     "db:seed": "tsx scripts/db-cli.ts seed",
     "db:setup": "tsx scripts/db-cli.ts setup",
