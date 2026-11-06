@@ -21,6 +21,27 @@ function findProblems(env: NodeJS.ProcessEnv) {
       problems.push("BETTER_AUTH_URL is not a valid URL");
     }
   }
+  // The first administrator is created during the build from these three
+  // settings. They are optional, but a partial or malformed set stops the
+  // build here, before the database step.
+  const admin = [
+    env.FSA_ADMIN_NAME,
+    env.FSA_ADMIN_EMAIL,
+    env.FSA_ADMIN_PASSWORD,
+  ];
+  if (admin.some(Boolean)) {
+    if (!admin.every(Boolean))
+      problems.push(
+        "FSA_ADMIN_NAME, FSA_ADMIN_EMAIL and FSA_ADMIN_PASSWORD must all be set, or none of them",
+      );
+    if (
+      env.FSA_ADMIN_EMAIL &&
+      !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(env.FSA_ADMIN_EMAIL)
+    )
+      problems.push("FSA_ADMIN_EMAIL is not an email address");
+    if (env.FSA_ADMIN_PASSWORD && env.FSA_ADMIN_PASSWORD.length < 15)
+      problems.push("FSA_ADMIN_PASSWORD must be at least 15 characters");
+  }
   return problems;
 }
 
