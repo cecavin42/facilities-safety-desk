@@ -1,5 +1,7 @@
 # Product design draft
 
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #8, which was closed without merging. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+
 This pass turns the existing application into a more coherent facilities-management product. It keeps the project name, authentication, two-role permissions, source material and server data behavior. It is a visual and interaction proposal for team review, not a claim of feature parity with an enterprise EHS platform.
 
 ## Reference direction

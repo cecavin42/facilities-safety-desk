@@ -1,5 +1,7 @@
 # Full-app draft for team review
 
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #6, which was merged into a side branch and never reached `master`. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+
 This proposal builds on #5 and keeps the group's application, source material and original last-updated feature. It changes the user's experience across the app and fixes local data behavior. It is not merged into production.
 
 ## What changed

@@ -1,5 +1,7 @@
 # Assistant draft for team review
 
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #5, which was merged into a side branch and never reached `master`. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+
 The original assistant returned matching passages, sometimes missing the actual answer, a second part of a question, or a source exception. This draft adds a source-backed answer guide, optional local AI interpretation, and a clearer evidence interface. It remains a classroom prototype using fictional examples.
 
 ## What changes

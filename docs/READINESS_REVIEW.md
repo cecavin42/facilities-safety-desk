@@ -1,5 +1,7 @@
 # Prototype readiness — team review draft
 
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #9, which was closed without merging. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+
 Review date: November 3, 2026, America/Chicago. This branch is stacked on the product-design draft (#8). It preserves Catherine's project and Kai's planning role: the changes are proposals for team review, not approved scope, assigned teammate work, or a production release. Implementation and development testing were AI-assisted at Forrest's direction; they do not establish his personal testing, hours, team acceptance or an independent safety review.
 
 ## Working changes

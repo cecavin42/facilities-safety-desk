@@ -1,5 +1,7 @@
 # Sign-in and access controls — draft
 
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #7, which was closed without merging. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+
 Updated by the [readiness draft](READINESS_REVIEW.md): authenticator MFA and private administrator-issued recovery links are now implemented. The original verification below records the earlier access-control pass; current results and remaining limits are in the readiness review.
 
 This branch integrates the full-app draft (#6) with the Postgres foundation from #3. It replaces browser-owned records with authenticated, server-owned records. It follows the survey's two-role proposal; these roles and actual team accounts still need team approval.

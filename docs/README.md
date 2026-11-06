@@ -21,8 +21,11 @@ Tennessee university facilities department, modeled on UTK procedures.
   questions must contain the listed phrases and cite the listed sources. Decline cases included.
 - `src/data/documents.json`: the five source documents the assistant may cite.
 - `src/lib/validation.ts`: the incident report rules from spec section 7.
-- `src/lib/search.ts`: the assistant's retrieval and answer logic.
-- `src/lib/store.ts`: storage. Browser-local in the draft; a database replaces it.
+- `src/lib/assistant/` and `src/lib/search.ts`: the assistant's retrieval and answer logic.
+- `src/lib/store.ts`: the browser's copy of the data it loads from the server.
+- `db/migrations/` and `src/lib/db/`: PostgreSQL storage.
+- `src/lib/server-access.ts` and `src/lib/authorized-data.ts`: sign-in checks and who may see what.
+- `docs/DEPLOYMENT.md`: settings and steps for deploying to Vercel.
 
 ## Links
 - Repo: https://github.com/cecavin42/facilities-safety-desk
