@@ -18,6 +18,13 @@ const actionLabels: Record<string, string> = {
   "account.created": "Account created",
   "account.access_changed": "Account access changed",
 };
+// Catherine's rule (Oct 29): Lipscomb addresses are Safety managers, personal
+// addresses are Employees. The form suggests the role; the administrator decides.
+const ADMIN_EMAIL_DOMAINS = ["mail.lipscomb.edu", "lipscomb.edu"];
+function suggestRole(email: string) {
+  const domain = email.trim().toLowerCase().split("@")[1] ?? "";
+  return ADMIN_EMAIL_DOMAINS.includes(domain) ? "admin" : "user";
+}
 type User = {
   id: string;
   name: string;
@@ -48,6 +55,8 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [role, setRole] = useState("user");
+  const [roleTouched, setRoleTouched] = useState(false);
   async function load() {
     try {
       const [u, a] = await Promise.all([
@@ -76,6 +85,8 @@ export default function AdminPage() {
         body: JSON.stringify(Object.fromEntries(data)),
       });
       form.reset();
+      setRole("user");
+      setRoleTouched(false);
       accountDialog.current?.close();
       setMessage(
         "Account created. Share the initial password privately with the approved person.",
@@ -240,6 +251,9 @@ export default function AdminPage() {
               name="email"
               type="email"
               required
+              onChange={(e) => {
+                if (!roleTouched) setRole(suggestRole(e.target.value));
+              }}
             />
           </label>
           <label className="text-sm font-semibold">
@@ -256,10 +270,22 @@ export default function AdminPage() {
           </label>
           <label className="text-sm font-semibold">
             Role
-            <select className="control mt-2" name="role">
+            <select
+              className="control mt-2"
+              name="role"
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value);
+                setRoleTouched(true);
+              }}
+            >
               <option value="user">Employee</option>
               <option value="admin">Safety manager / admin</option>
             </select>
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Suggested from the email address: Lipscomb addresses as Safety
+              manager / admin, other addresses as Employee. Change it if needed.
+            </span>
           </label>
           <button className="btn-primary" disabled={busy}>
             Create account

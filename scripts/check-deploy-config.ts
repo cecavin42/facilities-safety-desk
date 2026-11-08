@@ -4,12 +4,18 @@
 // Vercel then keeps serving the previous deployment. Setting values are never printed.
 import { createPool } from "../src/lib/db/pool";
 
-const REQUIRED = ["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"];
+// A preview works out its own address from Vercel's VERCEL_URL, so it does not
+// need BETTER_AUTH_URL. It still needs the secret and the database.
+function required(target: string) {
+  return target === "preview"
+    ? ["DATABASE_URL", "BETTER_AUTH_SECRET"]
+    : ["DATABASE_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"];
+}
 
-function findProblems(env: NodeJS.ProcessEnv) {
-  const problems = REQUIRED.filter((name) => !env[name]).map(
-    (name) => `${name} is not set`,
-  );
+function findProblems(env: NodeJS.ProcessEnv, target: string) {
+  const problems = required(target)
+    .filter((name) => !env[name])
+    .map((name) => `${name} is not set`);
   const secret = env.BETTER_AUTH_SECRET;
   if (secret && secret.length < 32)
     problems.push("BETTER_AUTH_SECRET must be at least 32 characters");
@@ -69,7 +75,7 @@ async function administratorExists(env: NodeJS.ProcessEnv) {
 async function main() {
   const env = process.env;
   const target = env.VERCEL_ENV ?? "local";
-  const problems = findProblems(env);
+  const problems = findProblems(env, target);
   // Sign-in is useless without an administrator. If none exists and the
   // deployment is not going to create one, stop instead of locking the site.
   if (
@@ -93,7 +99,9 @@ async function main() {
     process.exitCode = 1;
   } else {
     console.warn(
-      `Sign-in will not work on this ${target} build until these are fixed:\n${list}`,
+      target === "preview"
+        ? `Sign-in will not work on this preview until these are set for the Preview environment in Vercel:\n${list}`
+        : `Sign-in will not work on this ${target} build until these are fixed:\n${list}`,
     );
   }
 }

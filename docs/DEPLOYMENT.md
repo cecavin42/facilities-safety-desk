@@ -9,14 +9,14 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 - Every page and every data request requires sign-in. There is no public view.
 - Existing records stay. The database changes only add tables and columns.
 - The deployment creates the first administrator from settings you add in step 1.
-- Vercel previews stop at the sign-in page from this version on. See "Reviewing pull requests after this one".
+- Vercel previews of later pull requests ask for sign-in and accept the live-site accounts, so review by preview keeps working. The preview of this pull request itself cannot sign in yet. See "Reviewing pull requests after this one".
 
 ## Before merging
 
 **1. Add five settings in Vercel.**
 
 1. Open the Vercel project, then **Settings → Environment Variables**.
-2. Add each setting below. Leave **Production** ticked and untick **Preview** and **Development**.
+2. Add each setting below. For `BETTER_AUTH_SECRET`, leave **Production** and **Preview** ticked and untick **Development**. For the other four, leave **Production** ticked and untick **Preview** and **Development**.
 3. Save. The values apply to the next deployment, which is the one the merge starts.
 
 | Setting | Value | Afterwards |
@@ -32,7 +32,7 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 - Keep the private copy of `BETTER_AUTH_SECRET` somewhere safe, for example a password manager. A backup can only be restored with the same value.
 - Do not put any of these values in GitHub, Drive or a `NEXT_PUBLIC_` variable.
 - Do not add `ASSISTANT_OLLAMA_MODEL` or `AUTH_MFA_ENABLED` in Vercel.
-- Check that the project runs Node.js 24.x: **Settings → Build and Deployment → Node.js Version**. If it shows another version, choose 24.x and save. This version was verified on 24; a newly created Vercel project may start on 26.
+- Node.js: nothing to do. The project pins Node.js 24 in `package.json`, and Vercel follows that setting.
 
 **2. Merge the pull request on GitHub** with the green **Merge pull request** button, using the default option, "Create a merge commit". Merge nothing else first. If GitHub shows a conflict on this pull request, do not use **Resolve conflicts**; tell Forrest. Plan to do steps 3 to 6 right after, in one sitting, because from the merge on the live site asks everyone to sign in.
 
@@ -85,7 +85,7 @@ If the deployment is Ready but you cannot sign in:
 - The page says "Unable to sign in": check the email and password against what you entered in Vercel. If they are right, check that `BETTER_AUTH_URL` is exactly the address of the live site, correct it, and choose **Redeploy**.
 - The page says "Sign-in is not available": something is wrong on the server. Roll back (see "Rolling back") and tell the developer.
 
-**5. Create the team's accounts.** In the left menu open **Team access**. Add each person with their name, email, a role (Employee or Safety manager / admin) and an initial password of at least 15 characters. No email is sent, so give each person their password privately. They can change it under **My account**.
+**5. Create the team's accounts.** In the left menu open **Team access**. Add each person with their name, email, a role (Employee or Safety manager / admin) and an initial password of at least 15 characters. The form suggests the role from the email address (Lipscomb addresses as Safety manager / admin, others as Employee); change it if needed. No email is sent, so give each person their password privately. They can change it under **My account**.
 
 - If the app answers "Sign out and sign in again before changing account access", do that. Changes to accounts need a sign-in from the last 15 minutes.
 - Create a second Safety manager / admin account early, so that one lost password cannot lock the team out.
@@ -94,7 +94,7 @@ If the deployment is Ready but you cannot sign in:
 **6. Tell the team three things.**
 
 - The site now needs sign-in, and each person gets a password from you.
-- Vercel previews now stop at the sign-in page, for every pull request.
+- Vercel previews now ask for sign-in. Use your live-site account.
 - Every open branch and every open pull request must be updated from `master` and pushed again, because this version changes and moves files across the app. Each author can ask their coding assistant to bring in the latest `master`.
 
 **7. Authenticator app (MFA): nothing to do.** It is built but switched off in this version. The option does not appear and it cannot be turned on from the app.
@@ -111,21 +111,20 @@ In Vercel, open **Deployments**, open the menu (⋮) on the previous production 
 - A rollback does not touch the database. The new tables, your administrator account and the team's accounts all stay. The previous version does not read them, and its storage tests pass against a database that has all six migrations applied.
 - Leave the two settings you kept in place.
 - While rolled back, the site is the old version: no sign-in, and all records are visible to anyone with the address.
-- After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged, have it checked on a computer first, because its preview cannot be signed in to. When its deployment shows Ready, open that deployment's menu (⋮) under **Deployments** and choose **Promote to Production**. (**Undo Rollback** on the project's **Overview** page does the same.) The accounts created earlier work again. Do not repeat steps 1 to 4.
+- After a rollback, Vercel stops putting new merges live on its own. Check the fix on its preview or on a computer before merging it. When its deployment shows Ready, open that deployment's menu (⋮) under **Deployments** and choose **Promote to Production**. (**Undo Rollback** on the project's **Overview** page does the same.) The accounts created earlier work again. Do not repeat steps 1 to 4.
 
 This was rehearsed on a separate Vercel test project on November 5. The sign-in version was rolled back to the version without sign-in in a few seconds. That older version worked against the database that already had the new tables. After the rollback was undone, the accounts were still there and sign-in worked. It has not been rehearsed on the team's project.
 
 ## Reviewing pull requests after this one
 
-Until now a reviewer could open the Vercel preview of a pull request and click around. From this version on, every preview stops at the sign-in page, and a sign-in attempt there answers "Sign-in is not available". A preview has no sign-in settings and a different address from the live site. This applies to every later pull request, not only to the one that adds sign-in.
+A preview of a later pull request works the way the instructor showed: open it from **Deployments** and click around. It asks for sign-in; use the same email and password as on the live site, because previews use the live site's database. This works because `BETTER_AUTH_SECRET` is set for Preview (step 1) and a preview works out its own address from Vercel. If Vercel itself asks you to log in before the preview opens, that is Vercel's Deployment Protection, separate from the app; the app's sign-in comes after it.
 
-Until sign-in on previews is built, a workable routine is:
+Two limits:
 
-1. QA, or anyone with Git and Node.js, runs the pull request on a computer (see "Run it on your computer" in the root `README.md`) and reports the result to the team.
-2. The owner merges it and checks the live site.
-3. If something is wrong, the owner uses Instant Rollback.
+- The preview of this pull request itself shows "Sign-in is not available", because the database tables it needs are created by the production deployment at the merge. Check this one on a computer, or on the live site after merging with rollback ready.
+- A preview build never runs migrations, but a signed-in preview reads and writes the live database: anything you create or change there is real. Use a preview to look and click; do not test deletions or account changes on one. A pull request that adds a database change (a new migration) cannot be fully checked on its preview; its author says so in the pull request, and QA checks it on a computer.
 
-Merge one pull request at a time and check it before merging the next, because the free plan can only roll back one step. A preview build never changes a database.
+Merge one pull request at a time and check the live site before merging the next, because the free plan can only roll back one step.
 
 ## Checked and not checked
 
@@ -147,6 +146,11 @@ Checked on a separate Vercel test project on November 5, 2026 (free plan, Node.j
 - Instant Rollback, as described under "Rolling back". After a rollback, a new production deployment stayed off the live address until it was promoted.
 - The first hosted run found a fault that no local check could: every assistant question returned a server error, because the PDF library did not load on Vercel. That is fixed in this version and was re-tested there.
 
+Checked on the same Vercel test project on November 8, 2026, after previews learned to sign in:
+
+- A production deployment passed the settings check, kept the database, and signed in, listed the register and answered an assistant question with its citation over HTTPS.
+- A preview deployment, with `BETTER_AUTH_SECRET` set for Preview and no `BETTER_AUTH_URL` for Preview, skipped database setup during its build, then signed in with the live-site account, listed the register and answered an assistant question. Sign-in, questions and source uploads sent from a foreign origin were refused (403) on both the preview and production.
+
 Not checked:
 
 - This version has not been deployed to the team's Vercel project. The first time it runs there will be the live site.
@@ -156,5 +160,5 @@ Not checked:
 ## Known limits
 
 - If the only administrator loses their password, there is no self-service recovery. Create a second administrator early (step 5).
-- Vercel previews cannot be signed in to. See "Reviewing pull requests after this one".
+- The preview of a pull request that adds a database change cannot be fully checked on the preview. See "Reviewing pull requests after this one".
 - Backups are manual: `npm run backup`, described in `docs/READINESS_REVIEW.md`. Nothing is scheduled.

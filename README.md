@@ -87,7 +87,7 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-Results are from one run on November 5, 2026, on Windows with Node.js 24.13. What was checked on a hosted Vercel test project is listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
+Results are from one run on November 5, 2026, on Windows with Node.js 24.13, plus a hosted preview sign-in check on November 8. What was checked on a hosted Vercel test project is listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 
@@ -95,13 +95,9 @@ The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It li
 
 ## Reviewing a pull request
 
-From this version on, the Vercel preview of a pull request stops at the sign-in page, so it can no longer be used to click through a change. That applies to every later pull request. Until sign-in on previews is built, a workable routine is:
+Open the pull request's Vercel preview from Deployments and click around, the way the instructor showed. The preview asks for sign-in; use the same email and password as on the live site, because previews use the live site's database, so anything you create or change on a preview is real. Two limits: the preview of the pull request that adds sign-in cannot sign in itself (its database tables are created at the merge), and a pull request that adds a database change cannot be fully checked on its preview. In both cases, run it on a computer as described under "Run it on your computer". If something is wrong on the live site, the owner rolls back in Vercel; `docs/DEPLOYMENT.md` says how.
 
-1. QA, or anyone with Git and Node.js, runs the pull request on a computer, as described under "Run it on your computer", and reports the result to the team.
-2. The Vercel owner merges it and checks the live site.
-3. If something is wrong, the owner rolls back in Vercel. `docs/DEPLOYMENT.md` says how.
-
-Merge one pull request at a time and check it before merging the next. Vercel's free plan can only roll back one step.
+Merge one pull request at a time and check the live site before merging the next. Vercel's free plan can only roll back one step.
 
 ## The assistant and AI models
 
@@ -127,7 +123,6 @@ The five review files were written on November 3 for separate draft pull request
 
 - University single sign-on, and email for invitations or password resets. An administrator shares an initial password or a recovery link privately.
 - A hosted AI model.
-- Sign-in on Vercel previews.
 - An automatic consistency check on uploaded source documents, which the instructor suggested on November 5. For now an upload stays a draft until an administrator has reviewed and activated it, and a file that is already a version of the same source is refused.
 - MFA for users. The code is present but switched off.
 - Scheduled or off-site backups. `npm run backup` is a manual tool.

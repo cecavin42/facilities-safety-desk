@@ -4,6 +4,7 @@ import { hashPassword } from "better-auth/crypto";
 import { database } from "./database";
 import { transaction } from "./db/repository";
 import { HttpError } from "./server-access";
+import { authOrigins } from "./auth-url";
 export async function issueRecovery(actorId: string, userId: string) {
   if (actorId === userId)
     throw new HttpError("Another administrator must authorize your recovery.");
@@ -37,7 +38,7 @@ export async function issueRecovery(actorId: string, userId: string) {
       [actorId, userId],
     );
     return {
-      url: `${new URL(process.env.BETTER_AUTH_URL!).origin}/recover#token=${token}`,
+      url: `${new URL(authOrigins().base!).origin}/recover#token=${token}`,
       expiresAt: row.expires_at,
     };
   });

@@ -4,6 +4,7 @@ import {
   failure,
   HttpError,
 } from "@/lib/server-access";
+import { authOrigins } from "@/lib/auth-url";
 import { createSource } from "@/lib/sources";
 export async function POST(request: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     const origin = request.headers.get("origin");
     if (
       request.headers.get("sec-fetch-site") === "cross-site" ||
-      (origin && origin !== new URL(process.env.BETTER_AUTH_URL!).origin)
+      (origin && !authOrigins().trusted.includes(origin))
     )
       throw new HttpError("Cross-site uploads are not allowed.", 403);
     if (!request.headers.get("content-type")?.startsWith("multipart/form-data"))

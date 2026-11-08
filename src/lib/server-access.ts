@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { auth } from "./auth";
+import { authOrigins } from "./auth-url";
 import { database } from "./database";
 import type { CurrentUser } from "./access";
 
@@ -102,7 +103,7 @@ export async function readBody(
   const origin = request.headers.get("origin");
   if (
     request.headers.get("sec-fetch-site") === "cross-site" ||
-    (origin && origin !== new URL(process.env.BETTER_AUTH_URL!).origin)
+    (origin && !authOrigins().trusted.includes(origin))
   )
     throw new HttpError("Cross-site requests are not allowed.", 403);
   if (

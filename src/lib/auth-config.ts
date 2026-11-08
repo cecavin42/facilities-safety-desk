@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { admin, twoFactor } from "better-auth/plugins";
 import type { Pool } from "pg";
+import { authOrigins } from "./auth-url";
 
 export function authOptions(pool: Pool) {
   const secret = process.env.BETTER_AUTH_SECRET;
-  const baseURL = process.env.BETTER_AUTH_URL;
+  const { base: baseURL, trusted } = authOrigins();
   if (!secret || secret.length < 32 || !baseURL)
     throw new Error("Authentication is not configured");
   const url = new URL(baseURL);
@@ -23,7 +24,9 @@ export function authOptions(pool: Pool) {
     baseURL: url.origin,
     secret,
     database: pool,
-    trustedOrigins: [url.origin],
+    trustedOrigins: trusted.includes(url.origin)
+      ? trusted
+      : [url.origin, ...trusted],
     emailAndPassword: {
       enabled: true,
       disableSignUp: true,

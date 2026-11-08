@@ -31,3 +31,48 @@ test("auth configuration fails closed and uses secure cookies on HTTPS", () => {
     void pool.end();
   }
 });
+test("a Vercel preview takes its sign-in address from VERCEL_URL", () => {
+  const names = [
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "VERCEL_ENV",
+    "VERCEL_URL",
+    "VERCEL_BRANCH_URL",
+  ] as const;
+  const saved = Object.fromEntries(names.map((n) => [n, process.env[n]]));
+  const pool = new Pool();
+  try {
+    process.env.BETTER_AUTH_SECRET = "test-secret-only-".repeat(4);
+    process.env.BETTER_AUTH_URL = "https://live.example.invalid";
+    process.env.VERCEL_ENV = "preview";
+    process.env.VERCEL_URL = "preview-abc123.vercel.app";
+    process.env.VERCEL_BRANCH_URL = "preview-git-branch.vercel.app";
+    const preview = authOptions(pool);
+    assert.equal(preview.baseURL, "https://preview-abc123.vercel.app");
+    assert.deepEqual(preview.trustedOrigins, [
+      "https://preview-abc123.vercel.app",
+      "https://preview-git-branch.vercel.app",
+    ]);
+    assert.equal(preview.advanced.useSecureCookies, true);
+    // A preview without BETTER_AUTH_URL still configures.
+    delete process.env.BETTER_AUTH_URL;
+    assert.equal(
+      authOptions(pool).baseURL,
+      "https://preview-abc123.vercel.app",
+    );
+    // Production ignores the Vercel address and uses the live-site setting.
+    process.env.BETTER_AUTH_URL = "https://live.example.invalid";
+    process.env.VERCEL_ENV = "production";
+    const production = authOptions(pool);
+    assert.equal(production.baseURL, "https://live.example.invalid");
+    assert.deepEqual(production.trustedOrigins, [
+      "https://live.example.invalid",
+    ]);
+  } finally {
+    for (const n of names) {
+      if (saved[n] === undefined) delete process.env[n];
+      else process.env[n] = saved[n];
+    }
+    void pool.end();
+  }
+});
