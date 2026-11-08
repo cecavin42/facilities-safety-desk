@@ -34,7 +34,9 @@ The server enforces these rules on every request. The role names follow the team
 
 ## Run it on your computer
 
-You need Git and Node.js 24, the version this was verified on. Type the commands in any terminal: PowerShell on Windows, Terminal on a Mac. On Windows, use a normal terminal, not "Run as administrator": PostgreSQL refuses to start under an administrator account.
+You need Git and Node.js 24, the version this was verified on. Install Node.js 24 from nodejs.org (pick the 24 line, not the newest) and check with `node -v` that it starts with `v24`. On Windows, leave "Tools for native modules" unticked. No database install is needed; the launcher starts its own.
+
+Type the commands in a terminal: PowerShell or Command Prompt on Windows, Terminal on a Mac. On Windows, use a normal terminal, not "Run as administrator": PostgreSQL refuses to start under an administrator account. If PowerShell says "running scripts is disabled", type `npm.cmd` instead of `npm` (for example `npm.cmd ci`), or use Command Prompt.
 
 The first time, get a copy of the repository:
 
@@ -43,20 +45,22 @@ git clone https://github.com/cecavin42/facilities-safety-desk.git
 cd facilities-safety-desk
 ```
 
-Then, inside that folder:
+If you already have a copy, use it: open a new terminal in that folder and run `git fetch` first.
+
+To run a pull request that is not merged yet, run `git checkout <its branch name>` before `npm ci`. Then, inside the folder:
 
 ```powershell
 npm ci
 npm run auth:local
 ```
 
-To run a pull request that is not merged yet, run `git checkout <its branch name>` before `npm ci`.
+The first time, `npm ci` takes about 3 to 6 minutes and `npm run auth:local` about 2 to 5 minutes, because it builds the app. Wait until the terminal shows "Ready", then open exactly http://127.0.0.1:3103 (with `localhost` the page loads but sign-in is refused).
 
-Then open http://127.0.0.1:3103.
+The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
 
-The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C stops it and keeps the data.
-
-- The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. Open it with any text editor. It lists one Safety manager / admin account and two Employee accounts.
+- The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. The folder is hidden in Finder and Explorer, so open a second terminal in the same folder and type `cat .local/review-accounts.json`. The entry with `"role": "admin"` is the Safety manager / admin; the two with `"role": "user"` are Employees. Copy a password without the quotation marks.
+- To switch accounts, sign out with the icon next to your name at the bottom of the left menu (behind the ☰ button in a narrow window), then sign in again.
+- Turn off your browser's page translation while comparing exact labels and messages.
 - The local settings are in `.env.local`.
 - Both are ignored by Git, along with `.test-db/`. Do not share or commit them.
 
@@ -72,7 +76,7 @@ These need nothing running:
 | `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
 | `npm run test:assistant` | Assistant answers and citations | 40 of 40 |
 | `npm run test:catalog` | Source catalog and frozen challenge cases | 23 of 23 |
-| `npm run test:auth-config` | Sign-in configuration fails closed | 1 of 1 |
+| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 2 of 2 |
 | `npm run test:client` | Browser API client | 1 of 1 |
 | `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
 | `npm run eval:assistant` | 31 development questions, answered by the assistant code directly | 31 of 31 (the earlier search passed 14) |
@@ -87,7 +91,7 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-Results are from one run on November 5, 2026, on Windows with Node.js 24.13, plus a hosted preview sign-in check on November 8. What was checked on a hosted Vercel test project is listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
+The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 
@@ -95,7 +99,7 @@ The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It li
 
 ## Reviewing a pull request
 
-Open the pull request's Vercel preview from Deployments and click around, the way the instructor showed. The preview asks for sign-in; use the same email and password as on the live site, because previews use the live site's database, so anything you create or change on a preview is real. Two limits: the preview of the pull request that adds sign-in cannot sign in itself (its database tables are created at the merge), and a pull request that adds a database change cannot be fully checked on its preview. In both cases, run it on a computer as described under "Run it on your computer". If something is wrong on the live site, the owner rolls back in Vercel; `docs/DEPLOYMENT.md` says how.
+By default a Vercel preview shows the sign-in page but refuses to sign in, because it shares the live database and unreviewed code must not accept live passwords. Check such a pull request on a computer as described under "Run it on your computer", or merge it and check the live site with Instant Rollback ready. With the optional setup in `docs/DEPLOYMENT.md`, "Previews that can sign in", every preview gets its own copy of the database and a test administrator, and can be opened from Deployments and clicked through the way the instructor showed.
 
 Merge one pull request at a time and check the live site before merging the next. Vercel's free plan can only roll back one step.
 

@@ -159,8 +159,10 @@ export async function createSource(
   fields: Record<string, string>,
   file: File,
 ) {
-  if (file.size > 5_000_000 || file.size === 0)
-    throw new HttpError("Choose a nonempty file up to 5 MB.");
+  // Vercel refuses request bodies over 4.5 MB with its own error page, so the
+  // app's limit stays below that and the user sees this message instead.
+  if (file.size > 4_000_000 || file.size === 0)
+    throw new HttpError("Choose a nonempty file up to 4 MB.");
   for (const key of [
     "title",
     "publisher",

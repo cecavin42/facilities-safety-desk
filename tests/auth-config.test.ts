@@ -31,13 +31,14 @@ test("auth configuration fails closed and uses secure cookies on HTTPS", () => {
     void pool.end();
   }
 });
-test("a Vercel preview takes its sign-in address from VERCEL_URL", () => {
+test("a Vercel preview signs in only with a database of its own, at its own address", () => {
   const names = [
     "BETTER_AUTH_SECRET",
     "BETTER_AUTH_URL",
     "VERCEL_ENV",
     "VERCEL_URL",
     "VERCEL_BRANCH_URL",
+    "PREVIEW_DB_SETUP",
   ] as const;
   const saved = Object.fromEntries(names.map((n) => [n, process.env[n]]));
   const pool = new Pool();
@@ -47,6 +48,11 @@ test("a Vercel preview takes its sign-in address from VERCEL_URL", () => {
     process.env.VERCEL_ENV = "preview";
     process.env.VERCEL_URL = "preview-abc123.vercel.app";
     process.env.VERCEL_BRANCH_URL = "preview-git-branch.vercel.app";
+    // A preview that shares the live database has no sign-in at all, even
+    // though the live site's settings are present.
+    delete process.env.PREVIEW_DB_SETUP;
+    assert.throws(() => authOptions(pool));
+    process.env.PREVIEW_DB_SETUP = "1";
     const preview = authOptions(pool);
     assert.equal(preview.baseURL, "https://preview-abc123.vercel.app");
     assert.deepEqual(preview.trustedOrigins, [

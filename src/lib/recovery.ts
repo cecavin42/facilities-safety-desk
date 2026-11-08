@@ -6,6 +6,11 @@ import { transaction } from "./db/repository";
 import { HttpError } from "./server-access";
 import { authOrigins } from "./auth-url";
 export async function issueRecovery(actorId: string, userId: string) {
+  if (authOrigins().preview)
+    throw new HttpError(
+      "Recovery links are issued on the live site, not on a preview.",
+      403,
+    );
   if (actorId === userId)
     throw new HttpError("Another administrator must authorize your recovery.");
   return transaction(database(), async (client) => {

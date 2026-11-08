@@ -18,8 +18,9 @@ const actionLabels: Record<string, string> = {
   "account.created": "Account created",
   "account.access_changed": "Account access changed",
 };
-// Catherine's rule (Oct 29): Lipscomb addresses are Safety managers, personal
-// addresses are Employees. The form suggests the role; the administrator decides.
+// Catherine's suggestion in the team notes: Lipscomb addresses are Safety
+// managers, personal addresses are Employees. The form suggests the role; the
+// administrator decides.
 const ADMIN_EMAIL_DOMAINS = ["mail.lipscomb.edu", "lipscomb.edu"];
 function suggestRole(email: string) {
   const domain = email.trim().toLowerCase().split("@")[1] ?? "";

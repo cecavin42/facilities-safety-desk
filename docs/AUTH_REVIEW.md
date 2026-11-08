@@ -1,6 +1,6 @@
 # Sign-in and access controls — draft
 
-> **Status, November 5, 2026.** Written on November 3 for draft pull request #7, which was closed without merging. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #7, which was closed without merging. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md). What this file says about preview deployments is superseded by "Previews that can sign in" in DEPLOYMENT.md (November 8).
 
 Updated by the [readiness draft](READINESS_REVIEW.md): authenticator MFA and private administrator-issued recovery links are now implemented. The original verification below records the earlier access-control pass; current results and remaining limits are in the readiness review.
 

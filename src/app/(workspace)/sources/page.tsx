@@ -182,7 +182,7 @@ export default function SourcesPage() {
               />
             </label>
             <p className="text-xs leading-6 text-slate-500 md:col-span-2">
-              Text PDF, TXT or Markdown; maximum 5 MB / 100 pages. Scanned PDFs
+              Text PDF, TXT or Markdown; maximum 4 MB / 100 pages. Scanned PDFs
               need OCR first. Activation makes the version available to all
               signed-in users and the assistant.
             </p>

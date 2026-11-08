@@ -29,9 +29,19 @@ async function main() {
   }
 }
 
-main().catch(() => {
+main().catch((error: unknown) => {
+  // The reason, with any connection string removed. Postgres error messages do
+  // not contain passwords, and migration messages name only the file.
+  const code =
+    error && typeof error === "object" && "code" in error
+      ? String((error as { code: unknown }).code)
+      : "";
+  const message =
+    error instanceof Error
+      ? error.message.replace(/postgres(ql)?:\/\/\S+/gi, "[connection string]")
+      : "unknown error";
   console.error(
-    "Database setup failed. Check the server-side DATABASE_URL, database access, and migration history. No credentials were logged.",
+    `Database setup failed${code ? ` (${code})` : ""}: ${message}\nCheck the server-side DATABASE_URL, database access, and migration history. No credentials were logged.`,
   );
   process.exitCode = 1;
 });
