@@ -17,7 +17,7 @@ async function main() {
   if (!existsSync(".env.local"))
     await writeFile(
       ".env.local",
-      `DATABASE_URL=postgresql://postgres:local-auth-demo-only@127.0.0.1:54331/postgres\nBETTER_AUTH_URL=http://127.0.0.1:3103\nBETTER_AUTH_SECRET=${randomBytes(48).toString("base64url")}\nASSISTANT_OLLAMA_MODEL=qwen3.6:35b-a3b\n`,
+      `DATABASE_URL=postgresql://postgres:local-auth-demo-only@127.0.0.1:54331/postgres\nBETTER_AUTH_URL=http://127.0.0.1:3103\nBETTER_AUTH_SECRET=${randomBytes(48).toString("base64url")}\n`,
       { flag: "wx", mode: 0o600 },
     );
   process.loadEnvFile(".env.local");

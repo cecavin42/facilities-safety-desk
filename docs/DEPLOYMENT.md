@@ -16,7 +16,7 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 **1. Add five settings in Vercel.**
 
 1. Open the Vercel project, then **Settings → Environment Variables**.
-2. Add each setting below. Tick **Production** only.
+2. Add each setting below. Leave **Production** ticked and untick **Preview** and **Development**.
 3. Save. The values apply to the next deployment, which is the one the merge starts.
 
 | Setting | Value | Afterwards |
@@ -32,9 +32,9 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 - Keep the private copy of `BETTER_AUTH_SECRET` somewhere safe, for example a password manager. A backup can only be restored with the same value.
 - Do not put any of these values in GitHub, Drive or a `NEXT_PUBLIC_` variable.
 - Do not add `ASSISTANT_OLLAMA_MODEL` or `AUTH_MFA_ENABLED` in Vercel.
-- Check that the project runs Node.js 24.x: **Settings → Build and Deployment → Node.js Version**. This version was verified on 24. A newly created Vercel project now starts on 26.
+- Check that the project runs Node.js 24.x: **Settings → Build and Deployment → Node.js Version**. If it shows another version, choose 24.x and save. This version was verified on 24; a newly created Vercel project may start on 26.
 
-**2. Merge the pull request on GitHub** with the green **Merge pull request** button, using the default option, "Create a merge commit". Plan to do steps 3 to 6 right after, in one sitting, because from the merge on the live site asks everyone to sign in.
+**2. Merge the pull request on GitHub** with the green **Merge pull request** button, using the default option, "Create a merge commit". Merge nothing else first. If GitHub shows a conflict on this pull request, do not use **Resolve conflicts**; tell Forrest. Plan to do steps 3 to 6 right after, in one sitting, because from the merge on the live site asks everyone to sign in.
 
 ## What the production build does
 
@@ -110,7 +110,8 @@ In Vercel, open **Deployments**, open the menu (⋮) on the previous production 
 - On Vercel's free plan this is offered only for the deployment right before the current one. If you need to roll back, do it before merging any other pull request.
 - A rollback does not touch the database. The new tables, your administrator account and the team's accounts all stay. The previous version does not read them, and its storage tests pass against a database that has all six migrations applied.
 - Leave the two settings you kept in place.
-- After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged, have it checked on a computer first, because its preview cannot be signed in to. When its deployment shows Ready, open the project's **Overview** page, choose **Undo Rollback** on the production deployment, pick the new deployment and confirm. The accounts created earlier work again. Do not repeat steps 1 to 4.
+- While rolled back, the site is the old version: no sign-in, and all records are visible to anyone with the address.
+- After a rollback, Vercel stops putting new merges live on its own. When a fix has been merged, have it checked on a computer first, because its preview cannot be signed in to. When its deployment shows Ready, open that deployment's menu (⋮) under **Deployments** and choose **Promote to Production**. (**Undo Rollback** on the project's **Overview** page does the same.) The accounts created earlier work again. Do not repeat steps 1 to 4.
 
 This was rehearsed on a separate Vercel test project on November 5. The sign-in version was rolled back to the version without sign-in in a few seconds. That older version worked against the database that already had the new tables. After the rollback was undone, the accounts were still there and sign-in worked. It has not been rehearsed on the team's project.
 
