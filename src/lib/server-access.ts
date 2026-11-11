@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { auth } from "./auth";
+import { signInConfigured } from "./auth-config";
 import { authOrigins } from "./auth-url";
 import { database } from "./database";
 import type { CurrentUser } from "./access";
@@ -16,7 +17,10 @@ export class HttpError extends Error {
 export async function currentUser(
   requestHeaders: Headers,
 ): Promise<CurrentUser | null> {
-  if (!requestHeaders.get("cookie")) return null;
+  // Where sign-in is switched off (a preview that shares the live database), a
+  // visitor is simply signed out: pages send them to the sign-in page and the
+  // API answers 401, instead of the page failing with a server error.
+  if (!requestHeaders.get("cookie") || !signInConfigured()) return null;
   const session = await auth().api.getSession({
     headers: requestHeaders,
     query: { disableCookieCache: true },

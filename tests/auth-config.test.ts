@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { Pool } from "pg";
-import { authOptions } from "../src/lib/auth-config";
+import { authOptions, signInConfigured } from "../src/lib/auth-config";
 test("auth configuration fails closed and uses secure cookies on HTTPS", () => {
   const secret = process.env.BETTER_AUTH_SECRET;
   const url = process.env.BETTER_AUTH_URL;
@@ -81,4 +81,33 @@ test("a Vercel preview signs in only with a database of its own, at its own addr
     }
     void pool.end();
   }
+});
+test("sign-in counts as configured exactly when authOptions can build", () => {
+  const secret = "test-secret-only-".repeat(4);
+  const preview = {
+    NODE_ENV: "test",
+    BETTER_AUTH_SECRET: secret,
+    BETTER_AUTH_URL: "https://live.example.invalid",
+    VERCEL_ENV: "preview",
+    VERCEL_URL: "preview-abc123.vercel.app",
+  } as NodeJS.ProcessEnv;
+  // A preview that shares the live database: no sign-in, so a visitor is
+  // treated as signed out instead of the page failing.
+  assert.equal(signInConfigured(preview), false);
+  assert.equal(signInConfigured({ ...preview, PREVIEW_DB_SETUP: "1" }), true);
+  const production = {
+    NODE_ENV: "test",
+    BETTER_AUTH_SECRET: secret,
+    BETTER_AUTH_URL: "https://live.example.invalid",
+    VERCEL_ENV: "production",
+  } as NodeJS.ProcessEnv;
+  assert.equal(signInConfigured(production), true);
+  assert.equal(
+    signInConfigured({ ...production, BETTER_AUTH_SECRET: "short" }),
+    false,
+  );
+  assert.equal(
+    signInConfigured({ ...production, BETTER_AUTH_URL: undefined }),
+    false,
+  );
 });
