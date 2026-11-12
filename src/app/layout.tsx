@@ -41,9 +41,8 @@ export default function RootLayout({
         </div>
         {children}
         <footer className="app-footer no-print">
-          Team A draft. University of Tennessee documents are used under their
-          nonprofit educational-use terms, with credit to The University of
-          Tennessee. Not for commercial use.
+          Team A draft. A Lipscomb University class project. Not for
+          commercial use.
         </footer>
       </body>
     </html>

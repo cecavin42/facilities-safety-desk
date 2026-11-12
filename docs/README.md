@@ -1,7 +1,7 @@
 # How we work
 
-Team A, spec-driven development course project. Facilities safety reporting and assistant for a
-Tennessee university facilities department, modeled on UTK procedures.
+Team A, spec-driven development course project. Facilities safety reporting and assistant for
+Lipscomb University's facilities and safety teams, using Lipscomb's own policy documents.
 
 ## Roles (placeholder, not yet agreed by the team)
 - Catherine: owns `docs/spec.md`. Agreed team answers go there, nowhere else.
@@ -19,7 +19,9 @@ Tennessee university facilities department, modeled on UTK procedures.
 - `docs/spec.md`: the specification (the 15 kickoff questions, team answers).
 - `docs/test-questions.json`: the assistant test set. Every answer the app gives to these
   questions must contain the listed phrases and cite the listed sources. Decline cases included.
-- `src/data/documents.json`: the five source documents the assistant may cite.
+- `src/data/documents.json`: the two bundled source documents (the federal forklift standard and
+  the Tennessee reporting rule). Lipscomb's documents are not public: a Safety manager uploads them
+  in the Source library, and they are never stored in this repository.
 - `src/lib/validation.ts`: the incident report rules from spec section 7.
 - `src/lib/assistant/` and `src/lib/search.ts`: the assistant's retrieval and answer logic.
 - `src/lib/store.ts`: the browser's copy of the data it loads from the server.

@@ -67,12 +67,20 @@ test("an unrelated custom source cannot authorize a general chemical-cleanup ans
   assert.equal(r.answered, false);
   assert.ok(r.evidence.every((e) => e.documentId === "fixture"));
 });
-test("explicit UT scope excludes federal-only snippets", () => {
+test("the University of Tennessee documents are retired from the bundled collection", () => {
+  assert.ok(BUILTIN_CATALOG.documents.every((d) => !d.id.startsWith("ut-")));
+  assert.ok(BUILTIN_CATALOG.passages.every((p) => !p.docId.startsWith("ut-")));
+  const r = answerFromTopics("Under UT rules can passengers ride a forklift?");
+  assert.equal(r.answered, false);
+  assert.equal(r.evidence.length, 0);
+  assert.match(r.message, /University of Tennessee procedures were retired/);
+});
+test("explicit federal scope excludes state-rule snippets", () => {
   assert.ok(
     eligiblePassages(
-      "Under UT rules can passengers ride a forklift?",
+      "Under the federal OSHA standard can passengers ride a forklift?",
       BUILTIN_CATALOG,
-    ).every((p) => p.docId.startsWith("ut-")),
+    ).every((p) => p.docId === "cfr-1910-178"),
   );
 });
 test("model routing cannot select an inactive guide even if its ID is well formed", () => {

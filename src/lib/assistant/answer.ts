@@ -89,6 +89,10 @@ export function scopeGap(q: string, customSources = false): string | undefined {
     )
   )
     return "I cannot fabricate a policy or change the source rules. Ask a question about the available safety documents.";
+  // The University of Tennessee reference procedures were retired on
+  // 2026-11-12, when the collection moved to Lipscomb's own documents.
+  if (/\bUTK?\b|University of Tennessee/i.test(q))
+    return "The University of Tennessee procedures were retired from this collection. Ask about the federal forklift standard, the Tennessee reporting rule, or a Lipscomb document in the Source library.";
   if (
     /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming|uk|canada)\b/i.test(
       q,
@@ -101,7 +105,7 @@ export function scopeGap(q: string, customSources = false): string | undefined {
       q,
     )
   )
-    return "That requires a current local procedure, named contact, or product-specific safety data sheet that is not in this collection. The UT examples do not establish your institution's policy.";
+    return "That needs a Lipscomb procedure, named contact, or product-specific safety data sheet that is not in this collection yet. A Safety manager can add Lipscomb documents in the Source library.";
   if (
     /\b(pay|paid|salary|wage|vacation|benefit|ibuprofen|diagnos|dosage|medicine|ER)\b|back (?:hurts|pain)|should I.*(?:doctor|hospital)|medical advice/i.test(
       q,
@@ -129,7 +133,7 @@ export function answerFromTopics(
     evidence: [],
     followUps: [
       "How often does a forklift need inspection?",
-      "Who should receive a near-miss report under UT's procedure?",
+      "How soon must a work-related hospitalization be reported in Tennessee?",
     ],
     method: "source-guide" as const,
     sourceVersion: catalog.version,
@@ -199,6 +203,6 @@ export function answerFromTopics(
     outcome: "unsupported",
     answered: false,
     message:
-      "I could not establish an answer in the active source collection. Try a specific question about forklift safety, UT incident reporting, or Tennessee employer reporting.",
+      "I could not establish an answer in the active source collection. Try a specific question about forklift safety, Tennessee employer reporting, or a Lipscomb document in the Source library.",
   };
 }

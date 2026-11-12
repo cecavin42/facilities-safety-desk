@@ -98,11 +98,9 @@ export async function seedSources(pool: Pool) {
         d.owner,
         d.dated,
         d.url,
-        d.id.startsWith("ut-")
-          ? "UT Knoxville reference"
-          : d.id.startsWith("tn-")
-            ? "Tennessee reporting rule"
-            : "Federal forklift standard",
+        d.id.startsWith("tn-")
+          ? "Tennessee reporting rule"
+          : "Federal forklift standard",
         d.credit,
         JSON.stringify(passages),
         createHash("sha256").update(JSON.stringify(passages)).digest("hex"),

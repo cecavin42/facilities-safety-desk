@@ -1,21 +1,21 @@
 {
-  "_about": "Assistant test set. Each answer must contain every phrase in must_contain and cite at least one source in cite. doc ids match src/data/documents.json. expect=decline means the assistant must refuse and log the question.",
+  "_about": "Assistant test set. Each answer must contain every phrase in must_contain and cite at least one source in cite. doc ids match src/data/documents.json. expect=decline means the assistant must refuse and log the question. Changed 2026-11-12: the University of Tennessee procedures were retired, so their citations were removed. expect=no-bundled-answer means the bundled documents no longer answer the question; Lipscomb's documents are uploaded in the Source library and tested from the team's private test sheet, because they are not public.",
   "cases": [
     {
       "id": "q1-inspection-frequency",
       "question": "How often does a forklift have to be inspected?",
       "expect": "answer",
       "must_contain": ["daily"],
-      "cite": ["29 CFR 1910.178(q)(7)", "UT SAGS130-K"],
-      "doc": ["cfr-1910-178", "ut-sags130-k"]
+      "cite": ["29 CFR 1910.178(q)(7)"],
+      "doc": ["cfr-1910-178"]
     },
     {
       "id": "q2-near-miss-retraining",
       "question": "I had a near miss on the forklift. Do I need retraining?",
       "expect": "answer",
       "must_contain": ["refresher", "three years"],
-      "cite": ["29 CFR 1910.178(l)(4)(ii)(B)", "29 CFR 1910.178(l)(4)(iii)", "UT SAGS130-K"],
-      "doc": ["cfr-1910-178", "ut-sags130-k"]
+      "cite": ["29 CFR 1910.178(l)(4)(ii)(B)", "29 CFR 1910.178(l)(4)(iii)"],
+      "doc": ["cfr-1910-178"]
     },
     {
       "id": "q3-hospitalization-reporting",
@@ -28,10 +28,8 @@
     {
       "id": "q4-who-to-report-near-miss",
       "question": "Who do I report a near miss to, and could I get in trouble for it?",
-      "expect": "answer",
-      "must_contain": ["immediate supervisor", "retaliat"],
-      "cite": ["UT SAAD021-K", "UT SAAD022-K"],
-      "doc": ["ut-saad021-k", "ut-saad022-k"]
+      "expect": "no-bundled-answer",
+      "note": "The University of Tennessee procedures that answered this were retired on 2026-11-12."
     },
     {
       "id": "q5-training-before-operating",

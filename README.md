@@ -56,7 +56,7 @@ npm run auth:local
 
 The first time, `npm ci` takes about 3 to 6 minutes and `npm run auth:local` about 2 to 5 minutes, because it builds the app. Wait until the terminal shows "Ready", then open exactly http://127.0.0.1:3103 (with `localhost` the page loads but sign-in is refused).
 
-The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
+The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and two source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
 
 - The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. The folder is hidden in Finder and Explorer, so open a second terminal in the same folder and type `cat .local/review-accounts.json`. The entry with `"role": "admin"` is the Safety manager / admin; the two with `"role": "user"` are Employees. Copy a password without the quotation marks.
 - To switch accounts, sign out with the icon next to your name at the bottom of the left menu (behind the ☰ button in a narrow window), then sign in again.
@@ -131,7 +131,7 @@ The five review files were written on November 3 for separate draft pull request
 - MFA for users. The code is present but switched off.
 - Scheduled or off-site backups. `npm run backup` is a manual tool.
 - Hazardous-materials content and a staff directory, which the instructor asked about on October 29.
-- Real Lipscomb policies. The sources are federal, Tennessee and UT Knoxville reference documents.
+- Lipscomb's policy documents. They are not public, so they are not in this repository; a Safety manager uploads them in the Source library. The two bundled sources are the federal forklift standard and the Tennessee reporting rule.
 
 ## Credits
 

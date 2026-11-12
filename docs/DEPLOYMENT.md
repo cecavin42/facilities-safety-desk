@@ -47,7 +47,7 @@ The build command in `vercel.json` runs four steps in order:
    - The three administrator settings are incomplete, the email is not an email address, or the password is not 15 to 128 characters.
    - No administrator exists yet and the three administrator settings are absent. This stops the site from going live with nobody able to sign in.
    Once an administrator exists, leftover administrator settings are ignored and never block a deployment.
-2. `npm run db:setup` applies the migrations that have not run yet and loads the five bundled source documents. It is safe to run again: existing reports, statuses and question logs are kept. All pending migrations run in one transaction, so a failure leaves the database as it was. If it fails, the log names the migration file and the database error. On a preview build this step is skipped unless the preview has its own database (see the end of this guide).
+2. `npm run db:setup` applies the migrations that have not run yet and loads the two bundled source documents. It is safe to run again: existing reports, statuses and question logs are kept. All pending migrations run in one transaction, so a failure leaves the database as it was. If it fails, the log names the migration file and the database error. On a preview build this step is skipped unless the preview has its own database (see the end of this guide).
 3. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. Otherwise it does nothing. Skipped on a preview build unless the preview has its own database.
 4. `npm run build` builds the app.
 
@@ -59,6 +59,7 @@ The build command in `vercel.json` runs four steps in order:
 | `004_two_factor` | A table and a column for authenticator (MFA) data. The table stays empty and the column stays `false` while MFA is switched off |
 | `005_recovery_and_sources` | Recovery links and source document versions |
 | `006_session_mfa_assurance` | A flag on each session recording that MFA was completed. It stays `false` while MFA is switched off |
+| `007_retire_ut_reference_documents` | Adds nothing. It retires the three University of Tennessee reference documents, so they can no longer support an answer. Nothing is deleted: an administrator still sees them in the Source library as retired |
 
 ## After the merge
 
