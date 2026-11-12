@@ -8,52 +8,53 @@ the notes doc as a possible second document corpus.
 ## Part 1: Who and why
 
 ### 1. Users
-The facilities services department of a Tennessee university, modeled on UTK so we can use its published
-safety procedures. About 150 employees run storerooms, loading docks, maintenance shops and grounds crews;
-some drive forklifts.
+The facilities services department of Lipscomb University. The app uses Lipscomb's own policy documents,
+which the university provided for this class project. For sizing we assume about 150 employees who run
+storerooms, loading docks, maintenance shops and grounds crews; some drive forklifts.
 - Facilities employees (forklift operators, storeroom staff, maintenance technicians, grounds crew): report an
   incident or near miss from a phone; get a fast, trustworthy answer to a safety question with a citation.
 - Shift supervisors: see what was reported in their area and shift, follow up on open items, check a rule
-  before directing the crew. Under UTK procedures they are the first person employees report to.
+  before directing the crew. They are usually the first person an employee tells.
 - Safety manager (EHS): clean, complete records in one place, trend charts, an exportable summary for leadership
   and the safety committee, and a view of which questions the documents fail to answer.
 
 ### 2. Problem
 Two problems that feed each other. Incidents are reported by phone, email or paper, then typed into a
 spreadsheet days later with missing fields; a monthly summary takes hours; near misses are rarely recorded.
-Safety rules are spread across federal and Tennessee regulations and several UT procedures, so employees ask a
+Safety rules are spread across federal and Tennessee regulations and several Lipscomb policy documents, so employees ask a
 supervisor who may not know, or guess. The app puts reporting and answers in one database and links them.
 
 ### 3. One sentence
 A web app where university facilities employees report safety incidents and near misses through a validated
 form and ask a safety assistant questions it answers only with citations from federal and Tennessee rules and
-UT procedures, while the safety manager views charts and exports a summary of both.
+Lipscomb's own policy documents, while the safety manager views charts and exports a summary of both.
 
 ## Part 2: Documents and questions (assistant)
 
 ### 4. Documents
-Five, all Tennessee-applicable (TOSHA follows the federal general industry standards). Ids match
-`src/data/documents.json`.
+Two public regulations are bundled with the app (TOSHA follows the federal general industry standards). Their
+ids match `src/data/documents.json`. Lipscomb's policy documents are the rest of the collection. They are not
+public, so they are never stored in this repository: a Safety manager uploads them in the Source library.
 
 | id | Document | Owner | Sharing |
 |---|---|---|---|
 | cfr-1910-178 | 29 CFR 1910.178, Powered Industrial Trucks | US DOL / OSHA | Public domain |
 | tn-0800-01-03-05 | Tenn. Comp. R. & Regs. 0800-01-03-.05, Reporting Fatality, Injury and Illness Information | TN Dept. of Labor and Workforce Development | Public regulation |
-| ut-sags130-k | UT SAGS130-K, Forklift Safety | University of Tennessee System | Nonprofit educational use with credit |
-| ut-saad022-k | UT SAAD022-K, Incident and Accident Reporting | University of Tennessee System | Nonprofit educational use with credit |
-| ut-saad021-k | UT SAAD021-K, Reporting Safety Hazards and Near Misses | University of Tennessee System | Nonprofit educational use with credit |
+| (uploaded) | Lipscomb University policy documents | Lipscomb University | Provided for this class project; not public |
+
+The three University of Tennessee procedures used in the first draft were retired on 2026-11-12 (migration
+`007_retire_ut_reference_documents`).
 
 Added 2026-10-29 at Dr. Nordstrom's suggestion: a sixth document, a **fake staff directory** (names, roles,
 areas, extensions, all invented) so the assistant can answer "who do I report this to?" with a person and
 extension. Admins can add further documents through the app (see sections 8 and 11).
 
-The UT documents may be shared with the team and instructor for a class project. The app credits UT on every
-citation (appended by code, not left to the model) and is not used commercially. Each document stores its
-source URL, owner and license line.
+The Lipscomb documents were provided for this class project and are used only inside the signed-in app. The
+app is not used commercially. Each document stores its source URL, owner and license line.
 
 ### 5. Example questions
-The runnable set is `docs/test-questions.json`: seven questions with required phrases and citations, four
-decline cases. Each becomes an automated check run against every preview deployment.
+The runnable set is `docs/test-questions.json`: six questions with required phrases and citations, four
+decline cases, and one question the bundled documents no longer answer. Each becomes an automated check run against every preview deployment.
 
 ### 6. Questions the app must not answer
 Not in the documents: pay ("How much do forklift operators get paid here?"), medical advice ("Should I take
@@ -122,7 +123,7 @@ One server-side validation schema is shared by the form and the CSV import.
 ## Part 4: Size, access and limits
 
 ### 10. Scale
-This term: 5 to 15 users; 150 seeded records plus 50 to 100 from testing; 5 documents under 200 pages;
+This term: 5 to 15 users; 150 seeded records plus 50 to 100 from testing; 2 bundled regulations plus the uploaded Lipscomb documents (each up to 100 pages);
 20 to 50 questions a day at peak. One year in a real department: about 150 users; 1,000 to 2,000 records;
 10 to 20 documents; up to 100 questions a day. Free tiers cover hosting and database; the model call per
 question is the only real cost. Embeddings are computed once at ingest.
@@ -140,7 +141,7 @@ Supervisor (read-only view of all reports and charts) is v1.1 if time allows. Th
 admin account.
 
 ### 12. Out of scope for v1
-No real employee data. Not an official UT system (no link to UT forms, workers' comp or UT sign-in). No
+No real employee data. Not an official Lipscomb system (no link to Lipscomb forms, workers' comp or Lipscomb sign-in). No
 automatic filing with TOSHA or OSHA. No email or text notifications. No photo or file attachments. No native
 mobile app. No medical, legal or HR advice. No chat memory (each
 question stands alone). No streaming answers. English only.
@@ -166,8 +167,9 @@ Run against the Vercel preview on every PR, and against production before callin
   fallback if answer quality is not good enough (about $27 a month at the same load). Embeddings: Voyage or
   similar.
 - Security and licensing: API keys server-side only; fake records only; documents limited to public
-  regulations and UT procedures under educational-use terms, UT credited on every citation, no commercial
-  use; the app must not look like an official UT site.
+  regulations and Lipscomb policy documents provided for this class project; the Lipscomb documents are not
+  public and never go into the repository; no commercial use; the app must not look like an official Lipscomb
+  site.
 - Language: English only in v1.
 
 ### 15. Roles and meetings (placeholder, roles not yet agreed)
