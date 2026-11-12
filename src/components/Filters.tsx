@@ -1,56 +1,141 @@
 "use client";
-
-import { EVENT_TYPES, LOCATIONS, SHIFTS, type IncidentRecord } from "@/lib/options";
-
-export type FilterState = { from: string; to: string; location: string; shift: string; eventType: string };
-
-export const EMPTY_FILTERS: FilterState = { from: "", to: "", location: "", shift: "", eventType: "" };
-
-export function applyFilters(records: IncidentRecord[], f: FilterState) {
-  return records.filter(
-    (r) =>
-      (!f.from || r.eventDate >= f.from) &&
-      (!f.to || r.eventDate <= f.to) &&
-      (!f.location || r.location === f.location) &&
-      (!f.shift || r.shift === f.shift) &&
-      (!f.eventType || r.eventType === f.eventType),
+import { useState } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  RotateCcw,
+  ChevronDown,
+} from "lucide-react";
+import { EVENT_TYPES, LOCATIONS, SHIFTS, STATUSES } from "@/lib/options";
+import {
+  EMPTY_FILTERS,
+  filterError,
+  type FilterState,
+} from "@/lib/record-view";
+export { EMPTY_FILTERS, applyFilters } from "@/lib/record-view";
+export type { FilterState } from "@/lib/record-view";
+export default function Filters({
+  value,
+  onChange,
+}: {
+  value: FilterState;
+  onChange: (f: FilterState) => void;
+}) {
+  const [advanced, setAdvanced] = useState(
+    Boolean(
+      value.from ||
+        value.to ||
+        value.location ||
+        value.shift ||
+        value.eventType,
+    ),
   );
-}
-
-const box = "mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm";
-
-export default function Filters({ value, onChange }: { value: FilterState; onChange: (f: FilterState) => void }) {
-  const set = (k: keyof FilterState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    onChange({ ...value, [k]: e.target.value });
-  const sel = (k: keyof FilterState, label: string, opts: readonly string[]) => (
-    <label className="text-xs font-medium text-slate-700">
+  const set =
+    (key: keyof FilterState) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      onChange({ ...value, [key]: event.target.value });
+  const error = filterError(value);
+  const active = Object.values(value).filter(Boolean).length;
+  const select = (
+    key: keyof FilterState,
+    label: string,
+    options: readonly string[],
+  ) => (
+    <label className="advanced-filter-label">
       {label}
-      <select className={box} value={value[k]} onChange={set(k)}>
+      <select className="control" value={value[key]} onChange={set(key)}>
         <option value="">All</option>
-        {opts.map((o) => (
-          <option key={o}>{o}</option>
+        {options.map((option) => (
+          <option key={option}>{option}</option>
         ))}
       </select>
     </label>
   );
   return (
-    <div className="no-print grid grid-cols-2 gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-6">
-      <label className="text-xs font-medium text-slate-700">
-        From
-        <input type="date" className={box} value={value.from} onChange={set("from")} />
-      </label>
-      <label className="text-xs font-medium text-slate-700">
-        To
-        <input type="date" className={box} value={value.to} onChange={set("to")} />
-      </label>
-      {sel("location", "Location", LOCATIONS)}
-      {sel("shift", "Shift", SHIFTS)}
-      {sel("eventType", "Event type", EVENT_TYPES)}
-      <div className="flex items-end">
-        <button type="button" onClick={() => onChange(EMPTY_FILTERS)} className="w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm hover:bg-slate-50">
-          Clear filters
+    <section aria-label="Filter records" className="filter-panel no-print">
+      <div className="filter-toolbar">
+        <label className="filter-search">
+          <Search size={16} aria-hidden="true" />
+          <span className="sr-only">Search ID or report text</span>
+          <input
+            type="search"
+            value={value.search}
+            onChange={set("search")}
+            placeholder="Search ID, description, or location…"
+          />
+        </label>
+        <label className="filter-status">
+          <span className="sr-only">Status</span>
+          <select
+            className="control"
+            value={value.status}
+            onChange={set("status")}
+          >
+            <option value="">All statuses</option>
+            {STATUSES.map((status) => (
+              <option key={status}>{status}</option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          className={`btn-secondary filter-toggle ${advanced ? "filter-toggle-open" : ""}`}
+          aria-expanded={advanced}
+          aria-controls="advanced-filters"
+          onClick={() => setAdvanced((v) => !v)}
+        >
+          <SlidersHorizontal size={14} />
+          Filters{active > 0 && <span className="filter-count">{active}</span>}
+          <ChevronDown size={12} />
         </button>
+        {active > 0 && (
+          <button
+            className="filter-clear"
+            type="button"
+            onClick={() => {
+              onChange({ ...EMPTY_FILTERS });
+              setAdvanced(false);
+            }}
+          >
+            <RotateCcw size={12} />
+            Clear filters
+          </button>
+        )}
       </div>
-    </div>
+      {advanced && (
+        <div className="advanced-filters" id="advanced-filters">
+          <label className="advanced-filter-label">
+            From
+            <input
+              type="date"
+              className="control"
+              value={value.from}
+              onChange={set("from")}
+              aria-invalid={!!error}
+              aria-describedby={error ? "filter-error" : undefined}
+            />
+          </label>
+          <label className="advanced-filter-label">
+            To
+            <input
+              type="date"
+              className="control"
+              value={value.to}
+              onChange={set("to")}
+              aria-invalid={!!error}
+              aria-describedby={error ? "filter-error" : undefined}
+            />
+          </label>
+          {select("location", "Location", LOCATIONS)}
+          {select("eventType", "Event type", EVENT_TYPES)}
+          {select("shift", "Shift", SHIFTS)}
+        </div>
+      )}
+      {error && (
+        <p role="alert" id="filter-error" className="filter-error">
+          {error}
+        </p>
+      )}
+    </section>
   );
 }

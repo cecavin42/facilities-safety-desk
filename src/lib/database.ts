@@ -6,5 +6,5 @@ const state = globalThis as typeof globalThis & { safetyDeskPool?: Pool };
 
 export function database() {
   // Lazy initialization lets builds run without contacting a database.
-  return state.safetyDeskPool ??= createPool();
+  return (state.safetyDeskPool ??= createPool());
 }

@@ -1,92 +1,106 @@
 "use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { IncidentRecord, Status } from "./options";
+import type { Status } from "./options";
 import type { AppData, NewIncident } from "./data-types";
+import { api } from "./client-api";
 export type { QuestionLogEntry } from "./data-types";
-
-async function json<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, { cache: "no-store", ...options });
-  const body = await response.json().catch(() => null);
-  if (!response.ok) throw new Error(body?.error ?? "Shared storage is unavailable. Please retry.");
-  return body as T;
-}
-
 export function useAppData() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AppData>({ records: [], questions: [] });
-  const [saving, setSaving] = useState(false);
   const generation = useRef(0);
-  const pending = useRef(0);
-
+  const pendingImport = useRef<{ payload: string; id: string } | null>(null);
   const refresh = useCallback(async () => {
-    if (pending.current) return;
-    const request = ++generation.current;
+    const ticket = ++generation.current;
     try {
-      const next = await json<AppData>("/api/data");
-      if (request !== generation.current) return;
-      setData(next);
-      setReady(true);
-      setError(null);
-    } catch (err) {
-      if (request === generation.current) setError(err instanceof Error ? err.message : "Could not load shared records.");
+      const next = await api<AppData>("/api/data");
+      if (ticket === generation.current) {
+        setData(next);
+        setReady(true);
+        setError(null);
+      }
+    } catch (e) {
+      if (ticket === generation.current) {
+        setData({ records: [], questions: [] });
+        setReady(false);
+        setError(e instanceof Error ? e.message : "Could not load records.");
+      }
     }
   }, []);
-
   useEffect(() => {
-    const version = generation;
-    // refresh updates state only after its network request resolves.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refresh();
-    const onFocus = () => { if (document.visibilityState === "visible") void refresh(); };
-    const timer = window.setInterval(onFocus, 15_000);
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onFocus);
+    const stateGuard = generation;
+    void Promise.resolve().then(refresh);
+    const focus = () => {
+      void refresh();
+    };
+    const logout = (e: StorageEvent) => {
+      if (e.key === "fsa.session-event") {
+        setData({ records: [], questions: [] });
+        window.location.replace("/sign-in");
+      }
+    };
+    const interval = setInterval(focus, 15000);
+    window.addEventListener("focus", focus);
+    window.addEventListener("storage", logout);
     return () => {
-      ++version.current;
-      window.clearInterval(timer);
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onFocus);
+      stateGuard.current++;
+      clearInterval(interval);
+      window.removeEventListener("focus", focus);
+      window.removeEventListener("storage", logout);
     };
   }, [refresh]);
-
-  const addRecords = useCallback(async (items: NewIncident[], requestId: string) => {
-    ++pending.current;
-    ++generation.current;
-    setSaving(true);
-    try {
-      const result = await json<{ records: IncidentRecord[] }>("/api/records", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ records: items, requestId }),
+  const addRecords = useCallback(
+    async (items: NewIncident[], requestId = crypto.randomUUID()) => {
+      const result = await api<{ ids: string[] }>("/api/records", {
+        method: "POST",
+        body: JSON.stringify({ records: items, requestId }),
       });
-      setData(old => {
-        const ids = new Set(result.records.map(r => r.id));
-        return { ...old, records: [...result.records, ...old.records.filter(r => !ids.has(r.id))] };
+      await refresh();
+      return result.ids;
+    },
+    [refresh],
+  );
+  const setStatus = useCallback(
+    async (id: string, status: Status) => {
+      const record = data.records.find((r) => r.id === id);
+      await api(`/api/records/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status, expectedUpdatedAt: record?.updatedAt }),
       });
-      return result.records.map(r => r.id);
-    } finally {
-      --pending.current;
-      ++generation.current;
-      setSaving(pending.current > 0);
-    }
-  }, []);
-
-  const setStatus = useCallback(async (id: string, status: Status) => {
-    ++pending.current;
-    ++generation.current;
-    setSaving(true);
-    try {
-      const result = await json<{ record: IncidentRecord }>(`/api/records/${encodeURIComponent(id)}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }),
-      });
-      setData(old => ({ ...old, records: old.records.map(r => r.id === id ? result.record : r) }));
-    } finally {
-      --pending.current;
-      ++generation.current;
-      setSaving(pending.current > 0);
-    }
-  }, []);
-
-  const records = [...data.records].sort((a, b) => b.eventDate.localeCompare(a.eventDate) || b.id.localeCompare(a.id, undefined, { numeric: true }));
-  return { ready, error, saving, refresh, records, questions: data.questions, addRecords, setStatus };
+      await refresh();
+    },
+    [data.records, refresh],
+  );
+  const importRecords = useCallback(
+    async (items: NewIncident[], allowDuplicates = false) => {
+      const payload = JSON.stringify({ records: items, allowDuplicates });
+      if (pendingImport.current?.payload !== payload)
+        pendingImport.current = { payload, id: crypto.randomUUID() };
+      const result = await api<{ ids: string[]; duplicateCount: number }>(
+        "/api/import",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            records: items,
+            allowDuplicates,
+            requestId: pendingImport.current.id,
+          }),
+        },
+      );
+      pendingImport.current = null;
+      await refresh();
+      return result;
+    },
+    [refresh],
+  );
+  return {
+    ready,
+    error,
+    records: data.records,
+    questions: data.questions,
+    refresh,
+    addRecords,
+    setStatus,
+    importRecords,
+  };
 }

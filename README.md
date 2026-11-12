@@ -1,98 +1,138 @@
 # Facilities Safety Desk
 
-Team A's fictional-data class project. Reports, status changes and assistant question statistics now use shared PostgreSQL storage. The document corpus and assistant search behavior are unchanged. Sign-in and role enforcement are still separate proposed work; use synthetic records only.
+Team A's class project for MSAI 5563 AI Studio I. A facilities department uses it to report incidents and near misses, review them, and look up safety rules with citations. All data in the app is fictional.
 
-## Connect the team database (Vercel project owner)
+Production: https://facilities-safety-desk.vercel.app
 
-1. In Catherine's **facilities-safety-desk** Vercel project, open **Storage** and create/connect **Neon Postgres** using an available free plan. Keep it in the account that owns the team app; do not connect an unrelated project's database.
-2. Connect Production and Preview. Enable a separate database branch for previews, or connect a separate development database. Preview tests must not write into production. The integration supplies server-side `DATABASE_URL` and `DATABASE_URL_UNPOOLED`. Do not put either value in GitHub, Drive, browser code, or a `NEXT_PUBLIC_` variable.
-3. Redeploy this branch's preview. `vercel.json` runs `npm run db:setup && npm run build`: versioned SQL migrations, then one-time demo seeding. It fails if the database is unavailable. Rerunning it preserves reports, statuses, question logs and the original seed dates.
-4. In the preview, submit a synthetic report in one browser and find it in a second browser. Change its status and refresh the first. Check a CSV containing one valid and one invalid row, and the three report views. After team review/approval, merge through the existing PR workflow and repeat the shared-record check on production.
+## What the app does
 
-See [Neon's Vercel integration guide](https://neon.com/docs/guides/vercel-managed-integration). No paid plan is required by this code; review the plan offered during provisioning.
+| Area | What it does |
+| --- | --- |
+| Sign-in | Email and password for approved accounts only. No public sign-up. An authenticator app option (MFA) is built but switched off in this version. |
+| New report | A guided incident form with the validation rules from `docs/spec.md`. |
+| Incident register | Search, filter, export to CSV, and change a report's status. |
+| Safety insights | Charts and tables over the reports, plus assistant question statistics. |
+| Import incidents | CSV upload with a preview, row-level errors and duplicate detection. |
+| Source library | The documents the assistant may cite. Administrators upload, activate and retire versions. |
+| Safety assistant | Answers from the active sources only, with the passage and citation shown. |
+| Team access | Administrators create accounts, change roles, disable accounts and issue recovery links. |
 
-## Local database and checks
+## Roles
 
-Requires Node.js 20.9 or newer. This repository includes a development-only PostgreSQL launcher; it binds to loopback and needs no Docker service.
+| Capability | Employee | Safety manager / admin |
+| --- | --- | --- |
+| Sign in, change own password | Yes | Yes |
+| Submit a report and use the assistant | Yes | Yes |
+| Read and export reports | Own reports only | All reports |
+| Change a report's status | No | Yes |
+| Import CSV, view insights and question statistics | No | Yes |
+| Manage sources and accounts, view the audit log | No | Yes |
+
+MFA is switched off. The option does not appear, and it cannot be turned on from the app. It stays off as long as the setting `AUTH_MFA_ENABLED` is not added, and the deployment guide says not to add it. Plain sign-in comes first, as discussed in class on November 5.
+
+The server enforces these rules on every request. The role names follow the team survey and still need team agreement.
+
+## Run it on your computer
+
+You need Git and Node.js 24, the version this was verified on. Install Node.js 24 from nodejs.org (pick the 24 line, not the newest) and check with `node -v` that it starts with `v24`. On Windows, leave "Tools for native modules" unticked. No database install is needed; the launcher starts its own.
+
+Type the commands in a terminal: PowerShell or Command Prompt on Windows, Terminal on a Mac. On Windows, use a normal terminal, not "Run as administrator": PostgreSQL refuses to start under an administrator account. If PowerShell says "running scripts is disabled", type `npm.cmd` instead of `npm` (for example `npm.cmd ci`), or use Command Prompt.
+
+The first time, get a copy of the repository:
+
+```powershell
+git clone https://github.com/cecavin42/facilities-safety-desk.git
+cd facilities-safety-desk
+```
+
+If you already have a copy, use it: open a new terminal in that folder and run `git fetch` first.
+
+To run a pull request that is not merged yet, run `git checkout <its branch name>` before `npm ci`. Then, inside the folder:
 
 ```powershell
 npm ci
-npm run db:local
+npm run auth:local
 ```
 
-In a second terminal, use the deliberately non-secret **local-only** demo connection:
+The first time, `npm ci` takes about 3 to 6 minutes and `npm run auth:local` about 2 to 5 minutes, because it builds the app. Wait until the terminal shows "Ready", then open exactly http://127.0.0.1:3103 (with `localhost` the page loads but sign-in is refused).
 
-```powershell
-$env:DATABASE_URL = 'postgresql://postgres:local-demo-only@127.0.0.1:54330/postgres'
-npm run dev
-```
+The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
 
-The database files stay in ignored `.test-db/local`. Ctrl+C stops the local database without deleting them. For a hosted development database, supply its private connection through your environment instead. `DATABASE_URL_UNPOOLED`, when set, is used for migrations; the app uses the pooled `DATABASE_URL`.
+- The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. The folder is hidden in Finder and Explorer, so open a second terminal in the same folder and type `cat .local/review-accounts.json`. The entry with `"role": "admin"` is the Safety manager / admin; the two with `"role": "user"` are Employees. Copy a password without the quotation marks.
+- To switch accounts, sign out with the icon next to your name at the bottom of the left menu (behind the ☰ button in a narrow window), then sign in again.
+- Turn off your browser's page translation while comparing exact labels and messages.
+- The local settings are in `.env.local`.
+- Both are ignored by Git, along with `.test-db/`. Do not share or commit them.
 
-```powershell
-npm run lint
-npm run test:db
-npm run test:unit
-npm run test:ui
-npm run build
-# With the local production app running on port 3100:
-npm run test:api
-```
+## Checks
 
-`test:db` starts an isolated real PostgreSQL instance and checks independent connections, concurrent IDs, duplicate-request handling, rollback, idempotent migrations/seeds, and request boundaries. `test:api` writes synthetic records only to a localhost app. The `db:migrate`, `db:seed`, and `db:setup` commands can also be run separately with the appropriate environment.
+These need nothing running:
 
-## Report-form UI proposal
+| Command | What it covers | Result on this version |
+| --- | --- | --- |
+| `npm run lint` | ESLint | Pass |
+| `npx tsc --noEmit` | TypeScript | Pass |
+| `npm run build` | Production build | Pass |
+| `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
+| `npm run test:assistant` | Assistant answers and citations | 40 of 40 |
+| `npm run test:catalog` | Source catalog and frozen challenge cases | 23 of 23 |
+| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 2 of 2 |
+| `npm run test:client` | Browser API client | 1 of 1 |
+| `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
+| `npm run eval:assistant` | 31 development questions, answered by the assistant code directly | 31 of 31 (the earlier search passed 14) |
 
-This draft integrates the report-form proposal from PR #4 with the shared Postgres save adapter. PR #4 remains independently reviewable on the current browser-local app; this branch verifies the same form with shared storage. The interface groups fields, links errors to controls and shows a confirmed saved-record summary. Both proposals still require team review before production merge.
+These need `npm run auth:local` running in another terminal. Run them one at a time:
 
-## Data behavior
+| Command | What it covers | Result on this version |
+| --- | --- | --- |
+| `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
+| `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
+| `npm run test:sources` | Upload, activate and retire source versions | 6 of 6 |
+| `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
+| `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-- CSV previews reject malformed quotes, duplicate headers and inconsistent column counts; blank rows retain their original error row numbers. Oversized JSON batches are caught before submission, and replacing a selected file cannot import the previous preview.
-- Form and CSV writes are confirmed by the server before showing success. The server applies the same validation as the browser, generates IDs and dates, and initializes status to Open. Confirmed batches are atomic; a retry with the same request ID returns the original records.
-- Records/reports refresh on focus and every 15 seconds. Failed saves retain the form/import; failed reads show an error instead of silently falling back to browser storage.
-- The original 150 incident records and 80 example questions are inserted once. There is no public reset endpoint or reset button that could erase another teammate's data.
-- Previous browser records remain untouched. **Records → Reports saved in the previous browser demo → Export previous browser reports** downloads them. Review that CSV through **Upload CSV** before importing. Imports receive new IDs and Open status; the export preserves the old metadata. Old browser question history remains in the original browser storage.
-- The app's existing public demo access is unchanged. CSRF checks are not user authentication. Real personnel/incident data must wait for approved sign-in and access controls.
+The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
 
-## Current verification (Nov 3, 2026)
+## Deploying
 
-AI-assisted implementation by Codex at Forrest's direction. Seven local PostgreSQL integration checks, lint, production build and HTTP checks passed. In two Chrome profiles, a form-created report appeared in both, and a status change was visible across profiles. Follow-up checks in the ChatGPT browser verified CSV rejection/import, exported row contents, all three report views, fresh example-query logging, persistence across restart, and an import retry after a database outage. The Vercel setup-and-build command also passed against local PostgreSQL. Evidence screenshots are in the local ignored `test-results` folder.
+The Vercel project owner follows [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). It lists the settings to add in Vercel, how the deployment creates the first administrator, what happens to existing data, and how to roll back. None of it needs a terminal.
 
-Hosted Neon provisioning and Vercel deployment are not complete: Forrest's signed-in Vercel account could not access Catherine's project, and the ChatGPT browser reached the Vercel login page. The PR's Vercel preview has failed; its private build logs are unavailable to this account.
+## Reviewing a pull request
 
-Next action: Catherine connects Neon to the team's Vercel project with isolated preview storage, then redeploys this PR preview. Repeat the shared-record and CSV checks on that hosted preview and obtain team review before merging. No student hours, review or approval are implied by these checks.
+By default a Vercel preview shows the sign-in page but refuses to sign in, because it shares the live database and unreviewed code must not accept live passwords. Check such a pull request on a computer as described under "Run it on your computer", or merge it and check the live site with Instant Rollback ready. With the optional setup in `docs/DEPLOYMENT.md`, "Previews that can sign in", every preview gets its own copy of the database and a test administrator, and can be opened from Deployments and clicked through the way the instructor showed.
 
-## Getting Started
+Merge one pull request at a time and check the live site before merging the next. Vercel's free plan can only roll back one step.
 
-First, run the development server:
+## The assistant and AI models
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+On Vercel the assistant uses no AI model. It matches the question to the active sources and answers from prepared, cited guidance. An optional local model can help interpret questions when the app runs on a computer that has Ollama and the setting `ASSISTANT_OLLAMA_MODEL`. Leave that setting off on Vercel, because the model address is local.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| File | Contents |
+| --- | --- |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Settings, first administrator, checks after deploy, rollback |
+| [docs/README.md](docs/README.md) | How the team works: roles, branch workflow, links |
+| [docs/spec.md](docs/spec.md) | The specification |
+| [docs/AUTH_REVIEW.md](docs/AUTH_REVIEW.md) | Sign-in and access rules in detail |
+| [docs/READINESS_REVIEW.md](docs/READINESS_REVIEW.md) | MFA, recovery, source library, backup and restore |
+| [docs/ASSISTANT_REVIEW.md](docs/ASSISTANT_REVIEW.md) | How the assistant answers and how it was evaluated |
+| [docs/APP_REVIEW.md](docs/APP_REVIEW.md) | Form, register, import and insights workflows |
+| [docs/DESIGN_REVIEW.md](docs/DESIGN_REVIEW.md) | Visual design and asset credits |
+| [docs/live-test-report-2026-11-04.md](docs/live-test-report-2026-11-04.md) | Kai's manual test of the earlier production version |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The five review files were written on November 3 for separate draft pull requests. Each has a note at the top saying so.
 
-## Learn More
+## Not included
 
-To learn more about Next.js, take a look at the following resources:
+- University single sign-on, and email for invitations or password resets. An administrator shares an initial password or a recovery link privately.
+- A hosted AI model.
+- An automatic consistency check on uploaded source documents, which the instructor suggested on November 5. For now an upload stays a draft until an administrator has reviewed and activated it, and a file that is already a version of the same source is refused.
+- MFA for users. The code is present but switched off.
+- Scheduled or off-site backups. `npm run backup` is a manual tool.
+- Hazardous-materials content and a staff directory, which the instructor asked about on October 29.
+- Real Lipscomb policies. The sources are federal, Tennessee and UT Knoxville reference documents.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Credits
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Implementation was AI-assisted (OpenAI Codex and Claude Code) at Forrest Wright's direction. The first draft of the app is by Catherine Cavin. The live test report is by Zhu Lan (Kai).

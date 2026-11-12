@@ -1,4 +1,5 @@
 import type { IncidentRecord } from "./options";
+import { readAdded } from "./browser-data";
 
 type NewIncident = Omit<IncidentRecord, "id" | "createdAt" | "status">;
 type ReportStorage = Pick<Storage, "getItem" | "setItem">;
@@ -12,21 +13,27 @@ export function newRecordId(existing: IncidentRecord[]): string {
   return `R-${String(max + 1).padStart(4, "0")}`;
 }
 
-export function appendLocalRecords(storage: ReportStorage, items: NewIncident[], createdAt = new Date().toISOString().slice(0, 10)) {
-  let previous: unknown;
-  try { previous = JSON.parse(storage.getItem(KEY) ?? "[]"); }
-  catch { throw new Error("Could not read saved reports in this browser. Your report has not been saved. Keep your entries and check browser storage access."); }
-  if (!Array.isArray(previous) || previous.some(r => !r || typeof r.id !== "string")) {
-    throw new Error("The existing browser records could not be read safely. Your report has not been saved. Keep your entries and ask the team for help.");
-  }
-  const records = [...previous] as IncidentRecord[];
+export function appendLocalRecords(
+  storage: ReportStorage,
+  items: NewIncident[],
+  createdAt = new Date().toISOString().slice(0, 10),
+) {
+  const previous = readAdded(storage);
+  const records = [...previous];
   const ids: string[] = [];
-  for (const item of items) {
-    const id = newRecordId(records);
+  const firstNumber = Number(newRecordId(records).slice(2));
+  const additions = items.map((item, index) => {
+    const id = `R-${String(firstNumber + index).padStart(4, "0")}`;
     ids.push(id);
-    records.unshift({ ...item, id, createdAt, status: "Open" });
+    return { ...item, id, createdAt, status: "Open" as const };
+  });
+  records.unshift(...additions.reverse());
+  try {
+    storage.setItem(KEY, JSON.stringify(records));
+  } catch {
+    throw new Error(
+      "This browser could not save the report. Your entries are still here. Check available storage or try another browser, then save again.",
+    );
   }
-  try { storage.setItem(KEY, JSON.stringify(records)); }
-  catch { throw new Error("This browser could not save the report. Your entries are still here. Check available storage or try another browser, then save again."); }
   return { records, ids };
 }

@@ -1,16 +1,41 @@
-import { database } from "@/lib/database";
-import { changeStatus } from "@/lib/db/repository";
-import { failure, isObject, readJson, RequestError } from "@/lib/api";
+import {
+  requireUser,
+  readBody,
+  json,
+  failure,
+  HttpError,
+} from "@/lib/server-access";
+import { scopedRecord, updateStatus } from "@/lib/authorized-data";
 import { STATUSES, type Status } from "@/lib/options";
-
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+type Context = { params: Promise<{ id: string }> };
+export async function GET(request: Request, context: Context) {
   try {
-    const { id } = await context.params;
-    if (!/^[RS]-\d{1,20}$/.test(id)) throw new RequestError("Invalid record ID.");
-    const body = await readJson(request);
-    if (!isObject(body) || !STATUSES.includes(body.status as Status)) throw new RequestError("Invalid status.");
-    const record = await changeStatus(database(), id, body.status as Status);
-    if (!record) throw new RequestError("Record not found.", 404);
-    return Response.json({ record });
-  } catch (error) { return failure(error); }
+    return json(
+      await scopedRecord(await requireUser(request), (await context.params).id),
+    );
+  } catch (error) {
+    return failure(error);
+  }
+}
+export async function PATCH(request: Request, context: Context) {
+  try {
+    const user = await requireUser(request, true);
+    const body = await readBody(request, 2048);
+    if (
+      !STATUSES.includes(body.status as Status) ||
+      typeof body.expectedUpdatedAt !== "string" ||
+      !Number.isFinite(Date.parse(body.expectedUpdatedAt))
+    )
+      throw new HttpError("A status and current report version are required.");
+    return json(
+      await updateStatus(
+        user,
+        (await context.params).id,
+        body.status as Status,
+        body.expectedUpdatedAt,
+      ),
+    );
+  } catch (error) {
+    return failure(error);
+  }
 }

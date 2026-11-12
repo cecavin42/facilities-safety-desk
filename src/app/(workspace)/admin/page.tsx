@@ -1,0 +1,416 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { api } from "@/lib/client-api";
+import { useCurrentUser } from "@/components/SessionUser";
+import { Plus, X, ShieldCheck } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
+const actionLabels: Record<string, string> = {
+  "source.draft_created": "Source draft uploaded",
+  "source.activated": "Source version activated",
+  "source.retired": "Source version retired",
+  "account.mfa_enabled": "Authenticator enabled",
+  "account.mfa_disabled": "Authenticator disabled",
+  "account.recovery_issued": "Recovery link issued",
+  "account.password_recovered": "Password recovered",
+  "report.created": "Report created",
+  "report.status_changed": "Report status updated",
+  "reports.imported": "Reports imported",
+  "account.created": "Account created",
+  "account.access_changed": "Account access changed",
+};
+// Catherine's suggestion in the team notes: Lipscomb addresses are Safety
+// managers, personal addresses are Employees. The form suggests the role; the
+// administrator decides.
+const ADMIN_EMAIL_DOMAINS = ["mail.lipscomb.edu", "lipscomb.edu"];
+function suggestRole(email: string) {
+  const domain = email.trim().toLowerCase().split("@")[1] ?? "";
+  return ADMIN_EMAIL_DOMAINS.includes(domain) ? "admin" : "user";
+}
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  banned: boolean;
+};
+type Audit = {
+  id: string;
+  actor: string;
+  action: string;
+  targetId: string | null;
+  occurredAt: string;
+};
+export default function AdminPage() {
+  const actor = useCurrentUser();
+  const recoveryDialog = useRef<HTMLDialogElement>(null);
+  const [recovery, setRecovery] = useState<{
+    url: string;
+    expiresAt: string;
+    name: string;
+  } | null>(null);
+  const accountDialog = useRef<HTMLDialogElement>(null);
+  const [visibleAudit, setVisibleAudit] = useState(6);
+  const [users, setUsers] = useState<User[]>([]);
+  const [showDisabled, setShowDisabled] = useState(false);
+  const [audit, setAudit] = useState<Audit[]>([]);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [role, setRole] = useState("user");
+  const [roleTouched, setRoleTouched] = useState(false);
+  async function load() {
+    try {
+      const [u, a] = await Promise.all([
+        api<User[]>("/api/admin/users"),
+        api<Audit[]>("/api/admin/audit"),
+      ]);
+      setUsers(u);
+      setAudit(a);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load accounts.");
+    }
+  }
+  useEffect(() => {
+    void Promise.resolve().then(load);
+  }, []);
+  async function create(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await api("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(data)),
+      });
+      form.reset();
+      setRole("user");
+      setRoleTouched(false);
+      accountDialog.current?.close();
+      setMessage(
+        "Account created. Share the initial password privately with the approved person.",
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Account was not created.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function recoveryLink(id: string, name: string) {
+    setBusy(true);
+    setError("");
+    try {
+      const result = await api<{ url: string; expiresAt: string }>(
+        `/api/admin/users/${id}/recovery`,
+        { method: "POST", body: "{}" },
+      );
+      setRecovery({ ...result, name });
+      requestAnimationFrame(() => recoveryDialog.current?.showModal());
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Recovery link could not be issued.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function access(event: React.FormEvent<HTMLFormElement>, id: string) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/api/admin/users/${encodeURIComponent(id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          role: data.get("role"),
+          active: data.get("active") === "on",
+        }),
+      });
+      setMessage(
+        "Access updated. Existing sessions for that account have ended.",
+      );
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Access change was not saved.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="space-y-6 team-access-page">
+      <PageHeader
+        eyebrow="Access management"
+        title="Team access"
+        description="Manage approved accounts, roles, and access to the facilities workspace."
+      >
+        <button
+          className="btn-primary"
+          onClick={() => {
+            setError("");
+            accountDialog.current?.showModal();
+          }}
+        >
+          <Plus size={15} />
+          Add account
+        </button>
+      </PageHeader>
+      <dialog
+        ref={recoveryDialog}
+        className="account-dialog"
+        aria-label="One-time recovery link"
+        onClose={() => setRecovery(null)}
+      >
+        <h2 className="text-xl font-semibold">Recovery for {recovery?.name}</h2>
+        <p className="mt-3 text-sm leading-7">
+          Verify the person before sharing this link privately. It expires in 30
+          minutes and works once. No email has been sent.
+        </p>
+        <label className="mt-4 block text-sm">
+          One-time recovery link
+          <input
+            className="control mt-2"
+            readOnly
+            value={recovery?.url || ""}
+          />
+        </label>
+        <p className="mt-3 text-xs text-slate-500">
+          A password reset does not change any other sign-in protection on the account.
+        </p>
+        <button
+          className="btn-secondary mt-5"
+          onClick={() => recoveryDialog.current?.close()}
+        >
+          Close and hide link
+        </button>
+      </dialog>
+      {error && (
+        <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">
+          {error}
+        </p>
+      )}
+      {message && (
+        <p role="status" className="rounded-lg bg-teal-50 p-4 text-teal-900">
+          {message}
+        </p>
+      )}
+      <div className="access-callout">
+        <ShieldCheck size={18} />
+        <div>
+          <strong>Access follows the role.</strong>
+          <p>
+            Employees see their own reports. Safety managers manage the shared
+            register. Access changes end the affected account&apos;s sessions.
+          </p>
+        </div>
+      </div>
+      <dialog
+        ref={accountDialog}
+        className="account-dialog"
+        aria-labelledby="account-dialog-title"
+        onCancel={(e) => {
+          if (busy) e.preventDefault();
+        }}
+      >
+        <div className="dialog-heading">
+          <div>
+            <p className="section-kicker">APPROVED ACCESS</p>
+            <h2 id="account-dialog-title">Create an approved account</h2>
+          </div>
+          <button
+            className="icon-button"
+            aria-label="Close account form"
+            disabled={busy}
+            onClick={() => accountDialog.current?.close()}
+          >
+            <X size={19} />
+          </button>
+        </div>
+        {error && (
+          <p role="alert" className="signin-error">
+            {error}
+          </p>
+        )}
+        <form onSubmit={create} className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="text-sm font-semibold">
+            Name
+            <input
+              className="control mt-2"
+              name="name"
+              required
+              minLength={2}
+              maxLength={80}
+            />
+          </label>
+          <label className="text-sm font-semibold">
+            Email
+            <input
+              className="control mt-2"
+              name="email"
+              type="email"
+              required
+              onChange={(e) => {
+                if (!roleTouched) setRole(suggestRole(e.target.value));
+              }}
+            />
+          </label>
+          <label className="text-sm font-semibold">
+            Initial password
+            <input
+              className="control mt-2"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={15}
+              maxLength={128}
+            />
+          </label>
+          <label className="text-sm font-semibold">
+            Role
+            <select
+              className="control mt-2"
+              name="role"
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value);
+                setRoleTouched(true);
+              }}
+            >
+              <option value="user">Employee</option>
+              <option value="admin">Safety manager / admin</option>
+            </select>
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Suggested from the email address: Lipscomb addresses as Safety
+              manager / admin, other addresses as Employee. Change it if needed.
+            </span>
+          </label>
+          <button className="btn-primary" disabled={busy}>
+            Create account
+          </button>
+        </form>
+        <p className="mt-4 text-xs text-slate-500">
+          Passwords require at least 15 characters. No invitation email is sent
+          by this prototype. Account management requires a sign-in from the last
+          15 minutes.
+        </p>
+      </dialog>
+      <section className="member-section">
+        <div className="member-section-heading">
+          <h2>
+            Team members <span>{users.length}</span>
+          </h2>
+          <small>{users.filter((u) => !u.banned).length} active accounts</small>
+        </div>
+        <label className="flex min-h-11 items-center gap-2 px-5 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={showDisabled}
+            onChange={(e) => setShowDisabled(e.target.checked)}
+          />
+          Show disabled accounts ({users.filter((u) => u.banned).length})
+        </label>
+        {users
+          .filter((u) => showDisabled || !u.banned)
+          .map((user) => (
+            <form
+              onSubmit={(event) => void access(event, user.id)}
+              key={user.id}
+              className="member-row"
+            >
+              <span className="member-avatar">
+                {user.name
+                  .split(/\s+/)
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")}
+              </span>
+              <div className="member-identity">
+                <p className="font-semibold">
+                  {user.name}
+                  {user.id === actor.id ? " (you)" : ""}
+                </p>
+                <p className="break-all text-sm text-slate-500">{user.email}</p>
+              </div>
+              <span
+                className={`member-state ${user.banned ? "member-disabled" : ""}`}
+              >
+                {user.banned ? "Disabled" : "Active"}
+              </span>
+              <label className="member-role">
+                <span className="sr-only">Role for {user.name}</span>
+                <select
+                  name="role"
+                  className="control mt-1"
+                  defaultValue={user.role}
+                  disabled={busy || user.id === actor.id}
+                >
+                  <option value="user">Employee</option>
+                  <option value="admin">Safety manager / admin</option>
+                </select>
+              </label>
+              <label className="member-enable">
+                <input
+                  name="active"
+                  type="checkbox"
+                  defaultChecked={!user.banned}
+                  disabled={busy || user.id === actor.id}
+                />
+                Active
+              </label>
+              <button
+                className="btn-secondary member-save"
+                aria-label={`Save access for ${user.name}`}
+                disabled={busy || user.id === actor.id}
+              >
+                Save access
+              </button>
+              <button
+                type="button"
+                className="text-action"
+                disabled={busy || user.banned || user.id === actor.id}
+                onClick={() => void recoveryLink(user.id, user.name)}
+              >
+                Issue recovery link
+              </button>
+            </form>
+          ))}
+      </section>
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 className="text-xl font-semibold">
+          Recent security and record activity
+        </h2>
+        <ul className="mt-4 divide-y">
+          {audit.slice(0, visibleAudit).map((item) => (
+            <li className="py-3 text-sm" key={item.id}>
+              <p className="font-medium">
+                {actionLabels[item.action] || item.action} ·{" "}
+                {item.actor || "System"}
+              </p>
+              <p className="mt-1 break-all text-xs text-slate-500">
+                {new Date(item.occurredAt).toLocaleString()}
+                {item.targetId ? ` · ${item.targetId}` : ""}
+              </p>
+            </li>
+          ))}
+        </ul>
+        {visibleAudit < audit.length && (
+          <button
+            className="text-action audit-more"
+            onClick={() => setVisibleAudit((n) => n + 10)}
+          >
+            Show more activity
+          </button>
+        )}
+        {!audit.length && (
+          <p className="mt-3 text-sm text-slate-500">
+            No recorded changes yet.
+          </p>
+        )}
+      </section>
+    </div>
+  );
+}
