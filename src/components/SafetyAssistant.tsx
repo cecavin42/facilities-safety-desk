@@ -2,17 +2,12 @@
 
 import { useRef, useState } from "react";
 import type { AssistantAnswer } from "@/lib/assistant/answer";
+import { BUNDLED_EXAMPLES, OWN_DOCUMENT_EXAMPLES } from "@/lib/assistant/examples";
 
 type Source = { id: string; title: string; dated: string; url: string };
 type Turn = { id: number; question: string; result?: AssistantAnswer; error?: string };
-const EXAMPLES = [
-  { title: "Inspect equipment", question: "How often does a forklift used around the clock need inspection?" },
-  { title: "Report a near miss", question: "Who do I report a near miss to, and could I get in trouble for it?" },
-  { title: "Check a reporting deadline", question: "Does hospitalization only for observation have to be reported to TOSHA?" },
-  { title: "Understand training", question: "I had a near miss on the forklift. Do I need retraining?" },
-];
-
-export default function SafetyAssistant({ sources }: { sources: Source[] }) {
+export default function SafetyAssistant({ sources, ownDocuments = false }: { sources: Source[]; ownDocuments?: boolean }) {
+  const examples = ownDocuments ? OWN_DOCUMENT_EXAMPLES : BUNDLED_EXAMPLES;
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -62,7 +57,7 @@ export default function SafetyAssistant({ sources }: { sources: Source[] }) {
     <header className="max-w-3xl">
       <p className="text-xs font-bold uppercase tracking-widest text-teal-800">Safety knowledge desk</p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Safety assistant</h1>
-      <p className="mt-3 text-base leading-7 text-slate-600">Ask about forklift safety, incident reporting, or near misses. Each response separates what the documents support from what still needs checking.</p>
+      <p className="mt-3 text-base leading-7 text-slate-600">Ask what the safety documents in the Source library say. Each response separates what the documents support from what still needs checking.</p>
     </header>
 
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -82,7 +77,7 @@ export default function SafetyAssistant({ sources }: { sources: Source[] }) {
         <p role="status" aria-live="polite" className="text-sm text-slate-600">{status}</p>
 
         {turns.length === 0 && <section aria-label="Example questions" className="grid gap-3 sm:grid-cols-2">
-          {EXAMPLES.map(example => <button key={example.title} disabled={busy} onClick={() => void send(example.question)} className="min-h-28 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:opacity-50"><span className="block text-sm font-semibold text-teal-800">{example.title} <span aria-hidden="true">↗</span></span><span className="mt-2 block text-sm leading-6 text-slate-600">{example.question}</span></button>)}
+          {examples.map(example => <button key={example.title} disabled={busy} onClick={() => void send(example.question)} className="min-h-28 rounded-xl border border-slate-200 bg-white p-4 text-left hover:border-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:opacity-50"><span className="block text-sm font-semibold text-teal-800">{example.title} <span aria-hidden="true">↗</span></span><span className="mt-2 block text-sm leading-6 text-slate-600">{example.question}</span></button>)}
         </section>}
 
         {turns.length > 0 && <div className="flex items-center justify-between gap-4"><h2 ref={resultHeading} tabIndex={-1} className="text-xl font-semibold outline-none">Your source checks</h2><button disabled={busy} type="button" onClick={() => { setTurns([]); setStatus("Conversation cleared from this page."); input.current?.focus(); }} className="min-h-11 rounded px-2 text-sm text-slate-600 underline focus-visible:outline-2">Clear conversation</button></div>}

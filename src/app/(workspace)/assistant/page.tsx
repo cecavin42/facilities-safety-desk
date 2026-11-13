@@ -8,6 +8,7 @@ async function AssistantView() {
   const catalog = await activeCatalog();
   return (
     <SafetyAssistant
+      ownDocuments={catalog.documents.some((d) => d.origin === "upload")}
       sources={catalog.documents.map(({ id, title, dated, url }) => ({
         id,
         title,

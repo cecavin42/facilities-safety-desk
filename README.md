@@ -74,9 +74,9 @@ These need nothing running:
 | `npx tsc --noEmit` | TypeScript | Pass |
 | `npm run build` | Production build | Pass |
 | `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
-| `npm run test:assistant` | Assistant answers and citations | 40 of 40 |
-| `npm run test:catalog` | Source catalog and frozen challenge cases | 23 of 23 |
-| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 2 of 2 |
+| `npm run test:assistant` | Assistant answers, citations and the example questions | 42 of 42 |
+| `npm run test:catalog` | Source catalog and frozen challenge cases | 24 of 24 |
+| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 3 of 3 |
 | `npm run test:client` | Browser API client | 1 of 1 |
 | `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
 | `npm run eval:assistant` | 31 development questions, answered by the assistant code directly | 31 of 31 (the earlier search passed 14) |
@@ -87,11 +87,11 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | --- | --- | --- |
 | `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
 | `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
-| `npm run test:sources` | Upload, activate and retire source versions | 6 of 6 |
+| `npm run test:sources` | Upload, activate and retire source versions, and keep the uploaded file | 7 of 7 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
+The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant, catalog, sign-in configuration, source and access checks were run again on November 12, 2026, after the University of Tennessee documents were retired. The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 

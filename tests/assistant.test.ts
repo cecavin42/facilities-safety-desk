@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { answerFromTopics, evidenceFor } from "../src/lib/assistant/answer";
+import { answerFromTopics, evidenceFor, scopeGap } from "../src/lib/assistant/answer";
 import { PASSAGES, TOPICS } from "../src/lib/assistant/topics";
 import { parseRouting } from "../src/lib/assistant/model-protocol";
 import { CASES } from "./assistant-cases";
+import { BUNDLED_EXAMPLES, OWN_DOCUMENT_EXAMPLES } from "../src/lib/assistant/examples";
 for (const c of CASES) test(c.id, () => {
   const result = answerFromTopics(c.question);
   assert.equal(result.answered, c.supported, result.message);
@@ -34,4 +35,16 @@ test("training record retention is not confused with incident record retention",
 test("model cannot introduce invented sources, claims, duplicate topics or malformed routing", () => {
   for (const value of ["{}", "null", '{"topicIds":["invented"],"fullyCovered":true}', '{"topicIds":["inspection","inspection"],"fullyCovered":true}', '{"topicIds":[],"fullyCovered":"true"}', '{"topicIds":[],"fullyCovered":true,"answer":"fabricated"}']) assert.throws(() => parseRouting(value));
   assert.deepEqual(parseRouting('{"topicIds":["inspection"],"fullyCovered":true}'), { topicIds: ["inspection"], fullyCovered: true });
+});
+test("every example shown on a new installation is answered from the bundled documents", () => {
+  for (const example of BUNDLED_EXAMPLES) {
+    const result = answerFromTopics(example.question);
+    assert.equal(result.answered, true, example.question);
+    assert.ok(result.evidence.length > 0, example.question);
+  }
+});
+test("no example question is declined by a scope rule, with or without uploaded documents", () => {
+  for (const example of [...BUNDLED_EXAMPLES, ...OWN_DOCUMENT_EXAMPLES])
+    for (const custom of [false, true])
+      assert.equal(scopeGap(example.question, custom), undefined, example.question);
 });
