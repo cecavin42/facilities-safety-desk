@@ -75,7 +75,8 @@ These need nothing running:
 | `npm run build` | Production build | Pass |
 | `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
 | `npm run test:assistant` | Assistant answers, citations and the example questions | 42 of 42 |
-| `npm run test:catalog` | Source catalog and frozen challenge cases | 24 of 24 |
+| `npm run test:claude` | AI-written answers: settings, the request, and the checks on every answer, with a stand-in for the model | 24 of 24 |
+| `npm run test:catalog` | Source catalog and frozen challenge cases | 26 of 26 |
 | `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 3 of 3 |
 | `npm run test:client` | Browser API client | 1 of 1 |
 | `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
@@ -88,10 +89,11 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
 | `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
 | `npm run test:sources` | Upload, activate and retire source versions, and keep the uploaded file | 7 of 7 |
+| `npm run test:claude-path` | AI-written answers through sign-in and the database, with the stand-in in place of the Claude API. Needs the app started with the three settings named at the top of `scripts/check-assistant-claude.ts` | 9 of 9 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant, catalog, sign-in configuration, source and access checks were run again on November 12, 2026, after the University of Tennessee documents were retired. The assistant cases were written during development, so they are not an independent accuracy estimate.
+The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant, catalog, sign-in configuration, source and access checks were run again on November 12, 2026, after the University of Tennessee documents were retired. The AI-written answer checks were first run the same day, with a stand-in for the model. The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 
@@ -105,7 +107,13 @@ Merge one pull request at a time and check the live site before merging the next
 
 ## The assistant and AI models
 
-On Vercel the assistant uses no AI model. It matches the question to the active sources and answers from prepared, cited guidance. An optional local model can help interpret questions when the app runs on a computer that has Ollama and the setting `ASSISTANT_OLLAMA_MODEL`. Leave that setting off on Vercel, because the model address is local.
+By default the assistant uses no AI model. It matches the question to the active sources, answers from prepared, cited guidance where a guide exists, and otherwise shows the matching passages.
+
+**AI-written answers (optional).** With the setting `ASSISTANT_CLAUDE_API_KEY`, a question that matches passages in the Source library is sent to Anthropic's Claude API with up to eight of those passages. Claude writes a short answer, and the app shows it, marked "AI-written", with the passages it cites. Every answer is checked first: each point must cite a passage that was sent, and each number, quoted phrase and contact detail must be in a cited passage. An answer that fails, or a call that fails, falls back to the passages. Declined questions and questions a tested guide answers never reach the model. Settings, cost and what leaves the site are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) under "AI-written answers".
+
+To try it on a computer without a key, run `npm run claude:stub` in one terminal and start the app with `ASSISTANT_CLAUDE_API_KEY=local-stand-in-not-a-real-key` and `ASSISTANT_CLAUDE_BASE_URL=http://127.0.0.1:3997`. The stand-in copies a sentence from the first passage; it is not a model. With a real key in `.env.local`, start the app as usual.
+
+**Local model (optional).** A local model can help interpret questions when the app runs on a computer that has Ollama and the setting `ASSISTANT_OLLAMA_MODEL`. Leave that setting off on Vercel, because the model address is local. When a Claude key is set, the local model is not used.
 
 ## Documentation
 

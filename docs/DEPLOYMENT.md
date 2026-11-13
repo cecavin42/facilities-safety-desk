@@ -46,6 +46,7 @@ The build command in `vercel.json` runs four steps in order:
    - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` or `DATABASE_URL` is missing; the secret is shorter than 32 characters; the address does not start with `https://` or is not the project's production address.
    - The three administrator settings are incomplete, the email is not an email address, or the password is not 15 to 128 characters.
    - No administrator exists yet and the three administrator settings are absent. This stops the site from going live with nobody able to sign in.
+   - A setting for AI-written answers is malformed, or a setting whose name starts with `NEXT_PUBLIC_` holds a Claude key (see "AI-written answers").
    Once an administrator exists, leftover administrator settings are ignored and never block a deployment.
 2. `npm run db:setup` applies the migrations that have not run yet and loads the two bundled source documents. It is safe to run again: existing reports, statuses and question logs are kept. All pending migrations run in one transaction, so a failure leaves the database as it was. If it fails, the log names the migration file and the database error. On a preview build this step is skipped unless the preview has its own database (see the end of this guide).
 3. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. Otherwise it does nothing. Skipped on a preview build unless the preview has its own database.
@@ -60,6 +61,7 @@ The build command in `vercel.json` runs four steps in order:
 | `005_recovery_and_sources` | Recovery links and source document versions |
 | `006_session_mfa_assurance` | A flag on each session recording that MFA was completed. It stays `false` while MFA is switched off |
 | `007_retire_ut_reference_documents` | Adds nothing. It retires the three University of Tennessee reference documents, so they can no longer support an answer. Nothing is deleted: an administrator still sees them in the Source library as retired |
+| `008_question_log_model_usage` | Five columns on the question log: whether the answer shown was written by the model, which model, how the attempt ended, and the tokens in and out. They stay empty while AI-written answers are off |
 
 ## After the merge
 
@@ -145,7 +147,44 @@ Notes:
 
 Merge one pull request at a time and check the live site before merging the next, because the free plan can only roll back one step.
 
+## AI-written answers
+
+Optional, and off until a key is added. Without the key the assistant answers exactly as before and makes no outside request.
+
+**What it does.** When a question matches passages in the Source library, the app sends the question and up to eight of those passages to Anthropic's Claude API. Claude writes a short answer. The app checks the answer and shows it with the passages it cites, marked "AI-written". If the call fails, or the answer fails a check, the app shows the passages as before and says so.
+
+**To turn it on.** In Vercel, under **Settings → Environment Variables**:
+
+| Setting | Value | Notes |
+| --- | --- | --- |
+| `ASSISTANT_CLAUDE_API_KEY` | The API key | Tick **Production**. Tick **Preview** as well when a tester should see AI-written answers on a preview before the merge. Choose **Sensitive** so Vercel never shows the value again |
+| `ASSISTANT_CLAUDE_BASE_URL` | Only when the key came with an address of its own | Must start with `https://`. Leave it out for a key from the Anthropic console |
+| `ASSISTANT_CLAUDE_MODEL` | Optional | The default is `claude-haiku-5-5`, the model the spec names. `claude-sonnet-5-5` costs about twenty times as much per question |
+
+Then redeploy: **Deployments**, the latest one, **Redeploy**. A setting applies from the next deployment. The build log then says `Assistant AI writing: on (model claude-haiku-5-5).`
+
+**To turn it off.** Delete `ASSISTANT_CLAUDE_API_KEY` and redeploy. Nothing else changes.
+
+**Keep the key private.** It belongs in Vercel's settings and nowhere else: not GitHub, not Drive, not a text message. The build stops if a setting whose name starts with `NEXT_PUBLIC_` holds a Claude key, because such a setting is sent to every browser.
+
+**What leaves the site.** For each such question: the question, and for each passage its document title, publisher, revision, page and text. Nothing about the person asking. Passages from documents that are not public are sent too, so the owner of those documents has to agree to that first.
+
+**The checks on every answer.** Each point must cite a passage that was sent. Every number in a point, with the unit it counts, must be in a passage the point cites. So must every quoted phrase, phone number, email address and link. An answer that fails is not shown.
+
+**Cost.** Estimated, not yet measured against the real API: about 5,000 tokens in and under 1,000 out per question, about a tenth of a cent on Claude Haiku 5.5 at the prices read on November 3, 2026. The question log records the tokens of every call, and `npm run eval:claude` reports tokens, cost and time for a set of questions on one or more models. Set a spending cap on the key in the provider's console.
+
 ## Checked and not checked
+
+Checked on a development computer on November 12, 2026, for AI-written answers, with a local stand-in for the Claude API in place of a real model (`scripts/claude-stub.ts`; no key and no cost):
+
+- `npm run test:claude`, 24 of 24: the settings, the request, and every check on an answer.
+- `npm run test:claude-path`, 9 of 9, through the app's own sign-in and database: a written answer cites the exact passage and its tokens are logged; a repeated question makes no second call; an invented number, a citation that was never sent and plain prose are each withheld; a refusal, a server fault and a slow reply each fall back to the passages without a retry; declined questions and questions a tested guide answers never reach the model.
+- In a browser: the "AI-written" label, the note under it, the cited sources and the line that says AI writing is on.
+
+Not checked for AI-written answers:
+
+- A real Claude model. The quality of the answers, the time they take and the tokens they use are unknown until a key is set.
+- A Vercel deployment with a key: the function's time limit and loading the Claude library there.
 
 Checked on a development computer on November 5, 2026, against local PostgreSQL:
 
