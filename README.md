@@ -89,7 +89,7 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
 | `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
 | `npm run test:sources` | Upload, activate and retire source versions, and keep the uploaded file | 7 of 7 |
-| `npm run test:claude-path` | AI-written answers through sign-in and the database, with the stand-in in place of the Claude API. Needs the app started with the three settings named at the top of `scripts/check-assistant-claude.ts` | 9 of 9 |
+| `npm run test:claude-path` | AI-written answers through sign-in and the database, with the stand-in in place of the Claude API. Needs the app started with the two settings named at the top of `scripts/check-assistant-claude.ts` | 9 of 9 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 

@@ -2,11 +2,12 @@
 // stand-in in place of the Claude API (scripts/claude-stub.ts). No key, no
 // cost, nothing leaves this machine.
 //
-// Start the local app with these three settings, then run `npm run
+// Start the local app with these two settings, then run `npm run
 // test:claude-path`:
 //   ASSISTANT_CLAUDE_API_KEY=local-stand-in-not-a-real-key
 //   ASSISTANT_CLAUDE_BASE_URL=http://127.0.0.1:3997
-//   ASSISTANT_CLAUDE_TIMEOUT_MS=3000
+// The slow-reply check waits for the app's own time limit (15 seconds unless
+// set). ASSISTANT_CLAUDE_TIMEOUT_MS=3000 makes it finish sooner.
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
@@ -192,6 +193,9 @@ async function main() {
       ["error", "server"],
       ["slow", "timeout"],
     ] as const) {
+      // Longer than any time limit the app accepts (25 seconds), so the app
+      // always gives up first.
+      if (mode === "slow") stub.state.delayMs = 27_000;
       const r = await ask(mode);
       assert.equal(r.answer.method, "source-search", mode);
       assert.match(r.answer.notice, /unavailable/, mode);
@@ -200,7 +204,7 @@ async function main() {
       if (mode === "slow")
         assert.ok(
           r.elapsedMs < stub.state.delayMs,
-          "The app must give up before the slow reply arrives. Is ASSISTANT_CLAUDE_TIMEOUT_MS=3000 set?",
+          "The app must give up before the slow reply arrives.",
         );
     }
     results.push(
