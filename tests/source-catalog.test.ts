@@ -4,8 +4,9 @@ import {
   BUILTIN_CATALOG,
   catalogOf,
   eligiblePassages,
+  readableText,
 } from "../src/lib/source-types";
-import { answerFromTopics } from "../src/lib/assistant/answer";
+import { answerFromTopics, scopeGap } from "../src/lib/assistant/answer";
 import { parseRouting } from "../src/lib/assistant/model-protocol";
 import { retrieveCandidates } from "../src/lib/search";
 import challenge from "./assistant-challenge.json";
@@ -102,4 +103,27 @@ test("long policy passages with a heading remain retrievable", () => {
     )[0]?.id,
     "p",
   );
+});
+test("text from a PDF that stores spaces as control characters stays readable", () => {
+  const gap = String.fromCharCode(3);
+  const lineBreak = String.fromCharCode(10);
+  const tab = String.fromCharCode(9);
+  // The control character becomes a space; line breaks and tabs are kept.
+  assert.equal(
+    readableText(`Submit${gap}a${gap}copy${lineBreak}${tab}to the office`),
+    `Submit a copy${lineBreak}${tab}to the office`,
+  );
+});
+test("a policy question that says 'how many' is not taken for a records question", () => {
+  for (const question of [
+    "How many doctors must the employer offer me for a back injury?",
+    "How many days do I have to report an injury?",
+  ])
+    assert.equal(scopeGap(question, true), undefined, question);
+  for (const question of [
+    "How many injuries were reported this year?",
+    "How many forklift incidents happened at the dock?",
+    "How many near misses did we log?",
+  ])
+    assert.match(scopeGap(question, true) ?? "", /incident records/, question);
 });

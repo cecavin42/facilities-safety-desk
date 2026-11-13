@@ -43,6 +43,21 @@ export function catalogOf(
 }
 export const BUILTIN_CATALOG = catalogOf(DOCUMENTS, PASSAGES);
 
+// Some PDFs store a space as an invisible control character. Left in, the
+// words run together on screen and a phrase copied from the page no longer
+// matches the stored text. Tabs and line breaks are kept.
+export function readableText(text: string) {
+  let out = "";
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    out +=
+      (code < 32 && code !== 9 && code !== 10 && code !== 13) || code === 127
+        ? " "
+        : text[i];
+  }
+  return out;
+}
+
 export function eligiblePassages(question: string, catalog: Catalog) {
   const local =
     /lipscomb|our (?:campus|university|company)|this (?:campus|university)|current.*(?:director|officer)|who is.*(?:ehs|safety)|(?:phone|contact) number|\bSDS\b|safety data sheet|neutraliz|(?:chemical|acid|bleach|acetone).*(?:clean|spill)|(?:clean|spill).*(?:chemical|acid|bleach|acetone)/i.test(

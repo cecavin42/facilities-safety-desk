@@ -112,8 +112,11 @@ export function scopeGap(q: string, customSources = false): string | undefined {
     )
   )
     return "These sources cannot answer pay, benefits, diagnosis, or treatment questions. Use the appropriate HR or medical service. For an immediate emergency, contact emergency services.";
+  // A count of events ("how many injuries last year") is a records question.
+  // "How many days do I have to report an injury?" is a policy question and
+  // must reach the documents.
   if (
-    /last (?:month|week)|yesterday|record R-|how many.*(?:incident|injur)|what happened.*incident/i.test(
+    /last (?:month|week)|yesterday|record R-|how many (?:\w+ ){0,2}(?:incidents?|injuries|accidents|near misses|records|reports)\b|what happened.*incident/i.test(
       q,
     )
   )
