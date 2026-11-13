@@ -64,7 +64,7 @@ Optional, and off unless `ASSISTANT_CLAUDE_API_KEY` is set. Asked for by the ins
 
 1. The scope rules run first, unchanged. A question about pay, another state, an individual's clearance to work, or an instruction to ignore the rules is declined and never reaches the model.
 2. A question that a tested source guide answers keeps that guide, unless the closest passage comes from an uploaded document. The organization's own text comes first.
-3. Otherwise the search picks up to eight passages: best first, at most three from one document and two from the bundled regulations while other documents have passages to offer.
+3. Otherwise the search picks up to eight passages: best first, at most three from one document and two from the bundled regulations while other documents have passages to offer. A question that asks who to call or how to report something gives extra weight to passages that hold a phone number or an email address.
 4. The question and those passages go to Claude with a fixed set of rules. The reply is JSON: whether the passages answer the question in full, in part or not at all, and one to four points, each with the passages it rests on.
 5. The reply is checked in code (`src/lib/assistant/written-answer.ts`). Each point must cite a passage that was sent. Every number in a point, with the unit it counts, must be in a passage that point cites; "2 business days" is not supported by a passage that says "2 days". The same holds for quoted phrases, phone numbers, email addresses and links.
 6. A reply that passes is shown as "AI-written" with the cited passages. Anything else (a failed check, a refusal, a timeout, an error, or the model saying the passages do not answer) shows the passages as before. A failed call is not retried.
@@ -83,6 +83,6 @@ The cited passages are always shown with the answer for that reason, and the not
 
 `npm run test:claude` (24 tests) and `npm run test:claude-path` (9 checks through the running app) use a stand-in for the model. They prove the plumbing and the checks. They say nothing about how well a real model answers. `npm run eval:claude` runs a question set against the real API and reports results, tokens, cost and time per model; it has not been run, because no key was available on November 12.
 
-With the six main Lipscomb documents loaded on a development computer, 16 test questions have an answer in them. The passages sent to the model included the passage that holds the answer for all 16. The on-page search, which shows three passages, did so for 13. This measures the search, not the model.
+With the live site's 20 Lipscomb entries copied to a development computer (931 passages), 16 test questions have an answer in them. The passages sent to the model included the passage that holds the answer for all 16. The on-page search, which shows three passages, did so for 14. For nine of ten questions about a point where documents disagree, or about the chemical inventory, every document involved was among the passages sent. This measures the search, not the model.
 
 AI-assisted implementation by Claude at Forrest's direction. No student hours, independent user testing or production approval are implied.

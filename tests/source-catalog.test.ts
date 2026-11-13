@@ -127,3 +127,39 @@ test("a policy question that says 'how many' is not taken for a records question
   ])
     assert.match(scopeGap(question, true) ?? "", /incident records/, question);
 });
+test("a question that asks how to report or who to call prefers the passage with a phone number", () => {
+  const kits =
+    "The cedar laboratory keeps spill kits on every floor. Staff restock the spill kits each month and log each spill.";
+  const passages = [
+    {
+      id: "kits",
+      docId: "d",
+      label: "page 1",
+      text: `${kits} Spill training for the cedar laboratory is held each spring, and a spill drill follows it.`,
+    },
+    {
+      id: "desk",
+      docId: "d",
+      label: "page 2",
+      text: `${kits} After any spill in the cedar laboratory, the safety desk at 555-0142 takes the details.`,
+    },
+  ];
+  const first = (question: string) =>
+    retrieveCandidates(question, 2, passages)[0]?.id;
+  // The words alone favor the first passage, which says "spill" more often.
+  assert.equal(first("What happens after a spill in the cedar laboratory?"), "kits");
+  assert.equal(first("How do I report a spill in the cedar laboratory?"), "desk");
+  assert.equal(first("Who do I call about a spill in the cedar laboratory?"), "desk");
+});
+test("a passage is read again when its text changes under the same id", () => {
+  const passage = (text: string) => [{ id: "same", docId: "d", label: "page 1", text }];
+  const question = "Where is the amber workshop ladder stored?";
+  assert.equal(
+    retrieveCandidates(question, 1, passage("The amber workshop ladder is stored in bay four of the amber workshop."))[0]?.id,
+    "same",
+  );
+  assert.equal(
+    retrieveCandidates(question, 1, passage("Visitors sign the front desk register before entering the building.")).length,
+    0,
+  );
+});

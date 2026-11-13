@@ -143,7 +143,39 @@ function intentTerms(question: string): string[] {
     words.push("hour", "within", "eight", "twenty");
   if (/\bwho\b|whom/.test(q)) words.push("supervisor", "immediate", "contact");
   if (/trouble|punish|retaliat|fired/.test(q)) words.push("free", "discharg");
-  return words.map(stem);
+  // "Who do I call", "how do I report", "what is the phone number": the
+  // answer is in a passage that gives a phone number or an email address.
+  const contact =
+    /\b(?:phone|telephone|call|contact|email|e-mail|reach)\b|\b(?:how|where|who) (?:do|can|should|would|must) (?:i|we|you|someone|they) (?:report|tell|notify)\b/.test(
+      q,
+    );
+  return [...words.map(stem), ...(contact ? [CONTACT] : [])];
+}
+
+// A marker, not a word: set on a passage that holds a phone number or an
+// email address. It can never collide with a real word, which has no "#".
+const CONTACT = "#contact";
+const CONTACT_DETAIL =
+  /(?:\(?\b\d{3}\)?[-. ])?\b\d{3}[-.]\d{4}\b|[\w.+-]+@[\w-]+\.[a-z]{2,}/i;
+
+// Reading every active passage word by word is the slow part of a search. A
+// passage's text does not change under the same id, so the result is kept
+// between questions and checked against the text before it is reused.
+const analyzed = new Map<
+  string,
+  { text: string; tf: Map<string, number>; len: number }
+>();
+function analyze(p: Passage) {
+  const hit = analyzed.get(p.id);
+  if (hit && hit.text === p.text) return hit;
+  const words = tokens(p.text);
+  const tf = new Map<string, number>();
+  for (const w of words) tf.set(w, (tf.get(w) || 0) + 1);
+  if (CONTACT_DETAIL.test(p.text)) tf.set(CONTACT, 1);
+  const entry = { text: p.text, tf, len: words.length };
+  if (analyzed.size >= 5000) analyzed.clear();
+  analyzed.set(p.id, entry);
+  return entry;
 }
 
 const HEADER =
@@ -181,10 +213,8 @@ export function retrieveCandidates(
   const terms = [...new Set(tokens(question))];
   const intent = intentTerms(question);
   const entries = passages.map((p) => {
-    const words = tokens(p.text);
-    const tf = new Map<string, number>();
-    for (const w of words) tf.set(w, (tf.get(w) || 0) + 1);
-    return { p, tf, len: words.length };
+    const { tf, len } = analyze(p);
+    return { p, tf, len };
   });
   const average =
     entries.reduce((n, x) => n + x.len, 0) / Math.max(1, entries.length);
