@@ -6,7 +6,7 @@ import { BUNDLED_EXAMPLES, OWN_DOCUMENT_EXAMPLES } from "@/lib/assistant/example
 
 type Source = { id: string; title: string; dated: string; url: string };
 type Turn = { id: number; question: string; result?: AssistantAnswer; error?: string };
-export default function SafetyAssistant({ sources, ownDocuments = false }: { sources: Source[]; ownDocuments?: boolean }) {
+export default function SafetyAssistant({ sources, ownDocuments = false, aiWriting = false }: { sources: Source[]; ownDocuments?: boolean; aiWriting?: boolean }) {
   const examples = ownDocuments ? OWN_DOCUMENT_EXAMPLES : BUNDLED_EXAMPLES;
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -48,7 +48,7 @@ export default function SafetyAssistant({ sources, ownDocuments = false }: { sou
   async function copy(turn: Turn) {
     if (!turn.result) return;
     const r = turn.result;
-    const text = [turn.question, r.message, ...r.sections.map(s => `${s.title} — ${s.scope}\n${s.summary}`), "Sources:", ...r.evidence.map(e => `${e.title}, ${e.label}\n${e.url}`), `Classroom source snapshot ${r.sourceVersion}. Verify current local policy before acting.`].join("\n\n");
+    const text = [turn.question, r.message, ...(r.method === "ai-written" && r.notice ? [r.notice] : []), ...r.sections.map(s => `${s.title} — ${s.scope}\n${s.summary}`), "Sources:", ...r.evidence.map(e => `${e.title}, ${e.label}\n${e.url}`), `Classroom source snapshot ${r.sourceVersion}. Verify current local policy before acting.`].join("\n\n");
     try { await navigator.clipboard.writeText(text); setStatus("Copied the response with source links and limitations."); }
     catch { setStatus("Copy was unavailable. Select the response text to copy it manually."); }
   }
@@ -85,7 +85,7 @@ export default function SafetyAssistant({ sources, ownDocuments = false }: { sou
         {turns.map(turn => <article key={turn.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-6"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Your question</p><h3 className="mt-2 break-words text-lg font-semibold">{turn.question}</h3></div>
           {turn.error ? <div className="space-y-3 p-5" role="alert"><p>{turn.error}</p><button disabled={busy} onClick={() => void send(turn.question)} className="min-h-11 rounded-lg border border-teal-700 px-4 text-teal-800">Retry question</button></div> : turn.result && <div className="space-y-5 p-5 sm:p-6">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold"><span className={`rounded-full px-3 py-1.5 ${turn.result.outcome === "answer" ? "bg-teal-50 text-teal-900" : "bg-amber-50 text-amber-900"}`}>{turn.result.outcome === "answer" ? "Supported by these sources" : turn.result.outcome === "partial" ? "Partial coverage — check the limits" : "Not covered by these sources"}</span><span className="text-slate-500">{turn.result.method === "ai-assisted" ? "AI-assisted interpretation · source-backed text" : turn.result.method === "source-guide" ? "Source guide" : "Related-source search"}</span></div>
+            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold"><span className={`rounded-full px-3 py-1.5 ${turn.result.outcome === "answer" ? "bg-teal-50 text-teal-900" : "bg-amber-50 text-amber-900"}`}>{turn.result.outcome === "answer" ? "Supported by these sources" : turn.result.outcome === "partial" ? "Partial coverage — check the limits" : "Not covered by these sources"}</span><span className="text-slate-500">{turn.result.method === "ai-written" ? "AI-written · check the cited passages" : turn.result.method === "ai-assisted" ? "AI-assisted interpretation · source-backed text" : turn.result.method === "source-guide" ? "Source guide" : "Related-source search"}</span></div>
             <p className="text-sm leading-6 text-slate-600">{turn.result.message}</p>
             {turn.result.notice && <p className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">{turn.result.notice}</p>}
             {turn.result.sections.map(section => <section key={section.id} className="border-l-4 border-teal-600 pl-4"><p className="text-xs font-semibold text-teal-800">{section.scope}</p><h4 className="mt-1 font-semibold">{section.title}</h4><p className="mt-2 text-sm leading-7 text-slate-700">{section.summary}</p><div className="mt-2 flex flex-wrap gap-2">{section.evidenceIds.map(id => { const number = turn.result!.evidence.findIndex(e => e.id === id) + 1; return <a key={id} className="inline-flex min-h-11 items-center rounded-lg bg-teal-50 px-3 text-xs font-semibold text-teal-900 underline focus-visible:outline-2" onClick={() => { const detail = document.getElementById(`source-${turn.id}-${id}`); if (detail instanceof HTMLDetailsElement) detail.open = true; }} href={`#source-${turn.id}-${id}`}>Source {number}</a>; })}</div></section>)}
@@ -101,6 +101,7 @@ export default function SafetyAssistant({ sources, ownDocuments = false }: { sou
         <div className="rounded-2xl border border-teal-100 bg-teal-50/70 p-5"><h2 className="font-semibold text-teal-950">Know what you&apos;re checking</h2><ul className="mt-3 space-y-3 text-sm leading-6 text-teal-950"><li><strong>Federal:</strong> powered industrial truck safety.</li><li><strong>Tennessee:</strong> employer injury and fatality reporting.</li><li><strong>Lipscomb:</strong> university documents added in the Source library.</li></ul><p className="mt-4 border-t border-teal-200 pt-4 text-sm leading-6 text-teal-950">Need to record an event? <a href="/report" className="font-semibold underline">Open the incident form.</a></p></div>
         <details className="rounded-xl border border-slate-200 bg-white p-4"><summary className="min-h-11 cursor-pointer font-semibold">Source library · {sources.length} documents</summary><ul className="mt-3 space-y-4">{sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-teal-800 underline">{source.title}<span className="sr-only"> opens in a new tab</span></a><p className="mt-1 text-xs leading-5 text-slate-500">{source.dated}</p></li>)}</ul></details>
         <p className="px-1 text-xs leading-6 text-slate-500">Each question is checked on its own. Responses stay on this page. Questions and whether they were answered are saved with the demo&apos;s existing statistics; clearing this view does not delete those records.</p>
+        {aiWriting && <p className="px-1 text-xs leading-6 text-slate-500">AI writing is on. When the documents contain an answer, an AI model (Claude) writes a short summary from the matching passages, and the passages are shown with it. Your question and those passages are sent to Anthropic to write the summary.</p>}
       </aside>
     </div>
   </div>;

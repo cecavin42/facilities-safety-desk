@@ -31,7 +31,7 @@ export type AssistantAnswer = {
   sections: AnswerSection[];
   evidence: Evidence[];
   followUps: string[];
-  method: "source-guide" | "ai-assisted" | "source-search";
+  method: "source-guide" | "ai-assisted" | "ai-written" | "source-search";
   sourceVersion: string;
   notice?: string;
 };
