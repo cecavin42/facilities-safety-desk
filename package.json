@@ -23,6 +23,8 @@
     "db:seed": "tsx scripts/db-cli.ts seed",
     "db:setup": "tsx scripts/db-cli.ts setup",
     "test:db": "tsx --test tests/database.test.ts",
+    "test:pool": "tsx --test tests/pool.test.ts",
+    "test:source-bytes": "node --conditions=react-server --import tsx --test tests/source-bytes.test.ts",
     "test:access": "tsx scripts/check-access.ts",
     "test:auth-config": "node --conditions=react-server --import tsx --test tests/auth-config.test.ts",
     "test:catalog": "tsx --test tests/source-catalog.test.ts",

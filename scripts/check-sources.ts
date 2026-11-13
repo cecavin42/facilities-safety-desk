@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
-import { Client, localSetup } from "./readiness-client";
+import { BASE, Client, localSetup } from "./readiness-client";
 async function main() {
   const { pool, accounts, admin } = await localSetup();
   const results: string[] = [];
@@ -185,6 +185,45 @@ async function main() {
     );
     results.push(
       "Text PDFs extract with page references; malformed PDFs are rejected",
+    );
+    // The stored original must be the uploaded file, byte for byte. The
+    // download is read as bytes here because Client.request decodes text.
+    const download = await fetch(`${BASE}/api/sources/${parsed.data.id}/file`, {
+      headers: {
+        Cookie: [...admin.cookies].map(([k, v]) => `${k}=${v}`).join("; "),
+      },
+    });
+    assert.equal(download.status, 200);
+    assert.ok(Buffer.from(await download.arrayBuffer()).equals(pdf));
+    const pdfDocumentId = (
+      await admin.request(`/api/sources/${parsed.data.id}`)
+    ).data.documentId;
+    const pdfVersion = (bytes: Uint8Array<ArrayBuffer>) => {
+      const f = upload("placeholder", pdfDocumentId);
+      f.set(
+        "file",
+        new Blob([bytes], { type: "application/pdf" }),
+        "source-document.pdf",
+      );
+      return f;
+    };
+    // Same pages, different bytes: a trailing comment after the end marker.
+    const revised = await admin.request(
+      "/api/sources/upload",
+      "POST",
+      pdfVersion(
+        new Uint8Array(Buffer.concat([pdf, Buffer.from("\n% revised copy\n")])),
+      ),
+    );
+    assert.equal(revised.status, 201);
+    created.push(revised.data.id);
+    assert.equal(
+      (await admin.request("/api/sources/upload", "POST", pdfVersion(pdf)))
+        .status,
+      409,
+    );
+    results.push(
+      "Uploaded PDFs keep their original file: the download matches, a changed PDF is accepted as a new version, an identical one is refused",
     );
     await writeFile(
       "test-results/source-lifecycle-checks.json",

@@ -19,7 +19,9 @@ export async function GET(
       "SELECT file_name,file_type,file_bytes FROM source_versions WHERE id=$1 AND ($2::boolean OR state='active')",
       [id, user.role === "admin"],
     );
-    if (!row?.file_bytes)
+    // An empty stored file (a PDF uploaded before its bytes were kept) is
+    // reported as missing rather than sent as a zero-byte download.
+    if (!row?.file_bytes?.length)
       throw new HttpError("Original uploaded file not found.", 404);
     const filename = encodeURIComponent(row.file_name || "source").replace(
       /['()*]/g,

@@ -65,3 +65,10 @@ export function authOptions(pool: Pool) {
 export function createAuth(pool: Pool) {
   return betterAuth(authOptions(pool));
 }
+// True when this deployment has what authOptions needs to run sign-in: a secret
+// of at least 32 characters and a sign-in address. A Vercel preview that shares
+// the live database has no address by design (see auth-url.ts).
+export function signInConfigured(env: NodeJS.ProcessEnv = process.env) {
+  const secret = env.BETTER_AUTH_SECRET;
+  return Boolean(secret && secret.length >= 32 && authOrigins(env).base);
+}

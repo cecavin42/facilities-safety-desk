@@ -78,7 +78,9 @@ export async function extractPages(bytes: Uint8Array, type: string) {
       "PDF reading is not available on this server. Upload a TXT or Markdown file instead.",
     );
   }
-  const parser = new PDFParse({ data: bytes });
+  // The PDF library takes over the array it is given and leaves it empty, so
+  // it reads a copy. The caller still fingerprints and stores the original.
+  const parser = new PDFParse({ data: bytes.slice() });
   try {
     const info = await parser.getInfo();
     if (info.total > 100)
