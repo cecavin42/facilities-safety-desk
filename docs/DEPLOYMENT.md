@@ -40,17 +40,19 @@ Everything here is done in the Vercel and GitHub websites and in the app itself.
 
 ## What the production build does
 
-The build command in `vercel.json` runs four steps in order:
+The build command in `vercel.json` runs five steps in order:
 
 1. `npm run check:deploy` checks the settings before anything else happens. The build stops here, nothing in the database changes, and Vercel keeps serving the previous deployment, in any of these cases:
    - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` or `DATABASE_URL` is missing; the secret is shorter than 32 characters; the address does not start with `https://` or is not the project's production address.
    - The three administrator settings are incomplete, the email is not an email address, or the password is not 15 to 128 characters.
    - No administrator exists yet and the three administrator settings are absent. This stops the site from going live with nobody able to sign in.
    - A setting for AI-written answers is malformed, or a setting whose name starts with `NEXT_PUBLIC_` holds a Claude key (see "AI-written answers").
+   - A setting for semantic search is malformed, or a setting whose name starts with `NEXT_PUBLIC_` holds an embeddings key (see "Semantic search").
    Once an administrator exists, leftover administrator settings are ignored and never block a deployment.
 2. `npm run db:setup` applies the migrations that have not run yet and loads the two bundled source documents. It is safe to run again: existing reports, statuses and question logs are kept. All pending migrations run in one transaction, so a failure leaves the database as it was. If it fails, the log names the migration file and the database error. On a preview build this step is skipped unless the preview has its own database (see the end of this guide).
-3. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. Otherwise it does nothing. Skipped on a preview build unless the preview has its own database.
-4. `npm run build` builds the app.
+3. `npm run embeddings:index -- --build` does nothing unless semantic search is on (see "Semantic search"). When it is on, it makes the embeddings that are still missing, for at most four minutes. It never stops the build: if it cannot finish, the assistant keeps using keyword search. Skipped on a preview build unless the preview has its own database.
+4. `npm run auth:bootstrap-admin -- --build` creates the first administrator from the three `FSA_ADMIN_` settings when no administrator exists yet. Otherwise it does nothing. Skipped on a preview build unless the preview has its own database.
+5. `npm run build` builds the app.
 
 | Migration | Adds |
 | --- | --- |
@@ -62,6 +64,7 @@ The build command in `vercel.json` runs four steps in order:
 | `006_session_mfa_assurance` | A flag on each session recording that MFA was completed. It stays `false` while MFA is switched off |
 | `007_retire_ut_reference_documents` | Adds nothing. It retires the three University of Tennessee reference documents, so they can no longer support an answer. Nothing is deleted: an administrator still sees them in the Source library as retired |
 | `008_question_log_model_usage` | Five columns on the question log: whether the answer shown was written by the model, which model, how the attempt ended, and the tokens in and out. They stay empty while AI-written answers are off |
+| `009_passage_embeddings` | One table for passage embeddings: the source version, the passage, the embedding model, and the vector as a plain array of numbers. It needs no extension and stays empty while semantic search is off |
 
 ## After the merge
 
@@ -180,7 +183,58 @@ Then redeploy: **Deployments**, the latest one, **Redeploy**. A setting applies 
 
 The question log records the tokens of every call, and `npm run eval:claude` reports tokens, cost and time for a set of questions on one or more models. Set a spending cap on the key in the provider's console.
 
+## Semantic search
+
+Optional, and off until a key is added. Without the key the assistant searches by keywords exactly as before and makes no outside request for it.
+
+**What it does.** Keyword search finds a passage only when the question uses the document's words. With semantic search, every passage also has an embedding: a list of numbers that places its meaning. Each question gets one too. The eight passages closest in meaning are merged with the keyword matches by rank (reciprocal rank fusion), and the usual choice of up to eight passages for Claude runs on the merged list. The search is the keyword search alone whenever the other half cannot be trusted: no key, an active passage without an embedding, or a provider that fails or takes longer than 2.5 seconds. On the page without AI writing it can change which three passages are shown, never whether any are shown.
+
+**To turn it on.** The embeddings come from Voyage AI, the provider the spec names. Anthropic has no embedding model of its own and its documentation points to Voyage. A key is made in a MongoDB Atlas account, under **AI Model APIs → Create model API key**. Then, in Vercel, under **Settings → Environment Variables**:
+
+| Setting | Value | Notes |
+| --- | --- | --- |
+| `ASSISTANT_EMBEDDINGS_API_KEY` | The model API key | Tick **Production**. Tick **Preview** only when previews have a database of their own. Choose **Sensitive** |
+| `ASSISTANT_EMBEDDINGS_MODEL` | Optional | The default is `voyage-4`. `voyage-4-lite` costs a third as much and `voyage-4-large` twice as much. After a change every passage is embedded again, and the old embeddings stay in the table unused |
+| `ASSISTANT_EMBEDDINGS_BASE_URL` | Only for a key from the older Voyage AI platform: `https://api.voyageai.com/v1` | The default, `https://ai.mongodb.com/v1`, is the address for a key from Atlas. Must start with `https://` |
+| `ASSISTANT_EMBEDDINGS_TIMEOUT_MS` | Optional | How long a question waits for its embedding before keyword search answers alone. The default is 2500 |
+
+Then redeploy. The build log says `Assistant semantic search: on (voyage:voyage-4).` and, from the indexing step, a line such as `Semantic index (voyage:voyage-4): 1041 of 1041 passages in 22 source versions.`
+
+**Two things to do in the Atlas account first.** Add a payment method, then switch off **Help Improve Voyage AI Models** under **Organization Settings**. The first 200 million tokens for each model are free and this site needs well under one million, so nothing is charged. But without a payment method the account stays in the free trial tier, whose rate limits are lower (the documentation does not give the numbers), and the switch cannot be changed. The switch decides whether the texts sent may be used to improve Voyage's models. Switch it off before any document that is not public is embedded.
+
+**The index.** A new upload is embedded when it is uploaded, within 20 seconds; the upload never fails because of it. Whatever is missing is tried again when the version is activated. Documents that were in the Source library before the key was added are embedded by `npm run embeddings:index`. That command also runs as a step of every Vercel build: it embeds what is missing, takes at most four minutes, prints one line, and never fails the build. Until every active passage has its embedding, the assistant uses keyword search and sends nothing to the provider, and a Safety manager sees "not yet indexed for search by meaning" beside such a document in the Source library. If the build log shows fewer passages indexed than there are, redeploy to continue; nothing made is lost.
+
+**What leaves the site.** To Voyage AI, at upload and at indexing: the text of every passage, including passages of documents that are not public. For each question that passes the scope rules and is not answered by a tested guide: the question. Nothing about the person asking. The owner of documents that are not public has to agree to this first, as for AI-written answers.
+
+**Where the vectors are kept, and why this is not pgvector.** The spec says "pgvector for retrieval". This version stores each embedding in an ordinary PostgreSQL table (`passage_embeddings`, a `real[]` column, migration 009) and compares them in the app: the exact cosine similarity of the question with every active passage, in memory. It does not use the pgvector extension and it has no vector index. The reasons:
+
+- At this size it is exact and fast. Comparing one question with 1,041 vectors of 1,024 numbers and sorting takes about one millisecond. The vectors are about 4 MB and are read once per server start (0.3 to 0.4 seconds on the test computer).
+- One code path runs everywhere. The PostgreSQL that `npm run auth:local` starts ships no `vector` extension, so a pgvector query could not be run on a development computer or in a local check. The hosted database (Neon) has the extension.
+- Nothing is given up. pgvector converts a `real[]` value to its own `vector` type with a cast.
+
+When to move: at tens of thousands of passages. The comparison stays fast (50,000 take about 36 milliseconds), but holding every vector in memory does not stay reasonable (about 200 MB at 50,000). The path: `CREATE EXTENSION vector`, add a `vector(1024)` column filled with `embedding::vector`, add an HNSW index, and let the database return the nearest passages. The fusion and everything after it stay as they are.
+
+**Cost.** Not measured against Voyage, because no key was available. Computed from Voyage's price list as read on November 15, 2026: the 1,041 passages in the library are about 350,000 to 420,000 tokens (counted by three local models' tokenizers), so embedding all of them once is about 2 to 3 cents on `voyage-4` ($0.06 per million tokens), and a question is about 20 tokens, about a tenth of a cent per 1,000 questions. The free allowance covers both many times over. The larger effect is on the Claude side, because questions that keyword search found nothing for now reach the model: on the 23 test questions the model's input grew by 9 percent (see `docs/ASSISTANT_REVIEW.md`).
+
+**Time limits.** The upload request and the activate or retire request may now run up to 60 seconds (they had the platform's default before), whether or not semantic search is on.
+
+**To turn it off.** Delete `ASSISTANT_EMBEDDINGS_API_KEY` and redeploy. The stored embeddings stay in the table and are ignored.
+
 ## Checked and not checked
+
+Checked on a development computer on November 15, 2026, for semantic search. No hosted embeddings key was available, so the hosted provider was replaced by stand-ins and by embedding models running on the same computer (Ollama):
+
+- `npm run test:semantic`, 27 of 27: the settings, the request to the provider and every failure it can return, the fusion, and that every answer is exactly the keyword answer without a key, with a passage that has no embedding, and with a failed or slow provider.
+- `npm run test:semantic-path`, 7 of 7, through the app's own sign-in and database with stand-ins for the embeddings API and the Claude API: an upload is embedded at upload; a question in other words reaches the model with the right passage; a repeated question is sent nowhere; a failed provider at upload still saves and activates the document, and every answer is then the keyword one until the index is complete; a slow provider costs one question 2.6 seconds and the next question nothing.
+- Migration 009 applied to an existing local database with 120 source versions, and applied again without change. `npm run embeddings:index` embedded the 1,041 active passages of a copy of the live site's Source library with each of three local models (25 to 32 seconds each), and embedded nothing on a second run. The form the Vercel build runs was run by hand.
+- With semantic search off: `npm run test:claude-path` 9 of 9, `npm run test:sources` 7 of 7 and `npm run test:access` 24 of 24, as before this change.
+- Retrieval and answers with and without it, on 59 private test questions and the real Claude API: see `docs/ASSISTANT_REVIEW.md`.
+
+Not checked for semantic search:
+
+- Voyage AI itself: the request was written from its documentation (read November 15, 2026) and tested against a stand-in that answers in the documented shape. No request has been sent to Voyage. Its speed, its rate limits on a new account, and how well `voyage-4` finds passages are not known.
+- A Vercel deployment with a key: the indexing step of the build, and the time limit of the upload request there.
+- pgvector. It is not used.
 
 Checked on a development computer on November 12, 2026, for AI-written answers, with a local stand-in for the Claude API in place of a real model (`scripts/claude-stub.ts`; no key and no cost):
 
