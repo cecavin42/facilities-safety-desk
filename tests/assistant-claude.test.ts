@@ -13,6 +13,7 @@ import {
   WRITER_SYSTEM,
   WriterError,
   checkReply,
+  hasSeveralParts,
   passagesForWriter,
   writerUserMessage,
   type ModelCall,
@@ -194,6 +195,71 @@ test("passages for the model: own documents first, room for a second document, n
   // With nothing else to offer, one long document may fill every place.
   const alone = catalogOf([...BUILTIN_CATALOG.documents, reference], [...BUILTIN_CATALOG.passages, ...rows("c", 10, 40)]);
   assert.deepEqual(count(question, alone).perDocument, { c: 8 });
+});
+
+test("passages for the model: a question with several parts brings the best passage's neighbors", () => {
+  for (const q of [
+    "There is a fire. Who do I call, and where do I go?",
+    MOLD_QUESTION,
+    "I smell smoke; what now?",
+  ])
+    assert.ok(hasSeveralParts(q), q);
+  for (const q of [
+    "Who do I call about a fire?",
+    "What is the phone number for Human Resources?",
+    "What are the fire and safety rules?",
+  ])
+    assert.ok(!hasSeveralParts(q), q);
+
+  const filler = (n: number) =>
+    `Section ${n} covers how the college orders office furniture, stores surplus desks and records each delivery in the property ledger for the term.`;
+  // One procedure in reading order. Passage 3 answers "who do I call"; the
+  // answer to "where do I go" is two passages later and never says "call".
+  const procedure = [
+    "Fire watch: call the duty officer before any hot work so a fire watch can be posted, and call again when the fire watch ends.",
+    filler(1),
+    filler(2),
+    "Anyone who sees a fire pulls the nearest fire alarm and calls Campus Safety at 555-0199. Call from a safe place, and call even when the fire looks small.",
+    "During a fire alarm nobody uses the elevators. Close each door behind you so the fire and its smoke spread more slowly, and help anyone who asks during a fire.",
+    "After leaving for a fire, everyone gathers at the north parking lot, at least 300 feet from the building, and stays until the fire marshal says the fire is out.",
+    filler(3),
+    "Fire reports: call the safety office the next morning to file the fire report, and call the dean if the fire damaged a classroom.",
+    "False alarms: call Campus Safety to say the fire alarm was false, so the fire crew is not sent, and call the building manager afterwards.",
+  ].map((text, i) => ({ id: `fire-${i}`, docId: "fire", label: `page ${i + 1}`, text }));
+  const other = (docId: string, count: number) =>
+    Array.from({ length: count }, (_, i) => ({
+      id: `${docId}-${i}`,
+      docId,
+      label: `page ${i + 1}`,
+      text: `Shop rule ${docId} ${i}: call the shop supervisor about any fire hazard, call again once the fire hazard is cleared, and note the fire hazard call in the shop log.`,
+    }));
+  const catalog = catalogOf(
+    [
+      ...BUILTIN_CATALOG.documents,
+      upload("fire", "Northfield Fire Response Procedure", "2026"),
+      upload("shopa", "Northfield Wood Shop Rules", "2025"),
+      upload("shopb", "Northfield Metal Shop Rules", "2024"),
+    ],
+    [...BUILTIN_CATALOG.passages, ...procedure, ...other("shopa", 4), ...other("shopb", 4)],
+  );
+  const ids = (question: string) => passagesForWriter(question, catalog).map((p) => p.id);
+
+  // One part: the caps decide, and the gathering point is crowded out.
+  const single = ids("Who do I call about a fire?");
+  assert.equal(single.length, 8);
+  assert.equal(single[0], "fire-3");
+  assert.ok(!single.includes("fire-4"));
+  assert.ok(!single.includes("fire-5"));
+
+  // Several parts: the passages beside the best one come along, and the other
+  // documents keep a place.
+  const several = ids("There is a fire. Who do I call, and where do I go?");
+  assert.equal(several.length, 8);
+  assert.equal(several[0], "fire-3");
+  assert.ok(several.includes("fire-4"));
+  assert.ok(several.includes("fire-5"), "The gathering point is sent");
+  assert.ok(several.some((id) => id.startsWith("shopa-")));
+  assert.ok(several.some((id) => id.startsWith("shopb-")));
 });
 
 test("a faithful reply passes, including exact numbers, a phone number and a quoted phrase", () => {

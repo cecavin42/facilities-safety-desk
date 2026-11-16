@@ -75,7 +75,7 @@ These need nothing running:
 | `npm run build` | Production build | Pass |
 | `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
 | `npm run test:assistant` | Assistant answers, citations and the example questions | 42 of 42 |
-| `npm run test:claude` | AI-written answers: settings, the request, and the checks on every answer, with a stand-in for the model | 24 of 24 |
+| `npm run test:claude` | AI-written answers: settings, the request, and the checks on every answer, with a stand-in for the model | 25 of 25 |
 | `npm run test:catalog` | Source catalog, search and frozen challenge cases | 28 of 28 |
 | `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 3 of 3 |
 | `npm run test:client` | Browser API client | 1 of 1 |

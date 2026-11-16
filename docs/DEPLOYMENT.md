@@ -177,7 +177,7 @@ Then redeploy: **Deployments**, the latest one, **Redeploy**. A setting applies 
 
 Checked on a development computer on November 12, 2026, for AI-written answers, with a local stand-in for the Claude API in place of a real model (`scripts/claude-stub.ts`; no key and no cost):
 
-- `npm run test:claude`, 24 of 24: the settings, the request, and every check on an answer. `npm run test:catalog`, 28 of 28, covers the search that chooses the passages.
+- `npm run test:claude`, 25 of 25: the settings, the request, the choice of passages, and every check on an answer. `npm run test:catalog`, 28 of 28, covers the search that chooses the passages.
 - `npm run test:claude-path`, 9 of 9, through the app's own sign-in and database: a written answer cites the exact passage and its tokens are logged; a repeated question makes no second call; an invented number, a citation that was never sent and plain prose are each withheld; a refusal, a server fault and a slow reply each fall back to the passages without a retry; declined questions and questions a tested guide answers never reach the model.
 - In a browser: the "AI-written" label, the note under it, the cited sources and the line that says AI writing is on.
 

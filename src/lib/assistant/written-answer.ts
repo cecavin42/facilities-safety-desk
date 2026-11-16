@@ -18,6 +18,10 @@ const MAX_BUNDLED = 2;
 const MIN_COVERAGE = 0.34;
 // A title line or a page footer on its own tells the model nothing.
 const MIN_PASSAGE_CHARS = 120;
+// For a question with several parts, the best passage brings along up to this
+// many of the passages within this distance of it in the same document.
+const NEIGHBOR_REACH = 2;
+const MAX_NEIGHBORS = 3;
 const MAX_POINTS = 5;
 const MAX_REPLY_CHARS = 8000;
 const TAGS = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"];
@@ -59,6 +63,17 @@ export class WriterError extends Error {
   }
 }
 
+// More than one sentence, or a second clause that asks something of its own
+// ("..., and where do I go?").
+export function hasSeveralParts(question: string) {
+  return (
+    /[.?!;]\s+[a-z]/i.test(question.trim()) ||
+    /\b(?:and|or|then|also)\s+(?:who|whom|what|when|where|which|why|how|is|are|was|were|do|does|did|can|could|should|would|will|may|must|if)\b/i.test(
+      question,
+    )
+  );
+}
+
 export function passagesForWriter(
   question: string,
   catalog: Catalog,
@@ -73,14 +88,44 @@ export function passagesForWriter(
     MIN_COVERAGE,
   ).filter((p) => p.text.length >= MIN_PASSAGE_CHARS);
   const ownText = ranked.some((p) => uploaded.has(p.docId));
-  // First pass, best first, with the caps. Second pass: places still free go
-  // to the best passages the caps held back, so a long document that holds
-  // the whole answer is not cut short while places stand empty.
   const perDocument = new Map<string, number>();
   let bundled = 0;
   const chosen = new Set<(typeof ranked)[number]>();
+  // The second part of a question ("There is a fire. Who do I call, and where
+  // do I go?") may share no words with the passage that answers it. A
+  // procedure usually runs on in the passages beside the best one, so for a
+  // question with several parts those come along. They sit outside the caps
+  // below and so take the places of the weakest picks.
+  const best = ranked[0];
+  if (
+    best &&
+    hasSeveralParts(question) &&
+    (uploaded.has(best.docId) || !ownText)
+  ) {
+    // Where each of the document's passages sits, in reading order.
+    const place = new Map(
+      catalog.passages
+        .filter((p) => p.docId === best.docId)
+        .map((p, i) => [p.id, i]),
+    );
+    const at = place.get(best.id);
+    for (const p of ranked) {
+      if (chosen.size === MAX_NEIGHBORS || at === undefined) break;
+      const here = place.get(p.id);
+      if (
+        p !== best &&
+        here !== undefined &&
+        Math.abs(here - at) <= NEIGHBOR_REACH
+      )
+        chosen.add(p);
+    }
+  }
+  // First pass, best first, with the caps. Second pass: places still free go
+  // to the best passages the caps held back, so a long document that holds
+  // the whole answer is not cut short while places stand empty.
   for (const p of ranked) {
     if (chosen.size === MAX_PASSAGES) break;
+    if (chosen.has(p)) continue;
     const used = perDocument.get(p.docId) ?? 0;
     const own = uploaded.has(p.docId);
     if (used >= MAX_PER_DOCUMENT || (!own && ownText && bundled >= MAX_BUNDLED))
