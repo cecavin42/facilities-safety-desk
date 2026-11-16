@@ -8,6 +8,7 @@
 // is checked like production, and stops if its Preview settings are incomplete.
 import { createPool } from "../src/lib/db/pool";
 import { claudeSettings } from "../src/lib/assistant/claude-settings";
+import { embeddingSettings } from "../src/lib/assistant/embedding-settings";
 
 function settingProblems(env: NodeJS.ProcessEnv, target: string) {
   const required =
@@ -137,6 +138,16 @@ async function main() {
       : claude.problems.length
         ? "Assistant AI writing: off until its settings are fixed."
         : "Assistant AI writing: off (ASSISTANT_CLAUDE_API_KEY is not set). Answers come from the source guides and search.",
+  );
+  // Semantic search is optional too, and held to the same rules.
+  const embeddings = embeddingSettings(env);
+  problems.push(...embeddings.problems);
+  console.log(
+    embeddings.on
+      ? `Assistant semantic search: on (${embeddings.id}).`
+      : embeddings.problems.length
+        ? "Assistant semantic search: off until its settings are fixed."
+        : "Assistant semantic search: off (ASSISTANT_EMBEDDINGS_API_KEY is not set). Passages are found by keywords.",
   );
   const list = problems.map((problem) => `- ${problem}`).join("\n");
   if (!problems.length) {

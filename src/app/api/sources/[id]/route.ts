@@ -7,6 +7,9 @@ import {
   HttpError,
 } from "@/lib/server-access";
 import { sourceDetail, transitionSource } from "@/lib/sources";
+// With semantic search on, activating a version may spend up to 20 seconds
+// making embeddings that are still missing.
+export const maxDuration = 60;
 type Context = { params: Promise<{ id: string }> };
 export async function GET(request: Request, context: Context) {
   try {

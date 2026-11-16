@@ -6,6 +6,9 @@ import {
 } from "@/lib/server-access";
 import { authOrigins } from "@/lib/auth-url";
 import { createSource } from "@/lib/sources";
+// Reading a PDF may take up to 20 seconds. With semantic search on, making the
+// passages' embeddings may take up to 20 more.
+export const maxDuration = 60;
 export async function POST(request: Request) {
   try {
     const user = await requireFreshAdmin(request);

@@ -6,7 +6,7 @@ import { BUNDLED_EXAMPLES, OWN_DOCUMENT_EXAMPLES } from "@/lib/assistant/example
 
 type Source = { id: string; title: string; dated: string; url: string };
 type Turn = { id: number; question: string; result?: AssistantAnswer; error?: string };
-export default function SafetyAssistant({ sources, ownDocuments = false, aiWriting = false }: { sources: Source[]; ownDocuments?: boolean; aiWriting?: boolean }) {
+export default function SafetyAssistant({ sources, ownDocuments = false, aiWriting = false, meaningSearch }: { sources: Source[]; ownDocuments?: boolean; aiWriting?: boolean; meaningSearch?: "voyage" | "ollama" }) {
   const examples = ownDocuments ? OWN_DOCUMENT_EXAMPLES : BUNDLED_EXAMPLES;
   const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -102,6 +102,7 @@ export default function SafetyAssistant({ sources, ownDocuments = false, aiWriti
         <details className="rounded-xl border border-slate-200 bg-white p-4"><summary className="min-h-11 cursor-pointer font-semibold">Source library · {sources.length} documents</summary><ul className="mt-3 space-y-4">{sources.map(source => <li key={source.id}><a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-teal-800 underline">{source.title}<span className="sr-only"> opens in a new tab</span></a><p className="mt-1 text-xs leading-5 text-slate-500">{source.dated}</p></li>)}</ul></details>
         <p className="px-1 text-xs leading-6 text-slate-500">Each question is checked on its own. Responses stay on this page. Questions and whether they were answered are saved with the demo&apos;s existing statistics; clearing this view does not delete those records.</p>
         {aiWriting && <p className="px-1 text-xs leading-6 text-slate-500">AI writing is on. When the documents contain an answer, an AI model (Claude) writes a short summary from the matching passages, and the passages are shown with it. Your question and those passages are sent to Anthropic to write the summary.</p>}
+        {meaningSearch && <p className="px-1 text-xs leading-6 text-slate-500">Search by meaning is on. The assistant also finds passages that say the same thing in other words. {meaningSearch === "voyage" ? "To compare meanings, your question is sent to Voyage AI, an embeddings service." : "This copy uses a test model on this computer; the question does not leave it."}</p>}
       </aside>
     </div>
   </div>;

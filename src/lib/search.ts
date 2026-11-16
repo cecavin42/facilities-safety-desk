@@ -204,11 +204,47 @@ function bestExcerpt(text: string, qTerms: string[], intent: string[]): string {
 const MIN_COVERAGE = 0.5;
 const MIN_SCORE = 3;
 
+// Passages ranked by how close their meaning is to the question's, closest
+// first (made in assistant/semantic.ts from embeddings).
+export type SemanticRanking = { model: string; ids: string[] };
+
+// Reciprocal rank fusion: a passage scores 1 / (RRF_K + its place) in each
+// list it is on, and the scores are added. Only places count, never the two
+// lists' own scores, which are on different scales. 60 is the usual constant;
+// on the test questions 20 gave the same passages.
+const RRF_K = 60;
+// How many of the passages closest in meaning take part: as many as the model
+// is sent. Measured with three local embedding models on 59 questions, 6 to 8
+// found the most answers; 12 and 16 found fewer, and 4 fewer.
+const SEMANTIC_DEPTH = 8;
+
+// True when at least one word of the question occurs somewhere in the
+// passages. A greeting, or a question about something the collection has no
+// word for, is not worth an embedding call or a model call.
+export function sharesAWord(question: string, passages: Passage[]): boolean {
+  const terms = new Set(tokens(question));
+  if (!terms.size) return false;
+  return passages.some((p) => {
+    for (const word of analyze(p).tf.keys()) if (terms.has(word)) return true;
+    return false;
+  });
+}
+
 export function retrieveCandidates(
   question: string,
   limit = 8,
   passages: Passage[] = PASSAGES,
   minCoverage = 0,
+  // Hybrid search: the keyword ranking below is fused with this ranking by
+  // meaning. Left out, the result is the keyword ranking alone.
+  semantic?: SemanticRanking,
+  // false: passages found only by meaning are added when the keyword match
+  // found something, and never on their own. Whether there is anything to
+  // show stays a keyword decision, because closeness of meaning cannot tell
+  // "about the same subject" from "answers the question".
+  // true: they are returned on their own too. For a caller that has another
+  // judge of relevance (the model that writes the answer).
+  semanticAlone = false,
 ): Passage[] {
   const terms = [...new Set(tokens(question))];
   const intent = intentTerms(question);
@@ -242,7 +278,9 @@ export function retrieveCandidates(
           ((frequency.get(t) || 0) + 0.5),
     );
   const total = terms.reduce((n, t) => n + weight(t), 0);
-  return entries
+  const bareHeader = (p: Passage) =>
+    p.text.length < 300 && HEADER.test(p.text.slice(0, 70));
+  const keyword = entries
     .map((x) => ({
       x,
       score: rank(terms, x) + 0.5 * rank(intent, x),
@@ -258,11 +296,33 @@ export function retrieveCandidates(
           (entries.length < 10
             ? Math.log1p(entries.length) * 0.4
             : MIN_SCORE) &&
-        !(r.x.p.text.length < 300 && HEADER.test(r.x.p.text.slice(0, 70))),
+        !bareHeader(r.x.p),
     )
     .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
     .map((r) => r.x.p);
+  if (!semantic || (!keyword.length && !semanticAlone))
+    return keyword.slice(0, limit);
+
+  const byId = new Map(passages.map((p) => [p.id, p]));
+  const close = semantic.ids
+    .map((id) => byId.get(id))
+    .filter((p): p is Passage => Boolean(p) && !bareHeader(p!))
+    .slice(0, SEMANTIC_DEPTH);
+  const fused = new Map<Passage, number>();
+  keyword.forEach((p, i) => fused.set(p, 1 / (RRF_K + i + 1)));
+  close.forEach((p, i) =>
+    fused.set(p, (fused.get(p) ?? 0) + 1 / (RRF_K + i + 1)),
+  );
+  // Equal scores keep this order: the keyword list first, then the passages
+  // found only by meaning.
+  const order = [...fused.keys()];
+  const place = new Map(order.map((p, i) => [p, i]));
+  return order
+    .sort(
+      (a, b) =>
+        fused.get(b)! - fused.get(a)! || place.get(a)! - place.get(b)!,
+    )
+    .slice(0, limit);
 }
 
 export function ask(question: string): AskResult {

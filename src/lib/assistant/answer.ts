@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { retrieveCandidates } from "../search";
+import { retrieveCandidates, type SemanticRanking } from "../search";
 import {
   BUILTIN_CATALOG,
   eligiblePassages,
@@ -128,6 +128,9 @@ export function answerFromTopics(
   question: string,
   selected = matchTopics(question),
   catalog: Catalog = BUILTIN_CATALOG,
+  // Hybrid search: which passages are shown may change, never whether any
+  // are. Left out, the search is by keywords alone.
+  semantic?: SemanticRanking,
 ): AssistantAnswer {
   const custom = catalog.documents.some((d) => d.origin === "upload");
   const gap = scopeGap(question, custom);
@@ -190,7 +193,7 @@ export function answerFromTopics(
         .slice(0, 2),
     };
   }
-  const candidates = retrieveCandidates(question, 3, eligible, 0.5);
+  const candidates = retrieveCandidates(question, 3, eligible, 0.5, semantic);
   if (candidates.length)
     return {
       ...base,
