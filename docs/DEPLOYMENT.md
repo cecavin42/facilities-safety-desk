@@ -189,18 +189,18 @@ Optional, and off until a key is added. Without the key the assistant searches b
 
 **What it does.** Keyword search finds a passage only when the question uses the document's words. With semantic search, every passage also has an embedding: a list of numbers that places its meaning. Each question gets one too. The eight passages closest in meaning are merged with the keyword matches by rank (reciprocal rank fusion), and the usual choice of up to eight passages for Claude runs on the merged list. The search is the keyword search alone whenever the other half cannot be trusted: no key, an active passage without an embedding, or a provider that fails or takes longer than 2.5 seconds. On the page without AI writing it can change which three passages are shown, never whether any are shown.
 
-**To turn it on.** The embeddings come from Voyage AI, the provider the spec names. Anthropic has no embedding model of its own and its documentation points to Voyage. A key is made in a MongoDB Atlas account, under **AI Model APIs → Create model API key**. Then, in Vercel, under **Settings → Environment Variables**:
+**To turn it on.** The embeddings come from Voyage AI, the provider the spec names. Anthropic has no embedding model of its own and its documentation points to Voyage. A key is made in a MongoDB Atlas account, under **AI Model APIs → Create model API key**. On that form, leave **Cloud Provider** and **Geography** on **Any**. Then, in Vercel, under **Settings → Environment Variables**:
 
 | Setting | Value | Notes |
 | --- | --- | --- |
 | `ASSISTANT_EMBEDDINGS_API_KEY` | The model API key | Tick **Production**. Tick **Preview** only when previews have a database of their own. Choose **Sensitive** |
 | `ASSISTANT_EMBEDDINGS_MODEL` | Optional | The default is `voyage-4`. `voyage-4-lite` costs a third as much and `voyage-4-large` twice as much. After a change every passage is embedded again, and the old embeddings stay in the table unused |
-| `ASSISTANT_EMBEDDINGS_BASE_URL` | Only for a key from the older Voyage AI platform: `https://api.voyageai.com/v1` | The default, `https://ai.mongodb.com/v1`, is the address for a key from Atlas. Must start with `https://` |
+| `ASSISTANT_EMBEDDINGS_BASE_URL` | Only for a key that is not an ordinary Atlas key. From the older Voyage AI platform: `https://api.voyageai.com/v1`. An Atlas key limited to a geography: `https://us.ai.mongodb.com/v1` or `https://eu.ai.mongodb.com/v1` | The default, `https://ai.mongodb.com/v1`, is the address for an Atlas key made with Geography **Any**. That is the one that was tested. The geography addresses are from MongoDB's documentation (read November 16, 2026) and were not tried; it says such a key needs a paid usage tier and that those addresses do not serve every model. Must start with `https://` |
 | `ASSISTANT_EMBEDDINGS_TIMEOUT_MS` | Optional | How long a question waits for its embedding before keyword search answers alone. The default is 2500 |
 
 Then redeploy. The build log says `Assistant semantic search: on (voyage:voyage-4).` and, from the indexing step, a line such as `Semantic index (voyage:voyage-4): 1041 of 1041 passages in 22 source versions.`
 
-**Two things to do in the Atlas account first.** Add a payment method, then switch off **Help Improve Voyage AI Models** under **Organization Settings**. The first 200 million tokens for each model are free and this site needs well under one million, so nothing is charged. But without a payment method the account stays in the free trial tier, whose rate limits are lower (the documentation does not give the numbers), and the switch cannot be changed. The switch decides whether the texts sent may be used to improve Voyage's models. Switch it off before any document that is not public is embedded.
+**Two things to do in the Atlas account first.** Add a payment method, then switch off **Help Improve Voyage AI Models** under **Organization Settings**. The first 200 million tokens for each model are free and this site needs well under one million, so nothing is charged. But without a payment method the account stays in the free trial tier, whose rate limits are lower (the documentation does not give the numbers), and the switch cannot be changed. The switch decides whether the texts sent may be used to improve Voyage's models. Switch it off before any document that is not public is embedded. On the account used for the November 16 test, the switch was locked until a payment method was added and showed off afterwards.
 
 **The index.** A new upload is embedded when it is uploaded, within 20 seconds; the upload never fails because of it. Whatever is missing is tried again when the version is activated. Documents that were in the Source library before the key was added are embedded by `npm run embeddings:index`. That command also runs as a step of every Vercel build: it embeds what is missing, takes at most four minutes, prints one line, and never fails the build. Until every active passage has its embedding, the assistant uses keyword search and sends nothing to the provider, and a Safety manager sees "not yet indexed for search by meaning" beside such a document in the Source library. If the build log shows fewer passages indexed than there are, redeploy to continue; nothing made is lost.
 
@@ -214,7 +214,7 @@ Then redeploy. The build log says `Assistant semantic search: on (voyage:voyage-
 
 When to move: at tens of thousands of passages. The comparison stays fast (50,000 take about 36 milliseconds), but holding every vector in memory does not stay reasonable (about 200 MB at 50,000). The path: `CREATE EXTENSION vector`, add a `vector(1024)` column filled with `embedding::vector`, add an HNSW index, and let the database return the nearest passages. The fusion and everything after it stay as they are.
 
-**Cost.** Not measured against Voyage, because no key was available. Computed from Voyage's price list as read on November 15, 2026: the 1,041 passages in the library are about 350,000 to 420,000 tokens (counted by three local models' tokenizers), so embedding all of them once is about 2 to 3 cents on `voyage-4` ($0.06 per million tokens), and a question is about 20 tokens, about a tenth of a cent per 1,000 questions. The free allowance covers both many times over. The larger effect is on the Claude side, because questions that keyword search found nothing for now reach the model: on the 23 test questions the model's input grew by 9 percent (see `docs/ASSISTANT_REVIEW.md`).
+**Cost.** Measured against Voyage on November 16, 2026: embedding the 1,041 passages in the library once took 418,150 tokens and 15 seconds. At the listed price for `voyage-4` ($0.06 per million tokens, read November 15, 2026) that is 2.5 cents. A question is 10 to 20 tokens, about a tenth of a cent per 1,000 questions. The free allowance covers both many times over. The larger effect is on the Claude side, because questions that keyword search found nothing for now reach the model: on the 23 test questions the model's input grew by 9 percent (see `docs/ASSISTANT_REVIEW.md`).
 
 **Time limits.** The upload request and the activate or retire request may now run up to 60 seconds (they had the platform's default before), whether or not semantic search is on.
 
@@ -222,7 +222,15 @@ When to move: at tens of thousands of passages. The comparison stays fast (50,00
 
 ## Checked and not checked
 
-Checked on a development computer on November 15, 2026, for semantic search. No hosted embeddings key was available, so the hosted provider was replaced by stand-ins and by embedding models running on the same computer (Ollama):
+Checked on a development computer on November 16, 2026, for semantic search with the real provider: Voyage AI's `voyage-4`, reached with a model API key from a MongoDB Atlas account that has a payment method (Cloud Provider and Geography left on Any):
+
+- `npm run embeddings:index` embedded the 1,041 active passages of a copy of the live site's Source library in 15 seconds (418,150 tokens, in requests of up to 64 passages). A second run, in the form the Vercel build uses, embedded nothing and printed its one line.
+- A question's embedding came back in 70 to 180 milliseconds, about 90 as a rule, and in about 0.4 seconds for the first request after a pause. Across about 100 test questions none fell back to keyword search because the provider failed or was slow.
+- Through the running app with both real services (Voyage AI and the Claude API): the assistant page says that search by meaning is on, and a question in other words than the document uses got a written answer that cites the right procedure, in 2.9 seconds.
+- A made-up key is refused by the provider (HTTP 401), and the app records the reason `auth`. A model name the provider does not know is answered with HTTP 400, so the app records `bad-request` for it, not `model-not-found`.
+- Retrieval and answers on the 59 private test questions with `voyage-4`: see `docs/ASSISTANT_REVIEW.md`.
+
+Checked on a development computer on November 15, 2026, for semantic search, before a hosted embeddings key was available. The hosted provider was replaced by stand-ins and by embedding models running on the same computer (Ollama):
 
 - `npm run test:semantic`, 27 of 27: the settings, the request to the provider and every failure it can return, the fusion, and that every answer is exactly the keyword answer without a key, with a passage that has no embedding, and with a failed or slow provider.
 - `npm run test:semantic-path`, 7 of 7, through the app's own sign-in and database with stand-ins for the embeddings API and the Claude API: an upload is embedded at upload; a question in other words reaches the model with the right passage; a repeated question is sent nowhere; a failed provider at upload still saves and activates the document, and every answer is then the keyword one until the index is complete; a slow provider costs one question 2.6 seconds and the next question nothing.
@@ -232,8 +240,10 @@ Checked on a development computer on November 15, 2026, for semantic search. No 
 
 Not checked for semantic search:
 
-- Voyage AI itself: the request was written from its documentation (read November 15, 2026) and tested against a stand-in that answers in the documented shape. No request has been sent to Voyage. Its speed, its rate limits on a new account, and how well `voyage-4` finds passages are not known.
 - A Vercel deployment with a key: the indexing step of the build, and the time limit of the upload request there.
+- An upload or an activation while Voyage is the provider. Both were tested with the stand-in, and they use the same indexing code as `npm run embeddings:index`.
+- Voyage's rate limits. The test account has a payment method; the free trial tier without one was not tried.
+- A key limited to a geography, and any model other than `voyage-4`.
 - pgvector. It is not used.
 
 Checked on a development computer on November 12, 2026, for AI-written answers, with a local stand-in for the Claude API in place of a real model (`scripts/claude-stub.ts`; no key and no cost):

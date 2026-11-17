@@ -113,49 +113,51 @@ In the app's PostgreSQL database, as plain arrays of numbers, compared in the ap
 
 **What was measured**
 
-On a development computer, November 15, 2026, on a copy of the live site's Source library (22 documents, 1,041 passages). No hosted embeddings key was available, so the embeddings came from three models running on the same computer through Ollama: `nomic-embed-text`, `mxbai-embed-large` and `qwen3-embedding:0.6b`. Where the right-hand column gives three numbers, they are those three models in that order.
+On a development computer, on a copy of the live site's Source library (22 documents, 1,041 passages), in two rounds. On November 15, 2026, before a hosted embeddings key was available, the embeddings came from three models running on the same computer through Ollama: `nomic-embed-text`, `mxbai-embed-large` and `qwen3-embedding:0.6b`. On November 16 the same questions ran again with Voyage AI's `voyage-4`, the hosted model the site is set up for. Where a cell gives three numbers, they are the three local models in that order.
 
 Two question sets, both private because their answer keys quote documents that are not public: the 29 questions of November 12 to 15, and 30 new ones written before any result was seen. Of the 30, 25 ask in other words than the documents use for something the documents answer, and 5 ask for something the documents do not cover.
 
 Which passages reach the model:
 
-| | Keyword only | With semantic search |
-| --- | --- | --- |
-| Earlier questions: the passage with the answer is sent (17 questions) | 16 | 16, 16, 16 |
-| Earlier questions: every document involved is represented (10 questions) | 9 | 9, 9, 9 |
-| Other words: the passage with the answer is sent (25 questions) | 7 | 20, 21, 19 |
-| Other words: the on-page search shows it | 4 | 5, 7, 6 |
-| Not covered: sent to the model (5 questions) | 2 | 5, 5, 5 |
-| Not covered: the page shows passages | 0 | 0, 0, 0 |
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Earlier questions: the passage with the answer is sent (17 questions) | 16 | 16, 16, 16 | 16 |
+| Earlier questions: every document involved is represented (10 questions) | 9 | 9, 9, 9 | 10 |
+| Other words: the passage with the answer is sent (25 questions) | 7 | 20, 21, 19 | 24 |
+| Other words: the on-page search shows it | 4 | 5, 7, 6 | 10 |
+| Not covered: sent to the model (5 questions) | 2 | 5, 5, 5 | 5 |
+| Not covered: the page shows passages | 0 | 0, 0, 0 | 0 |
 
-Answers from the real API (`npm run eval:claude`). The earlier 23 questions ran with one local model (`qwen3-embedding:0.6b`), the 30 new ones with all three:
+Answers from the real API (`npm run eval:claude`). With the local models, the earlier 23 questions ran with one of them (`qwen3-embedding:0.6b`) and the 30 new ones with all three:
 
-| | Keyword only | With semantic search |
-| --- | --- | --- |
-| Claude Haiku 5.5, earlier 23 questions: handled as expected | 22 | 22 |
-| Claude Opus 5.5, earlier 23 questions: handled as expected | 23 | 23 |
-| Claude Haiku 5.5, 30 new questions: handled as expected | 11 | 25, 23, 25 |
-| Of the 25 the documents answer: a written answer that met its expectation | 6 | 21, 20, 21 |
-| Of the 5 they do not cover: left unanswered | 5 | 4, 3, 4 |
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Claude Haiku 5.5, earlier 23 questions: handled as expected | 22 | 22 | 22 |
+| Claude Opus 5.5, earlier 23 questions: handled as expected | 23 | 23 | not run |
+| Claude Haiku 5.5, 30 new questions: handled as expected | 11 | 25, 23, 25 | 27 |
+| Of the 25 the documents answer: a written answer that met its expectation | 6 | 21, 20, 21 | 24 |
+| Of the 5 they do not cover: left unanswered | 5 | 4, 3, 4 | 3 |
 
 What it costs:
 
-| | Keyword only | With semantic search |
-| --- | --- | --- |
-| Time added to a question before the model is called | none | 25 to 40 milliseconds (the embedding request to a model on the same computer, then the comparison, which takes about 1 millisecond) |
-| Earlier 23 questions: model calls and input tokens | 17 calls, 92,445 | 18 calls, 100,681 |
-| 30 new questions: model calls and input tokens | 22 calls, 80,679 | 30 calls, about 178,000 |
-| Claude Opus 5.5 for the earlier 23 questions | $0.489 | $0.528 |
-| Embeddings | none | about 2 to 3 cents once for the whole library and a tenth of a cent per 1,000 questions at Voyage's listed price; not measured |
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Time added to a question before the model is called | none | 25 to 40 milliseconds | about 90 milliseconds (the slowest of 57 questions took 169) |
+| Earlier 23 questions: model calls and input tokens | 17 calls, 92,445 | 18 calls, 100,681 | 18 calls, 100,343 |
+| 30 new questions: model calls and input tokens | 22 calls, 80,679 | 30 calls, about 178,000 | 30 calls, 177,114 |
+| Claude Opus 5.5 for the earlier 23 questions | $0.489 | $0.528 | not run |
+| Embeddings | none | none (the models run on the same computer) | 418,150 tokens to embed the whole library once, in 15 seconds: 2.5 cents at the listed price, inside the free allowance. A question is 10 to 20 tokens |
+
+The added time is the embedding request. The comparison that follows takes about 1 millisecond.
 
 **What this shows, and what it does not**
 
-- It finds what keyword search misses when the question uses other words: 7 of 25 became 19 to 21, and correct written answers on the smaller model went from 6 to 20 or 21.
-- It did not change the questions keyword search already handled: the same passages reach the model, and both models handled the earlier 23 questions as before.
+- It finds what keyword search misses when the question uses other words: 7 of 25 became 19 to 21 with the small local models and 24 with `voyage-4`. Correct written answers on the smaller Claude model went from 6 to 20 or 21, and to 24 with `voyage-4`.
+- It did not hurt the questions keyword search already handled: the passage with the answer reaches the model for the same 16 of 17, and the earlier 23 questions were handled as before (Claude Opus 5.5 was run with a local model only).
 - More questions reach the model, so more is spent there. Every question that passes the scope rules now brings passages, where before a question with no keyword match stopped without a model call.
-- A question the documents do not cover is no longer always left unanswered. The model is shown the nearest passages, and for one or two of the five such questions it wrote a partial answer from them (the request procedure nearest to what was asked, or the general reporting line with a remark that the documents describe no such procedure). Every one was marked partial, none as a full answer. With keyword search all five were left unanswered. A rule that withholds a partial answer when all its passages were found by meaning only was tested on these results and not added: it would have removed three to six correct answers in each run to prevent one or two.
-- It does not find a single sentence inside a long passage about something else, and the local models did not connect an everyday chemical name to the name on the label.
-- The embedding models here are small local ones. Voyage's model was not measured, so its results may differ in either direction.
+- A question the documents do not cover is no longer always left unanswered. The model is shown the nearest passages, and for one or two of the five such questions (two with `voyage-4`) it wrote a partial answer from them (the request procedure nearest to what was asked, or the general reporting line with a remark that the documents describe no such procedure). Every one was marked partial, none as a full answer. With keyword search all five were left unanswered. A rule that withholds a partial answer when all its passages were found by meaning only was tested on these results and not added: it would have removed three to six correct answers in each run to prevent one or two.
+- It does not find a single sentence inside a long passage about something else. That is the one question of the 25 that `voyage-4` still missed. The local models also did not connect an everyday chemical name to the name on the label; `voyage-4` did.
+- The hosted model found more than the three small local ones: 24 of 25 against 19 to 21. It did no better on the questions the documents do not cover.
 - 59 questions written by the developer show the direction. They are not a measure of accuracy in general. Three answer keys were widened after first results showed correct answers that the keys rejected; in one of them the search by meaning had found a rule the key did not know about.
 
 AI-assisted implementation by Claude at Forrest's direction. No student hours, independent user testing or production approval are implied.
