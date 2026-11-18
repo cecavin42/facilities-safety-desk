@@ -2,7 +2,7 @@
 // the checks a reply must pass before anyone sees it. Nothing here talks to a
 // network; the transport lives in claude-client.ts so this file can be tested
 // with a stand-in.
-import { retrieveCandidates } from "../search";
+import { retrieveCandidates, type SemanticRanking } from "../search";
 import { eligiblePassages, type Catalog } from "../source-types";
 import { evidenceFor, type AssistantAnswer } from "./answer";
 
@@ -77,6 +77,10 @@ export function hasSeveralParts(question: string) {
 export function passagesForWriter(
   question: string,
   catalog: Catalog,
+  // Hybrid search: passages close in meaning join the keyword matches, and
+  // may stand alone, because the model judges whether they answer. Left out,
+  // the choice is by keywords alone.
+  semantic?: SemanticRanking,
 ): WriterPassage[] {
   const uploaded = new Set(
     catalog.documents.filter((d) => d.origin === "upload").map((d) => d.id),
@@ -86,6 +90,8 @@ export function passagesForWriter(
     MAX_PASSAGES * 4,
     eligiblePassages(question, catalog),
     MIN_COVERAGE,
+    semantic,
+    true,
   ).filter((p) => p.text.length >= MIN_PASSAGE_CHARS);
   const ownText = ranked.some((p) => uploaded.has(p.docId));
   const perDocument = new Map<string, number>();

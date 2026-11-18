@@ -15,6 +15,8 @@ type Source = {
   credit: string;
   state: string;
   passageCount: number;
+  // Present for administrators while semantic search is on.
+  indexedCount?: number;
   fileName?: string;
   passages?: { id: string; label: string; text: string }[];
 };
@@ -242,6 +244,10 @@ export default function SourcesPage() {
               </span>
               <span className="mt-2 block text-xs text-slate-500">
                 {r.publisher} · {r.revision} · {r.passageCount} passages
+                {r.indexedCount !== undefined &&
+                  r.state !== "retired" &&
+                  r.indexedCount < r.passageCount &&
+                  " · not yet indexed for search by meaning"}
               </span>
             </button>
           ))}

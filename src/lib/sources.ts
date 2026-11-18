@@ -9,6 +9,38 @@ import {
   type SourceDocument,
   type SourcePassage,
 } from "./source-types";
+import { configuredProvider } from "./assistant/embedding-client";
+import { indexVersion } from "./assistant/embedding-store";
+
+// Semantic search (optional, off without an embeddings key): the passages of
+// a version are embedded when it is uploaded, and whatever is still missing
+// when it is activated. Best effort and time-boxed: an upload or an activation
+// never fails, and never waits long, because of it. Until every active passage
+// has its embedding the assistant keeps using keyword search, and
+// `npm run embeddings:index` (also a step of the Vercel build) fills the gaps.
+const INDEX_AT_UPLOAD_MS = 20_000;
+async function indexForSearch(versionId: string, passages: SourcePassage[]) {
+  const configured = configuredProvider();
+  if (!configured) return undefined;
+  try {
+    const result = await indexVersion(
+      database(),
+      configured.provider,
+      versionId,
+      // The same text the assistant searches.
+      passages.map((p) => ({ id: p.id, text: readableText(p.text) })),
+      { signal: AbortSignal.timeout(INDEX_AT_UPLOAD_MS), retries: 1 },
+    );
+    if (result.stopped)
+      console.warn(
+        `[sources] semantic index incomplete (${result.stopped}): ${result.already + result.embedded} of ${result.passages} passages`,
+      );
+    return result;
+  } catch {
+    console.warn("[sources] semantic index could not be updated");
+    return undefined;
+  }
+}
 export async function activeCatalog() {
   const { rows } = await database().query(
     "SELECT id,document_id,title,publisher,revision,version,source_url,scope,credit,origin,passages FROM source_versions WHERE state='active' ORDER BY document_id",
@@ -37,9 +69,13 @@ export async function activeCatalog() {
   );
 }
 export async function listSources(admin: boolean) {
+  // With semantic search on, an administrator also sees how many passages of
+  // each version have an embedding. Off, the query is the one it always was.
+  const model = admin ? configuredProvider()?.provider.id : undefined;
   return (
     await database().query(
-      `SELECT id,document_id AS "documentId",version,title,publisher,revision,source_url AS "sourceUrl",scope,credit,origin,state,file_name AS "fileName",created_at AS "createdAt",activated_at AS "activatedAt",jsonb_array_length(passages) AS "passageCount" FROM source_versions ${admin ? "" : "WHERE state='active'"} ORDER BY title,version DESC`,
+      `SELECT id,document_id AS "documentId",version,title,publisher,revision,source_url AS "sourceUrl",scope,credit,origin,state,file_name AS "fileName",created_at AS "createdAt",activated_at AS "activatedAt",jsonb_array_length(passages) AS "passageCount"${model ? `,(SELECT count(*)::int FROM passage_embeddings e WHERE e.version_id=source_versions.id AND e.model=$1) AS "indexedCount"` : ""} FROM source_versions ${admin ? "" : "WHERE state='active'"} ORDER BY title,version DESC`,
+      model ? [model] : [],
     )
   ).rows;
 }
@@ -207,7 +243,7 @@ export async function createSource(
   const documentId = fields.documentId || randomUUID();
   const passages = chunkPages(documentId, id, pages);
   const hash = createHash("sha256").update(bytes).digest("hex");
-  return transaction(database(), async (client) => {
+  const created = await transaction(database(), async (client) => {
     await client.query("SELECT pg_advisory_xact_lock(5563,4)");
     const actor = await client.query(
       "SELECT id FROM \"user\" WHERE id=$1 AND role='admin' AND COALESCE(banned,false)=false FOR SHARE",
@@ -269,6 +305,12 @@ export async function createSource(
     );
     return { id, version: next.version, passageCount: passages.length };
   });
+  // After the version is saved, and outside the transaction: an outside call
+  // must never hold a database lock.
+  const index = await indexForSearch(id, passages);
+  return index
+    ? { ...created, indexedCount: index.already + index.embedded }
+    : created;
 }
 export async function transitionSource(
   actorId: string,
@@ -308,4 +350,15 @@ export async function transitionSource(
       [actorId, `source.${state === "active" ? "activated" : "retired"}`, id],
     );
   });
+  // A version whose embeddings could not be made at upload gets a second
+  // chance here, when it starts to count.
+  if (state === "active" && configuredProvider()) {
+    const passages = await database()
+      .query("SELECT passages FROM source_versions WHERE id=$1", [id])
+      .then(
+        ({ rows }) => rows[0]?.passages as SourcePassage[] | undefined,
+        () => undefined,
+      );
+    if (passages) await indexForSearch(id, passages);
+  }
 }

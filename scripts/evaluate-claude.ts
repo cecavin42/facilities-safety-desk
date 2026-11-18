@@ -11,9 +11,15 @@
 // The catalog is the active Source library of the database in .env.local, so
 // the same documents the local app serves. Question files that quote private
 // documents stay outside this repository.
+//
+// Semantic search takes part when its settings are present, exactly as in the
+// app, and each row says whether it did ("hybrid") or not ("keyword"). To
+// compare, run the same questions once with and once without
+// ASSISTANT_EMBEDDINGS_API_KEY (or ASSISTANT_EMBEDDINGS_OLLAMA_MODEL).
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { claudeTransport } from "../src/lib/assistant/claude-client";
 import { claudeSettings } from "../src/lib/assistant/claude-settings";
+import { embeddingSettings } from "../src/lib/assistant/embedding-settings";
 import { answerWithTrace } from "../src/lib/assistant/service";
 import { activeCatalog } from "../src/lib/sources";
 
@@ -72,13 +78,17 @@ async function main() {
   console.log(
     `Catalog: ${catalog.documents.length} documents, ${catalog.passages.length} passages, snapshot ${catalog.version}.`,
   );
+  const semantic = embeddingSettings();
+  console.log(
+    `Semantic search: ${semantic.on ? `on (${semantic.id})` : "off (keyword search only)"}.`,
+  );
   const report = [];
   for (const model of models) {
     const transport = claudeTransport({ ...settings, model });
     const rows = [];
     for (const q of questions) {
       const started = Date.now();
-      const { answer, trace } = await answerWithTrace(
+      const { answer, trace, retrieval } = await answerWithTrace(
         q.question,
         undefined,
         catalog,
@@ -113,15 +123,18 @@ async function main() {
         passed: !problems.length,
         problems,
         outcome: trace?.outcome ?? "no model call",
+        retrieval,
         supported: written ? answer.outcome : undefined,
         cited,
+        // The passages the answer rests on, by id (never their text).
+        citedPassages: written ? answer.evidence.map((e) => e.id) : undefined,
         answer: written ? answer.sections.map((s) => ({ heading: s.title, text: s.summary })) : undefined,
         inputTokens: trace?.inputTokens ?? 0,
         outputTokens: trace?.outputTokens ?? 0,
         ms: Date.now() - started,
       });
       console.log(
-        `  ${problems.length ? "MISS" : "ok  "} ${q.id.padEnd(28)} ${(trace?.outcome ?? "no model call").padEnd(20)} ${String(Date.now() - started).padStart(6)} ms${problems.length ? "  " + problems.join("; ") : ""}`,
+        `  ${problems.length ? "MISS" : "ok  "} ${q.id.padEnd(28)} ${(trace?.outcome ?? "no model call").padEnd(20)} ${retrieval.padEnd(7)} ${String(Date.now() - started).padStart(6)} ms${problems.length ? "  " + problems.join("; ") : ""}`,
       );
     }
     const called = rows.filter((r) => r.outcome !== "no model call");
@@ -137,6 +150,8 @@ async function main() {
       questions: rows.length,
       passed: rows.filter((r) => r.passed).length,
       outcomes,
+      // Questions where semantic search took part in choosing the passages.
+      hybrid: rows.filter((r) => r.retrieval === "hybrid").length,
       inputTokens: input,
       outputTokens: output,
       costUsd: cost === undefined ? "price not listed" : Number(cost.toFixed(5)),
@@ -155,7 +170,7 @@ async function main() {
   await writeFile(
     out,
     JSON.stringify(
-      { when: new Date().toISOString(), questionFile: file, catalog: catalog.version, standIn, report },
+      { when: new Date().toISOString(), questionFile: file, catalog: catalog.version, standIn, semanticSearch: semantic.on ? semantic.id : null, report },
       null,
       2,
     ),

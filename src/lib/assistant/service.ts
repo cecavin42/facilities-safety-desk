@@ -15,6 +15,8 @@ import {
 } from "../source-types";
 import { TOPICS } from "./topics";
 import { retrieveCandidates } from "../search";
+import { semanticRanking, type SemanticSearch } from "./semantic";
+import { configuredSemantic } from "./semantic-search";
 import {
   passagesForWriter,
   writeFromPassages,
@@ -56,11 +58,19 @@ export async function answerWithTrace(
   catalog: Catalog = BUILTIN_CATALOG,
   // undefined: use the configured model, if any. null: no model.
   transport: Transport | null | undefined = undefined,
-): Promise<{ answer: AssistantAnswer; trace?: ModelTrace }> {
+  // undefined: use the configured semantic search, if any. null: keywords
+  // only.
+  semantic: SemanticSearch | null | undefined = undefined,
+): Promise<{
+  answer: AssistantAnswer;
+  trace?: ModelTrace;
+  // "hybrid" when search by meaning took part in choosing the passages.
+  retrieval: "keyword" | "hybrid";
+}> {
   const writer = transport === undefined ? configuredTransport() : transport;
-  if (!writer)
-    return { answer: await answerQuestion(question, signal, catalog) };
-  const baseline = answerFromTopics(question, undefined, catalog);
+  const search = semantic === undefined ? configuredSemantic() : semantic;
+  if (!writer) return answerWithoutWriter(question, signal, catalog, search);
+  const keywordBaseline = answerFromTopics(question, undefined, catalog);
   if (
     !catalog.passages.length ||
     scopeGap(
@@ -69,23 +79,41 @@ export async function answerWithTrace(
     ) ||
     needsIndividualDecision(question)
   )
-    return { answer: baseline };
-  const passages = passagesForWriter(question, catalog);
+    return { answer: keywordBaseline, retrieval: "keyword" };
+  const keywordPassages = passagesForWriter(question, catalog);
   // A tested source guide keeps its answer, unless the closest passage comes
-  // from an uploaded document: the organization's own text comes first.
-  const guide = baseline.method === "source-guide" && baseline.sections.length;
-  if (!passages.length || (guide && !passages[0].upload))
-    return { answer: baseline };
+  // from an uploaded document: the organization's own text comes first. This
+  // is decided by the keyword ranking alone, as it always was.
+  const guide =
+    keywordBaseline.method === "source-guide" &&
+    keywordBaseline.sections.length;
+  if (guide && !keywordPassages[0]?.upload)
+    return { answer: keywordBaseline, retrieval: "keyword" };
+  // Undefined whenever search by meaning is off or cannot be trusted for
+  // this question; everything below is then exactly the keyword path.
+  const ranking = search
+    ? await semanticRanking(question, catalog, search, signal)
+    : undefined;
+  const retrieval = ranking ? "hybrid" : "keyword";
+  const passages = ranking
+    ? passagesForWriter(question, catalog, ranking)
+    : keywordPassages;
+  const baseline =
+    ranking && keywordBaseline.method === "source-search"
+      ? answerFromTopics(question, undefined, catalog, ranking)
+      : keywordBaseline;
+  if (!passages.length) return { answer: baseline, retrieval };
 
   // Only the configured model's answers are reused; a transport passed in by a
   // caller (a test, an evaluation run) always runs.
   const reuse = transport === undefined;
-  const key = `${catalog.version}\0${question}`;
+  const key = `${catalog.version}\0${ranking?.model ?? ""}\0${question}`;
   const hit = reuse ? written.get(key) : undefined;
   if (hit && hit.expires > Date.now())
     return {
       answer: hit.result,
       trace: { model: "", outcome: "cached", inputTokens: 0, outputTokens: 0 },
+      retrieval,
     };
   const result = await writeFromPassages(
     question,
@@ -108,7 +136,7 @@ export async function answerWithTrace(
       });
       if (written.size > 100) written.delete(written.keys().next().value!);
     }
-    return { answer: result.answer, trace };
+    return { answer: result.answer, trace, retrieval };
   }
   // "no-support" is the model agreeing that the passages do not answer the
   // question; the source-based answer already says so.
@@ -123,6 +151,31 @@ export async function answerWithTrace(
             notice: CHECK_FAILURES.has(result.outcome) ? WITHHELD : UNAVAILABLE,
           },
     trace,
+    retrieval,
+  };
+}
+
+// The answer when no model writes: the source guides and the search.
+async function answerWithoutWriter(
+  question: string,
+  signal: AbortSignal | undefined,
+  catalog: Catalog,
+  search: SemanticSearch | null,
+): Promise<{ answer: AssistantAnswer; retrieval: "keyword" | "hybrid" }> {
+  const keywordAnswer = await answerQuestion(question, signal, catalog);
+  // Search by meaning can change which passages the search shows. It has no
+  // say where a guide answered, a rule declined, or the keyword match found
+  // nothing, so those cost no outside call.
+  if (!search || keywordAnswer.method !== "source-search")
+    return { answer: keywordAnswer, retrieval: "keyword" };
+  const ranking = await semanticRanking(question, catalog, search, signal);
+  if (!ranking) return { answer: keywordAnswer, retrieval: "keyword" };
+  return {
+    answer: {
+      ...answerFromTopics(question, undefined, catalog, ranking),
+      ...(keywordAnswer.notice ? { notice: keywordAnswer.notice } : {}),
+    },
+    retrieval: "hybrid",
   };
 }
 

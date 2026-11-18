@@ -86,3 +86,78 @@ The cited passages are always shown with the answer for that reason, and the not
 With the live site's 20 Lipscomb entries copied to a development computer (931 passages), 16 test questions have an answer in them. The passages sent to the model included the passage that holds the answer for all 16. The on-page search, which shows three passages, did so for 14. For nine of ten questions about a point where documents disagree, or about the chemical inventory, every document involved was among the passages sent. This measures the search, not the model.
 
 AI-assisted implementation by Claude at Forrest's direction. No student hours, independent user testing or production approval are implied.
+
+## Semantic search (added November 15, 2026)
+
+Optional, and off unless `ASSISTANT_EMBEDDINGS_API_KEY` is set. The spec names it ("Embeddings: Voyage or similar"), and the instructor asked on November 12 about a vector database behind the assistant.
+
+Keyword search finds a passage only when the question uses the document's words. A question that says "musty" and "dark spots" does not find a procedure that says "mold". Semantic search compares meanings instead: every passage and every question gets an embedding, a list of numbers made by an embedding model, and passages whose numbers are close to the question's are close in meaning.
+
+**How a question is handled when it is on**
+
+1. The scope rules run first, unchanged. A declined question is sent nowhere.
+2. A question that a tested source guide answers keeps the guide. That is decided by the keyword ranking alone, as before, and such a question is not sent to the embeddings provider.
+3. A question none of whose words occur in any active passage, such as a greeting, is not sent either.
+4. Otherwise the question is embedded (one request, 2.5 seconds at most) and compared with every passage it may draw on. Passages shorter than 120 characters are left out. The eight closest are merged with the keyword matches by reciprocal rank fusion: a passage scores 1 / (60 + its place) on each list it is on, and the scores are added. Only places count, so the two lists' own scores never have to be compared. A passage on both lists comes first, and on a tie the keyword match goes first.
+5. With AI writing on, the merged list feeds the same choice as before: up to eight passages, at most three per document, two from the bundled regulations, and the neighbors of the best passage for a question with several parts. A passage found only by meaning may be sent, because the model judges whether it answers.
+6. Without AI writing, the three passages shown come from the merged list, but only when the keyword match found at least one passage. Meaning can change which passages are shown, never whether any are.
+7. Keyword search answers alone, exactly as before, when there is no key, when any passage the question may draw on has no embedding, when the stored embeddings cannot be read, and when the provider fails or is slow. After a failure the provider is left alone for 30 seconds.
+
+**Why there is no similarity threshold**
+
+The first design gave the search a cut-off: only passages that stood out from the rest of the collection would count. It was measured and dropped. On three embedding models, an off-topic question ("Hello, how are you?", a question about the capital of France) had passages that stood out as far as a real question's did. Closeness of meaning can rank passages. It cannot tell "about the same subject" from "answers the question". So something else always decides: the model when it writes, and the keyword match on the page.
+
+**Where the embeddings are kept**
+
+In the app's PostgreSQL database, as plain arrays of numbers, compared in the app. The pgvector extension is not used. `docs/DEPLOYMENT.md`, "Semantic search", gives the reasons and the path to pgvector.
+
+**What was measured**
+
+On a development computer, on a copy of the live site's Source library (22 documents, 1,041 passages), in two rounds. On November 15, 2026, before a hosted embeddings key was available, the embeddings came from three models running on the same computer through Ollama: `nomic-embed-text`, `mxbai-embed-large` and `qwen3-embedding:0.6b`. On November 16 the same questions ran again with Voyage AI's `voyage-4`, the hosted model the site is set up for. Where a cell gives three numbers, they are the three local models in that order.
+
+Two question sets, both private because their answer keys quote documents that are not public: the 29 questions of November 12 to 15, and 30 new ones written before any result was seen. Of the 30, 25 ask in other words than the documents use for something the documents answer, and 5 ask for something the documents do not cover.
+
+Which passages reach the model:
+
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Earlier questions: the passage with the answer is sent (17 questions) | 16 | 16, 16, 16 | 16 |
+| Earlier questions: every document involved is represented (10 questions) | 9 | 9, 9, 9 | 10 |
+| Other words: the passage with the answer is sent (25 questions) | 7 | 20, 21, 19 | 24 |
+| Other words: the on-page search shows it | 4 | 5, 7, 6 | 10 |
+| Not covered: sent to the model (5 questions) | 2 | 5, 5, 5 | 5 |
+| Not covered: the page shows passages | 0 | 0, 0, 0 | 0 |
+
+Answers from the real API (`npm run eval:claude`). With the local models, the earlier 23 questions ran with one of them (`qwen3-embedding:0.6b`) and the 30 new ones with all three:
+
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Claude Haiku 5.5, earlier 23 questions: handled as expected | 22 | 22 | 22 |
+| Claude Opus 5.5, earlier 23 questions: handled as expected | 23 | 23 | not run |
+| Claude Haiku 5.5, 30 new questions: handled as expected | 11 | 25, 23, 25 | 27 |
+| Of the 25 the documents answer: a written answer that met its expectation | 6 | 21, 20, 21 | 24 |
+| Of the 5 they do not cover: left unanswered | 5 | 4, 3, 4 | 3 |
+
+What it costs:
+
+| | Keyword only | Three local models | Voyage `voyage-4` |
+| --- | --- | --- | --- |
+| Time added to a question before the model is called | none | 25 to 40 milliseconds | about 90 milliseconds (the slowest of 57 questions took 169) |
+| Earlier 23 questions: model calls and input tokens | 17 calls, 92,445 | 18 calls, 100,681 | 18 calls, 100,343 |
+| 30 new questions: model calls and input tokens | 22 calls, 80,679 | 30 calls, about 178,000 | 30 calls, 177,114 |
+| Claude Opus 5.5 for the earlier 23 questions | $0.489 | $0.528 | not run |
+| Embeddings | none | none (the models run on the same computer) | 418,150 tokens to embed the whole library once, in 15 seconds: 2.5 cents at the listed price, inside the free allowance. A question is 10 to 20 tokens |
+
+The added time is the embedding request. The comparison that follows takes about 1 millisecond.
+
+**What this shows, and what it does not**
+
+- It finds what keyword search misses when the question uses other words: 7 of 25 became 19 to 21 with the small local models and 24 with `voyage-4`. Correct written answers on the smaller Claude model went from 6 to 20 or 21, and to 24 with `voyage-4`.
+- It did not hurt the questions keyword search already handled: the passage with the answer reaches the model for the same 16 of 17, and the earlier 23 questions were handled as before (Claude Opus 5.5 was run with a local model only).
+- More questions reach the model, so more is spent there. Every question that passes the scope rules now brings passages, where before a question with no keyword match stopped without a model call.
+- A question the documents do not cover is no longer always left unanswered. The model is shown the nearest passages, and for one or two of the five such questions (two with `voyage-4`) it wrote a partial answer from them (the request procedure nearest to what was asked, or the general reporting line with a remark that the documents describe no such procedure). Every one was marked partial, none as a full answer. With keyword search all five were left unanswered. A rule that withholds a partial answer when all its passages were found by meaning only was tested on these results and not added: it would have removed three to six correct answers in each run to prevent one or two.
+- It does not find a single sentence inside a long passage about something else. That is the one question of the 25 that `voyage-4` still missed. The local models also did not connect an everyday chemical name to the name on the label; `voyage-4` did.
+- The hosted model found more than the three small local ones: 24 of 25 against 19 to 21. It did no better on the questions the documents do not cover.
+- 59 questions written by the developer show the direction. They are not a measure of accuracy in general. Three answer keys were widened after first results showed correct answers that the keys rejected; in one of them the search by meaning had found a rule the key did not know about.
+
+AI-assisted implementation by Claude at Forrest's direction. No student hours, independent user testing or production approval are implied.
