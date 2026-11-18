@@ -7,6 +7,7 @@
 // set) has no sign-in, so nothing is checked. A preview with PREVIEW_DB_SETUP=1
 // is checked like production, and stops if its Preview settings are incomplete.
 import { createPool } from "../src/lib/db/pool";
+import { claudeSettings } from "../src/lib/assistant/claude-settings";
 
 function settingProblems(env: NodeJS.ProcessEnv, target: string) {
   const required =
@@ -125,6 +126,18 @@ async function main() {
   } else {
     problems.push(...adminProblems);
   }
+  // Model-written answers are optional. A malformed setting stops the build
+  // rather than leaving the feature quietly off, and a key in a
+  // browser-visible setting always stops it.
+  const claude = claudeSettings(env);
+  problems.push(...claude.problems);
+  console.log(
+    claude.on
+      ? `Assistant AI writing: on (model ${claude.model}).`
+      : claude.problems.length
+        ? "Assistant AI writing: off until its settings are fixed."
+        : "Assistant AI writing: off (ASSISTANT_CLAUDE_API_KEY is not set). Answers come from the source guides and search.",
+  );
   const list = problems.map((problem) => `- ${problem}`).join("\n");
   if (!problems.length) {
     console.log(

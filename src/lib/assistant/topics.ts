@@ -68,49 +68,6 @@ export const TOPICS: Topic[] = [
     evidence: ["cfr-1910-178-74"],
   },
   {
-    id: "hazard-report",
-    title: "Reporting a hazard or near miss",
-    scope: "UT Knoxville procedure — classroom reference",
-    match:
-      /(?:who|where|how|should|need|must|do).*(?:report|tell|notify)|(?:report|tell|notify).*(?:who|where|near.?miss|close call|hazard|concern)|close call/i,
-    context: /near.?miss|close call|hazard|concern|supervisor/i,
-    summary:
-      "UT's procedure says to report safety hazards to the immediate supervisor as soon as possible. If the matter cannot be adequately addressed, contact EHS or Risk Management. Near misses follow the same reporting process.",
-    evidence: ["ut-saad021-k-2", "ut-saad021-k-3"],
-    followUp: "Can a safety concern be reported confidentially?",
-  },
-  {
-    id: "retaliation",
-    title: "Protection from retaliation",
-    scope: "UT Knoxville procedure — classroom reference",
-    match: /retaliat|trouble|punish|disciplin|fired|lose my job/i,
-    context: /report|hazard|concern|safety|near.?miss/i,
-    summary:
-      "UT's procedure states that employees are free from retaliation or disciplinary action for reporting safety concerns. This states the policy; it cannot predict what will happen in an individual case.",
-    evidence: ["ut-saad021-k-1"],
-  },
-  {
-    id: "confidential",
-    title: "Confidential reporting",
-    scope: "UT Knoxville procedure — classroom reference",
-    match:
-      /confidenti|anonym|identity|name.*(?:secret|hidden)|(?:secret|hidden).*name/i,
-    context: /report|hazard|complaint|safety|concern/i,
-    summary:
-      "UT's procedure allows concerns to be reported confidentially when that is indicated. It promises every effort to protect identity, not an absolute guarantee of anonymity.",
-    evidence: ["ut-saad021-k-3"],
-  },
-  {
-    id: "injury-report",
-    title: "Reporting an employee accident",
-    scope: "UT Knoxville procedure — classroom reference",
-    match:
-      /(?:report|tell|notify).*(?:injur|accident|hurt)|(?:injur|accident|hurt).*(?:report|tell|notify)/i,
-    summary:
-      "UT's procedure encourages employees to report on-the-job accidents to their immediate supervisor as soon as possible, whether or not medical treatment is necessary. This campus report is separate from an employer's regulatory reporting duty.",
-    evidence: ["ut-saad022-k-2"],
-  },
-  {
     id: "hospital",
     title: "Hospitalization reporting",
     scope: "Tennessee employer reporting rule",
@@ -152,17 +109,6 @@ export const TOPICS: Topic[] = [
     evidence: ["tn-0800-01-03-05-3", "tn-0800-01-03-05-4"],
   },
   {
-    id: "retention",
-    title: "Keeping incident and hazard records",
-    scope: "UT Knoxville procedures — classroom reference",
-    match:
-      /(?:keep|retain|retention|long|years).*(?:record|report|incident|hazard)|(?:record|report).*(?:keep|retain|retention|long|years)/i,
-    context: /incident|hazard|accident|investigat|claim/i,
-    summary:
-      "UT's incident procedure requires accident, claim, incident and investigation records for at least five years. Records expected to involve litigation or take years to settle must be kept more than five years; the procedure does not state one fixed longer duration. The separate hazard-reporting procedure requires its associated records for at least three years. These are different record categories.",
-    evidence: ["ut-saad022-k-6", "ut-saad021-k-4"],
-  },
-  {
     id: "parking",
     title: "Leaving a forklift unattended",
     scope: "Federal forklift standard",
@@ -174,8 +120,9 @@ export const TOPICS: Topic[] = [
   },
 ];
 
-// Keep the original supplied corpus unchanged. This additive correction restores a
-// missing continuation verified against OSHA's official text on 2026-11-03.
+// Keep the supplied text of the remaining documents unchanged (the University of
+// Tennessee entries were removed on 2026-11-12). This additive correction restores
+// a missing continuation verified against OSHA's official text on 2026-11-03.
 const supplement = {
   id: "inspection-complete",
   docId: "cfr-1910-178",

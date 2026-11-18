@@ -113,13 +113,13 @@ test("model selection cannot discard the strong search evidence", async () => {
       Response.json({
         message: {
           content:
-            '{"topicIds":[],"passageIds":["ut-saad022-k-2"],"fullyCovered":false}',
+            '{"topicIds":[],"passageIds":["cfr-1910-178-37"],"fullyCovered":false}',
         },
       });
     const result = await answerQuestion(
-      "Who investigates a UT accident where personal protective equipment was defective?",
+      "Is smoking allowed in a forklift battery charging area?",
     );
-    assert.ok(result.evidence.some((e) => e.id === "ut-saad022-k-3"));
+    assert.ok(result.evidence.some((e) => e.id === "cfr-1910-178-38"));
   } finally {
     global.fetch = originalFetch;
     if (originalModel === undefined) delete process.env.ASSISTANT_OLLAMA_MODEL;
@@ -135,15 +135,15 @@ test("a broad model-selected guide cannot hide specific retrieved evidence", asy
       Response.json({
         message: {
           content:
-            '{"topicIds":["injury-report"],"passageIds":[],"fullyCovered":true}',
+            '{"topicIds":["inspection"],"passageIds":[],"fullyCovered":true}',
         },
       });
     const result = await answerQuestion(
-      "Who investigates a UT accident where personal protective equipment was defective?",
+      "Is smoking allowed in a forklift battery charging area?",
     );
     assert.equal(result.outcome, "partial");
     assert.equal(result.answered, false);
-    assert.ok(result.evidence.some((e) => e.id === "ut-saad022-k-3"));
+    assert.ok(result.evidence.some((e) => e.id === "cfr-1910-178-38"));
   } finally {
     global.fetch = originalFetch;
     if (originalModel === undefined) delete process.env.ASSISTANT_OLLAMA_MODEL;

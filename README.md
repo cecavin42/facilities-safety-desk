@@ -56,7 +56,7 @@ npm run auth:local
 
 The first time, `npm ci` takes about 3 to 6 minutes and `npm run auth:local` about 2 to 5 minutes, because it builds the app. Wait until the terminal shows "Ready", then open exactly http://127.0.0.1:3103 (with `localhost` the page loads but sign-in is refused).
 
-The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and five source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
+The launcher starts its own PostgreSQL on port 54331, applies the migrations, loads 150 fictional records and two source documents, creates three fictional accounts, builds the app and starts it. Ctrl+C in that terminal stops it (answer Y if asked) and keeps the data. If you closed the window instead and the next start fails, an old copy may still hold port 3103 or 54331: restart the computer and try again.
 
 - The generated sign-in details are in the file `review-accounts.json`, in the `.local` folder inside the repository folder. The folder is hidden in Finder and Explorer, so open a second terminal in the same folder and type `cat .local/review-accounts.json`. The entry with `"role": "admin"` is the Safety manager / admin; the two with `"role": "user"` are Employees. Copy a password without the quotation marks.
 - To switch accounts, sign out with the icon next to your name at the bottom of the left menu (behind the ☰ button in a narrow window), then sign in again.
@@ -74,9 +74,10 @@ These need nothing running:
 | `npx tsc --noEmit` | TypeScript | Pass |
 | `npm run build` | Production build | Pass |
 | `npm run test:app` | Form rules, CSV, record handling | 19 of 19 |
-| `npm run test:assistant` | Assistant answers and citations | 40 of 40 |
-| `npm run test:catalog` | Source catalog and frozen challenge cases | 23 of 23 |
-| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 2 of 2 |
+| `npm run test:assistant` | Assistant answers, citations and the example questions | 42 of 42 |
+| `npm run test:claude` | AI-written answers: settings, the request, and the checks on every answer, with a stand-in for the model | 25 of 25 |
+| `npm run test:catalog` | Source catalog, search and frozen challenge cases | 28 of 28 |
+| `npm run test:auth-config` | Sign-in configuration fails closed; a preview signs in only with its own database | 3 of 3 |
 | `npm run test:client` | Browser API client | 1 of 1 |
 | `npm run test:db` | Storage: migrations, concurrent writes, retries, rollback | 5 of 5 |
 | `npm run eval:assistant` | 31 development questions, answered by the assistant code directly | 31 of 31 (the earlier search passed 14) |
@@ -87,11 +88,12 @@ These need `npm run auth:local` running in another terminal. Run them one at a t
 | --- | --- | --- |
 | `npm run test:access` | Sign-in, roles, ownership, cross-site requests, audit, MFA off by default | 24 of 24 |
 | `npm run test:mfa` | Authenticator enrollment, backup codes, recovery links. Needs the app started with `AUTH_MFA_ENABLED=1` | 7 of 7 |
-| `npm run test:sources` | Upload, activate and retire source versions | 6 of 6 |
+| `npm run test:sources` | Upload, activate and retire source versions, and keep the uploaded file | 7 of 7 |
+| `npm run test:claude-path` | AI-written answers through sign-in and the database, with the stand-in in place of the Claude API. Needs the app started with the two settings named at the top of `scripts/check-assistant-claude.ts` | 9 of 9 |
 | `npm run test:concurrency` | Simultaneous saves and status changes | Pass |
 | `npm run test:restore` | Encrypted backup restored into an empty database | Pass |
 
-The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant cases were written during development, so they are not an independent accuracy estimate.
+The first table was last run on November 8, 2026, on Windows with Node.js 24.13. The second table was last run on November 5 on that day's code; the November 8 changes to the sign-in address, origin checks, upload route and deployment check were exercised on a hosted Vercel test project instead, as listed in `docs/DEPLOYMENT.md` under "Checked and not checked". The assistant, catalog, sign-in configuration, source and access checks were run again on November 12, 2026, after the University of Tennessee documents were retired. The AI-written answer checks were first run the same day, with a stand-in for the model. The assistant cases were written during development, so they are not an independent accuracy estimate.
 
 ## Deploying
 
@@ -105,7 +107,13 @@ Merge one pull request at a time and check the live site before merging the next
 
 ## The assistant and AI models
 
-On Vercel the assistant uses no AI model. It matches the question to the active sources and answers from prepared, cited guidance. An optional local model can help interpret questions when the app runs on a computer that has Ollama and the setting `ASSISTANT_OLLAMA_MODEL`. Leave that setting off on Vercel, because the model address is local.
+By default the assistant uses no AI model. It matches the question to the active sources, answers from prepared, cited guidance where a guide exists, and otherwise shows the matching passages.
+
+**AI-written answers (optional).** With the setting `ASSISTANT_CLAUDE_API_KEY`, a question that matches passages in the Source library is sent to Anthropic's Claude API with up to eight of those passages. Claude writes a short answer, and the app shows it, marked "AI-written", with the passages it cites. Every answer is checked first: each point must cite a passage that was sent, and each number, quoted phrase and contact detail must be in a cited passage. An answer that fails, or a call that fails, falls back to the passages. Declined questions and questions a tested guide answers never reach the model. Settings, cost and what leaves the site are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) under "AI-written answers".
+
+To try it on a computer without a key, run `npm run claude:stub` in one terminal and start the app with `ASSISTANT_CLAUDE_API_KEY=local-stand-in-not-a-real-key` and `ASSISTANT_CLAUDE_BASE_URL=http://127.0.0.1:3997`. The stand-in copies a sentence from the first passage; it is not a model. With a real key in `.env.local`, start the app as usual.
+
+**Local model (optional).** A local model can help interpret questions when the app runs on a computer that has Ollama and the setting `ASSISTANT_OLLAMA_MODEL`. Leave that setting off on Vercel, because the model address is local. When a Claude key is set, the local model is not used.
 
 ## Documentation
 
@@ -131,7 +139,7 @@ The five review files were written on November 3 for separate draft pull request
 - MFA for users. The code is present but switched off.
 - Scheduled or off-site backups. `npm run backup` is a manual tool.
 - Hazardous-materials content and a staff directory, which the instructor asked about on October 29.
-- Real Lipscomb policies. The sources are federal, Tennessee and UT Knoxville reference documents.
+- Lipscomb's policy documents. They are not public, so they are not in this repository; a Safety manager uploads them in the Source library. The two bundled sources are the federal forklift standard and the Tennessee reporting rule.
 
 ## Credits
 

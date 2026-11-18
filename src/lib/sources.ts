@@ -5,6 +5,7 @@ import { transaction } from "./db/repository";
 import { HttpError } from "./server-access";
 import {
   catalogOf,
+  readableText,
   type SourceDocument,
   type SourcePassage,
 } from "./source-types";
@@ -27,7 +28,12 @@ export async function activeCatalog() {
           versionId: r.id,
         }) satisfies SourceDocument,
     ),
-    rows.flatMap((r) => r.passages as SourcePassage[]),
+    rows.flatMap((r) =>
+      (r.passages as SourcePassage[]).map((p) => ({
+        ...p,
+        text: readableText(p.text),
+      })),
+    ),
   );
 }
 export async function listSources(admin: boolean) {
@@ -129,7 +135,7 @@ export function chunkPages(
     );
   const chunks: SourcePassage[] = [];
   for (const page of pages) {
-    const text = page.text.replace(/\r/g, "").trim();
+    const text = readableText(page.text.replace(/\r/g, "")).trim();
     if (!text) continue;
     const paragraphs = text.split(/\n\s*\n/);
     let chunk = "";

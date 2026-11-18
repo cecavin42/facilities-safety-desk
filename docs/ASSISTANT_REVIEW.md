@@ -1,6 +1,6 @@
 # Assistant draft for team review
 
-> **Status, November 5, 2026.** Written on November 3 for draft pull request #5, which was merged into a side branch and never reached `master`. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md).
+> **Status, November 5, 2026.** Written on November 3 for draft pull request #5, which was merged into a side branch and never reached `master`. Its work is now part of one consolidated pull request. This file is kept as the record of what was built and checked on that date, so branch names, pull request numbers, port 3102 and "nothing has been merged" statements describe November 3. For current setup and deployment steps, use the root [README](../README.md) and [DEPLOYMENT.md](DEPLOYMENT.md). **November 12, 2026:** the University of Tennessee reference documents and the five answer guides built on them were retired. The collection now holds the federal forklift standard, the Tennessee reporting rule and the Lipscomb documents a Safety manager uploads.
 
 The original assistant returned matching passages, sometimes missing the actual answer, a second part of a question, or a source exception. This draft adds a source-backed answer guide, optional local AI interpretation, and a clearer evidence interface. It remains a classroom prototype using fictional examples.
 
@@ -55,3 +55,34 @@ This does not add sign-in, role enforcement, an editable source library, full re
 This PR is based on the report-form branch, so its review diff isolates assistant work and its preview can run without Catherine's database. When combining with PR #3, retain the database branch's `saveQuestion(database(), question, result.answered)` behavior in the new route, and remove client-side `logQuestion`. Keep the new answer service and request limits. Test policy answers independently from metric-storage failures; a failed metric write should not conceal a valid answer. Repeat the actual hosted two-browser checks after team review and database setup.
 
 AI-assisted implementation by Codex at Forrest's direction. No student hours, independent user testing, team agreement or production approval are implied.
+
+## AI-written answers (added November 12, 2026)
+
+Optional, and off unless `ASSISTANT_CLAUDE_API_KEY` is set. Asked for by the instructor and agreed by the team on November 12.
+
+**How a question is handled when it is on**
+
+1. The scope rules run first, unchanged. A question about pay, another state, an individual's clearance to work, or an instruction to ignore the rules is declined and never reaches the model.
+2. A question that a tested source guide answers keeps that guide, unless the closest passage comes from an uploaded document. The organization's own text comes first.
+3. Otherwise the search picks up to eight passages: best first, at most three from one document and two from the bundled regulations while other documents have passages to offer. A question that asks who to call or how to report something gives extra weight to passages that hold a phone number or an email address. A question with more than one part ("There is a fire. Who do I call, and where do I go?") also brings up to three of the passages that sit within two places of the best one in the same document, because the second part often shares no words with the passage that answers it; those take the places of the weakest picks.
+4. The question and those passages go to Claude with a fixed set of rules. The reply is JSON: whether the passages answer the question in full, in part or not at all, and one to four points, each with the passages it rests on.
+5. The reply is checked in code (`src/lib/assistant/written-answer.ts`). Each point must cite a passage that was sent. Every number in a point, with the unit it counts, must be in a passage that point cites; "2 business days" is not supported by a passage that says "2 days". The same holds for quoted phrases, phone numbers, email addresses and links.
+6. A reply that passes is shown as "AI-written" with the cited passages. Anything else (a failed check, a refusal, a timeout, an error, or the model saying the passages do not answer) shows the passages as before. A failed call is not retried.
+
+When passages disagree, the rules tell the model to say so and to give what each document says, the newer one first. It is not told to pick one. Seven of the uploaded Lipscomb documents carry no date, and in one known case the newer document is the one that contradicts itself.
+
+**What the checks do not catch**
+
+- A number that is in the cited passage but belongs to a different rule in it.
+- A sentence with no number, quote or contact detail that says more than the passage does.
+- A passage the search did not find. The model can only use what it is sent.
+
+The cited passages are always shown with the answer for that reason, and the note under an AI-written answer asks the reader to open them.
+
+**Tested, and not tested**
+
+`npm run test:claude` (25 tests) and `npm run test:claude-path` (9 checks through the running app) use a stand-in for the model. They prove the plumbing and the checks. They say nothing about how well a real model answers. `npm run eval:claude` runs a question set against the real API and reports results, tokens, cost and time per model. It was run on November 15, 2026 with 23 private questions on a copy of the live site's 20 uploaded documents. Claude Opus 5.5 met all 23 expectations: 16 written answers that passed every check, one question correctly left unanswered, six that never reached the model. Claude Haiku 5.5 met 22: one of its 16 replies failed a citation check and the passages were shown instead. Opus cost about 2.9 cents per answer and Haiku about 0.07 cents; `docs/DEPLOYMENT.md` has the table. Twenty-three questions show that the path works and how the two models compare. They are not a measure of accuracy in general.
+
+With the live site's 20 Lipscomb entries copied to a development computer (931 passages), 16 test questions have an answer in them. The passages sent to the model included the passage that holds the answer for all 16. The on-page search, which shows three passages, did so for 14. For nine of ten questions about a point where documents disagree, or about the chemical inventory, every document involved was among the passages sent. This measures the search, not the model.
+
+AI-assisted implementation by Claude at Forrest's direction. No student hours, independent user testing or production approval are implied.

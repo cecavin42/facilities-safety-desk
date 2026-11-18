@@ -2,9 +2,11 @@ import "server-only";
 import {
   answerFromTopics,
   evidenceFor,
+  needsIndividualDecision,
   scopeGap,
   type AssistantAnswer,
 } from "./answer";
+import { configuredTransport } from "./claude-client";
 import { ROUTING_SCHEMA, parseRouting } from "./model-protocol";
 import {
   BUILTIN_CATALOG,
@@ -13,9 +15,117 @@ import {
 } from "../source-types";
 import { TOPICS } from "./topics";
 import { retrieveCandidates } from "../search";
+import {
+  passagesForWriter,
+  writeFromPassages,
+  type Transport,
+} from "./written-answer";
+
+// What one question cost, for the question log. Present only when the
+// model-written path was tried.
+export type ModelTrace = {
+  model: string;
+  outcome: string;
+  inputTokens: number;
+  outputTokens: number;
+};
 
 let active = false;
 const cache = new Map<string, { expires: number; result: AssistantAnswer }>();
+const written = new Map<string, { expires: number; result: AssistantAnswer }>();
+
+// A reply that failed a check, or a model that could not be reached, never
+// costs the user the passages: the source-based answer is returned with a
+// short note saying why.
+const WITHHELD =
+  "An AI-written answer was withheld because it could not be checked against the passages. The matching passages are shown instead.";
+const UNAVAILABLE =
+  "AI writing is unavailable right now. This response shows the matching passages instead.";
+const CHECK_FAILURES = new Set([
+  "invalid-json",
+  "invalid-shape",
+  "bad-citation",
+  "unsupported-number",
+  "unsupported-quote",
+  "unsupported-contact",
+]);
+
+export async function answerWithTrace(
+  question: string,
+  signal?: AbortSignal,
+  catalog: Catalog = BUILTIN_CATALOG,
+  // undefined: use the configured model, if any. null: no model.
+  transport: Transport | null | undefined = undefined,
+): Promise<{ answer: AssistantAnswer; trace?: ModelTrace }> {
+  const writer = transport === undefined ? configuredTransport() : transport;
+  if (!writer)
+    return { answer: await answerQuestion(question, signal, catalog) };
+  const baseline = answerFromTopics(question, undefined, catalog);
+  if (
+    !catalog.passages.length ||
+    scopeGap(
+      question,
+      catalog.documents.some((d) => d.origin === "upload"),
+    ) ||
+    needsIndividualDecision(question)
+  )
+    return { answer: baseline };
+  const passages = passagesForWriter(question, catalog);
+  // A tested source guide keeps its answer, unless the closest passage comes
+  // from an uploaded document: the organization's own text comes first.
+  const guide = baseline.method === "source-guide" && baseline.sections.length;
+  if (!passages.length || (guide && !passages[0].upload))
+    return { answer: baseline };
+
+  // Only the configured model's answers are reused; a transport passed in by a
+  // caller (a test, an evaluation run) always runs.
+  const reuse = transport === undefined;
+  const key = `${catalog.version}\0${question}`;
+  const hit = reuse ? written.get(key) : undefined;
+  if (hit && hit.expires > Date.now())
+    return {
+      answer: hit.result,
+      trace: { model: "", outcome: "cached", inputTokens: 0, outputTokens: 0 },
+    };
+  const result = await writeFromPassages(
+    question,
+    passages,
+    catalog,
+    writer,
+    signal,
+  );
+  const trace: ModelTrace = {
+    model: result.usage?.model ?? "",
+    outcome: result.outcome,
+    inputTokens: result.usage?.inputTokens ?? 0,
+    outputTokens: result.usage?.outputTokens ?? 0,
+  };
+  if (result.answer) {
+    if (reuse) {
+      written.set(key, {
+        expires: Date.now() + 10 * 60_000,
+        result: result.answer,
+      });
+      if (written.size > 100) written.delete(written.keys().next().value!);
+    }
+    return { answer: result.answer, trace };
+  }
+  // "no-support" is the model agreeing that the passages do not answer the
+  // question; the source-based answer already says so.
+  if (result.outcome !== "no-support" && result.outcome !== "aborted")
+    console.warn(`[assistant] AI writing fell back: ${result.outcome}`);
+  return {
+    answer:
+      result.outcome === "no-support" || result.outcome === "aborted"
+        ? baseline
+        : {
+            ...baseline,
+            notice: CHECK_FAILURES.has(result.outcome) ? WITHHELD : UNAVAILABLE,
+          },
+    trace,
+  };
+}
+
 export async function answerQuestion(
   question: string,
   signal?: AbortSignal,

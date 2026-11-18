@@ -1,5 +1,5 @@
 {
-  "about": "Frozen development challenge added before the readiness fixes. Authored by Codex from existing source scope; not independent human acceptance. Excerpt cases require relevant evidence, not a claim of full answer certainty.",
+  "about": "Frozen development challenge added before the readiness fixes. Authored by Codex from existing source scope; not independent human acceptance. Excerpt cases require relevant evidence, not a claim of full answer certainty. Changed 2026-11-12, when the University of Tennessee documents were retired: the six cases built on them were replaced. Three now check that a UT question is withheld; three check excerpts from the federal forklift standard.",
   "cases": [
     {
       "id": "negative-binder",
@@ -66,40 +66,37 @@
       "evidence": ["tn-0800-01-03-05-7"]
     },
     {
-      "id": "positive-confidential",
+      "id": "retired-ut-confidential",
       "question": "Does UT guarantee complete anonymity for a safety complaint?",
-      "expect": "answer",
-      "evidence": ["ut-saad021-k-3"]
+      "expect": "withhold"
     },
     {
-      "id": "positive-litigation",
+      "id": "retired-ut-litigation",
       "question": "How long does UT keep accident records when litigation may take years?",
-      "expect": "answer",
-      "evidence": ["ut-saad022-k-6"]
+      "expect": "withhold"
+    },
+    {
+      "id": "retired-ut-investigation",
+      "question": "Who investigates a UT accident where personal protective equipment was defective?",
+      "expect": "withhold"
     },
     {
       "id": "excerpt-passengers",
-      "question": "Under the UT forklift guide, are passengers allowed to ride on a forklift?",
+      "question": "Are unauthorized people allowed to ride on a forklift?",
       "expect": "evidence",
-      "evidence": ["ut-sags130-k-14"]
+      "evidence": ["cfr-1910-178-59"]
     },
     {
       "id": "excerpt-battery",
-      "question": "What protection does the UT forklift guide mention when connecting a charger to a lead-acid battery?",
+      "question": "What protection is needed when charging a forklift battery?",
       "expect": "evidence",
-      "evidence": ["ut-sags130-k-11"]
-    },
-    {
-      "id": "excerpt-investigation",
-      "question": "Who investigates a UT accident where personal protective equipment was defective?",
-      "expect": "evidence",
-      "evidence": ["ut-saad022-k-3"]
+      "evidence": ["cfr-1910-178-35"]
     },
     {
       "id": "excerpt-smoking",
-      "question": "What does the UT forklift guide say about smoking in battery charging areas?",
+      "question": "Is smoking allowed in a forklift battery charging area?",
       "expect": "evidence",
-      "evidence": ["ut-sags130-k-10"]
+      "evidence": ["cfr-1910-178-38"]
     }
   ]
 }
