@@ -160,8 +160,11 @@ Run against the Vercel preview on every PR, and against production before callin
 
 ### 14. Constraints
 - Hosting: Vercel free plan, GitHub, feature-branch preview deployments, Next.js.
-- Database: free-tier Postgres via the Vercel Marketplace, pgvector for retrieval. Browser-local storage in the
-  draft until then.
+- Database: free-tier Postgres via the Vercel Marketplace. Browser-local storage in the draft until then.
+- Retrieval: keyword search, plus optional semantic search. The embeddings are stored in our Postgres
+  database (an ordinary table, not the pgvector extension) and compared in the app. We will move to pgvector
+  if the library grows large enough that searches slow down or the embeddings take too much memory (tens of
+  thousands of passages). `docs/DEPLOYMENT.md`, section "Semantic search", explains why and how.
 - Model: Claude Haiku 5.5 for answers ($0.10 per million input tokens, $0.50 output as of 2026-10). About
   $1.50 a month at 100 questions a day. Hard cap of $20 a month in the provider console. Sonnet 5.5 is the
   fallback if answer quality is not good enough (about $27 a month at the same load). Embeddings: Voyage or
